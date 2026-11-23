@@ -1,0 +1,42 @@
+{
+  "_leia_me": "Campos entre [colchetes] são provisórios: troque pelos dados reais do evento. Veja o README.",
+
+  "nome_evento": {
+    "pt": "[Nome do Evento]",
+    "en": "[Event Name]",
+    "es": "[Nombre del Evento]"
+  },
+  "sigla": "[SIGLA]",
+  "edicao": "2026",
+  "subtitulo": {
+    "pt": "Anais do evento: trabalhos apresentados",
+    "en": "Proceedings: papers presented at the event",
+    "es": "Anales del evento: trabajos presentados"
+  },
+  "apresentacao": {
+    "pt": "",
+    "en": "",
+    "es": ""
+  },
+
+  "issn": "[XXXX-XXXX]",
+  "doi_prefixo": "",
+  "cidade": "[Cidade]",
+  "editora": "[Instituição organizadora]",
+
+  "logo": "",
+  "banner": "",
+  "favicon": "",
+
+  "cores": {
+    "primaria": "#0f5f73",
+    "secundaria": "#e07a2e",
+    "fundo": "#f6f4ef",
+    "texto": "#1d2733"
+  },
+
+  "planilha_csv_url": "",
+  "site_url": "https://zzebbb.github.io/redes",
+  "itens_por_pagina": 12,
+  "idioma_padrao": "pt"
+}

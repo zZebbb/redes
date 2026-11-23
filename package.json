@@ -1,0 +1,28 @@
+{
+  "name": "redes-anais",
+  "version": "1.0.0",
+  "description": "Anais do evento: site estático com busca, publicado no GitHub Pages",
+  "scripts": {
+    "sync": "node scripts/sync.mjs",
+    "sync:exemplo": "node scripts/sync.mjs --exemplo",
+    "build": "node scripts/build.mjs",
+    "dev": "npm run build && npx --yes serve@14 dist -l 4321",
+    "test": "node --test scripts/*.test.mjs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zZebbb/redes.git"
+  },
+  "bugs": {
+    "url": "https://github.com/zZebbb/redes/issues"
+  },
+  "homepage": "https://github.com/zZebbb/redes#readme",
+  "dependencies": {
+    "fuse.js": "^7.1.0"
+  },
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  }
+}
