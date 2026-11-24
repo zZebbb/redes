@@ -80,25 +80,24 @@ const monograma = (() => {
 
 const temHero = p => p === 'inicio';
 
-// Banner da página inicial em 60/30/10: azul (busca), azul-noturno (números), amarelo (ações).
+// Banner da página inicial em 60/30/10: azul de fundo, branco no símbolo da marca e na busca, amarelo nas ações.
 function hero(base) {
   const ano = trabalhos.find(x => x.ano)?.ano || '';
   return `<section class="hero">
-  <div class="hero-busca-lado">
-    <p class="hero-kicker"><span><span ${T('home.anais')}>${t('home.anais')}</span>${ano ? ` · ${e(ano)}` : ''}</span></p>
-    <h1 class="hero-nome text-roll" data-text-roll ${TR(config.nome_evento)}>${e(nomeEvento)}</h1>
-    <form class="hero-busca" action="${base}trabalhos/" method="get" role="search">
-      <label class="sr" for="q-topo" ${T('home.buscar_titulo')}>${t('home.buscar_titulo')}</label>
-      <input id="q-topo" name="q" type="search" placeholder="${e(t('home.buscar_placeholder'))}" data-i18n-ph="home.buscar_placeholder" autocomplete="off">
-      <button type="submit"><span ${T('home.buscar_botao')}>${t('home.buscar_botao')}</span></button>
-    </form>
-    ${sugestoes.length ? `<div class="hero-chips"><span class="hero-chips-rot" ${T('home.sugestoes')}>${t('home.sugestoes')}</span>${sugestoes.map(v => `<a class="chip" href="${base}trabalhos/?q=${encodeURIComponent(v)}">${e(v)}</a>`).join('')}</div>` : ''}
+  <div class="hero-in">
+    <div class="hero-texto">
+      <p class="hero-kicker"><span ${T('home.anais')}>${t('home.anais')}</span>${ano ? ` · ${e(ano)}` : ''}</p>
+      <h1 class="hero-nome text-roll" data-text-roll ${TR(config.nome_evento)}>${e(nomeEvento)}</h1>
+      <form class="hero-busca" action="${base}trabalhos/" method="get" role="search">
+        <label class="sr" for="q-topo" ${T('home.buscar_titulo')}>${t('home.buscar_titulo')}</label>
+        <input id="q-topo" name="q" type="search" placeholder="${e(t('home.buscar_placeholder'))}" data-i18n-ph="home.buscar_placeholder" autocomplete="off">
+        <button type="submit"><span ${T('home.buscar_botao')}>${t('home.buscar_botao')}</span></button>
+      </form>
+      ${sugestoes.length ? `<p class="hero-temas"><span ${T('home.sugestoes')}>${t('home.sugestoes')}</span> ${sugestoes.map(v => `<a href="${base}trabalhos/?q=${encodeURIComponent(v)}">${e(v)}</a>`).join('<span aria-hidden="true">, </span>')}</p>` : ''}
+    </div>
+    ${config.simbolo_banner ? `<img class="hero-simbolo" src="${base}${e(config.simbolo_banner)}" alt="" width="445" height="339">` : ''}
   </div>
-  <ul class="hero-num" aria-label="Resumo">
-    <li><a href="${base}trabalhos/"><strong>${trabalhos.length}</strong><span ${T('home.trabalhos')}>${t('home.trabalhos')}</span></a></li>
-    <li><a href="${base}autores/"><strong>${autores.length}</strong><span ${T('home.autores')}>${t('home.autores')}</span></a></li>
-    <li><a href="#eixos"><strong>${eixos.length}</strong><span ${T('home.eixos')}>${t('home.eixos')}</span></a></li>
-  </ul>
+  <p class="hero-resumo"><span class="hero-resumo-in"><a href="${base}trabalhos/"><b>${trabalhos.length}</b> <span ${T('home.trabalhos')}>${t('home.trabalhos')}</span></a><a href="${base}autores/"><b>${autores.length}</b> <span ${T('home.autores')}>${t('home.autores')}</span></a><a href="#eixos"><b>${eixos.length}</b> <span ${T('home.eixos')}>${t('home.eixos')}</span></a></span></p>
 </section>`;
 }
 

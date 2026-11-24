@@ -59,53 +59,32 @@ svg { fill: currentColor; }
 }
 .idiomas button[aria-pressed="true"] { color: var(--ink); }
 
-/* ---------- Banner da página inicial (60 azul / 30 azul-noturno / 10 amarelo) ---------- */
-.hero {
-  position: relative; overflow: hidden; display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
-  background: var(--primary); color: #fff; min-height: 440px;
+/* ---------- Banner da página inicial ----------
+   60 azul (fundo) / 30 branco (símbolo da marca em monocromia branca e a busca) / 10 amarelo (sobrelinha e botão). */
+.hero { background: var(--primary); color: #fff; overflow: hidden; }
+.hero-in {
+  max-width: var(--max); margin: 0 auto; padding: 72px 20px 64px;
+  display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 64px; align-items: center;
 }
-.hero-busca-lado {
-  position: relative; z-index: 1; padding: 64px 48px 56px max(20px, calc((100vw - var(--max)) / 2 + 20px));
-  display: flex; flex-direction: column; justify-content: center; align-items: flex-start;
-}
-.hero-kicker {
-  margin: 0 0 18px; font-family: var(--f-tit); font-size: 13px; font-weight: 700; letter-spacing: 2.4px; text-transform: uppercase;
-  color: var(--accent); display: flex; align-items: center; gap: 12px;
-}
-.hero-kicker::before { content: ""; width: 28px; height: 3px; background: var(--accent); }
-.hero-nome {
-  color: #fff; margin: 0 0 32px; font-size: clamp(32px, 4.6vw, 60px); font-weight: 800; line-height: 1.04;
-  letter-spacing: -1px; max-width: 14ch;
-}
-.hero-busca { display: flex; width: 100%; max-width: 600px; background: #fff; border-radius: var(--r); padding: 5px; }
-.hero-busca input {
-  flex: 1; min-width: 0; height: 48px; border: 0; padding: 0 14px; font-size: 15px; color: var(--ink); background: transparent;
-}
+.hero-kicker { margin: 0 0 16px; font-family: var(--f-tit); font-size: 13px; font-weight: 700; letter-spacing: 2.4px; text-transform: uppercase; color: var(--accent); }
+.hero-nome { color: #fff; margin: 0 0 36px; font-size: clamp(34px, 4.8vw, 60px); font-weight: 800; line-height: 1.04; letter-spacing: -1px; }
+.hero-busca { display: flex; max-width: 620px; background: #fff; border-radius: var(--r); padding: 5px; }
+.hero-busca input { flex: 1; min-width: 0; height: 50px; border: 0; padding: 0 14px; font-size: 15px; color: var(--ink); background: transparent; }
 .hero-busca input::placeholder { color: var(--muted); }
 .hero-busca input:focus { outline: none; }
 .hero-busca:focus-within { box-shadow: 0 0 0 3px var(--accent); }
-.hero-busca button {
-  flex: none; border: 0; border-radius: 3px; background: var(--accent); color: var(--accent-ink); padding: 0 24px;
-  font-family: var(--f-tit); font-weight: 700; font-size: 14px; letter-spacing: .3px;
-}
+.hero-busca button { flex: none; border: 0; border-radius: 3px; background: var(--accent); color: var(--accent-ink); padding: 0 26px; font-family: var(--f-tit); font-weight: 700; font-size: 14px; }
 .hero-busca button:hover { background: #FFC24D; }
-.hero-chips { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 18px; max-width: 600px; }
-.hero-chips-rot { font-size: 13px; color: rgba(255,255,255,.75); margin-right: 2px; }
-.chip {
-  display: inline-flex; align-items: center; height: 30px; padding: 0 12px; border-radius: 15px;
-  background: var(--accent); color: var(--accent-ink); font-size: 13px; font-weight: 600; text-decoration: none;
-}
-.chip:hover { background: #FFC24D; }
-.hero-num {
-  position: relative; z-index: 1; list-style: none; margin: 0; background: var(--navy);
-  padding: 48px max(20px, calc((100vw - var(--max)) / 2 + 20px)) 48px 56px;
-  display: flex; flex-direction: column; justify-content: center;
-}
-.hero-num li + li { border-top: 1px solid rgba(255,255,255,.14); }
-.hero-num a { display: flex; flex-direction: column; gap: 6px; padding: 22px 0; color: #fff; text-decoration: none; }
-.hero-num strong { font-family: var(--f-tit); font-size: 52px; font-weight: 800; line-height: 1; letter-spacing: -1.5px; font-variant-numeric: tabular-nums; }
-.hero-num span { font-size: 15px; color: rgba(255,255,255,.78); }
-.hero-num a:hover span { color: #fff; text-decoration: underline; text-decoration-color: var(--accent); text-underline-offset: 4px; }
+.hero-temas { margin: 16px 0 0; max-width: 620px; font-size: 14px; line-height: 1.7; color: rgba(255,255,255,.72); }
+.hero-temas a { color: #fff; text-decoration: underline; text-decoration-color: rgba(255,255,255,.35); text-underline-offset: 4px; }
+.hero-temas a:hover { text-decoration-color: var(--accent); }
+.hero-simbolo { width: 100%; height: auto; justify-self: end; }
+.hero-resumo { margin: 0; border-top: 1px solid rgba(255,255,255,.18); font-size: 14px; }
+.hero-resumo-in { display: flex; max-width: var(--max); margin: 0 auto; padding: 0 20px; }
+.hero-resumo a { padding: 16px 32px 16px 0; margin-right: 32px; border-right: 1px solid rgba(255,255,255,.18); color: rgba(255,255,255,.8); text-decoration: none; }
+.hero-resumo a:last-child { border-right: 0; }
+.hero-resumo b { font-family: var(--f-tit); font-weight: 700; color: #fff; font-size: 15px; }
+.hero-resumo a:hover span { color: #fff; text-decoration: underline; text-decoration-color: var(--accent); text-underline-offset: 4px; }
 
 main { max-width: var(--max); margin: 0 auto; min-height: 50vh; }
 
@@ -366,15 +345,7 @@ a.tag:hover { background: var(--primary); color: #fff; }
 
 /* ---------- Tablet ---------- */
 @media (max-width: 960px) {
-  .hero { grid-template-columns: minmax(0, 1fr); min-height: 0; }
-  .hero-busca-lado { padding: 48px 20px 40px; }
-  .hero-num { flex-direction: row; padding: 0 20px; }
-  .hero-num li { flex: 1; min-width: 0; }
-  .hero-num strong { min-width: 0; }
-  .hero-num li + li { border-top: 0; border-left: 1px solid rgba(255,255,255,.14); padding-left: 16px; }
-  .hero-num a { flex-direction: column; gap: 2px; padding: 20px 0; }
-  .hero-num strong { font-size: 36px; }
-  .hero-num span { font-size: 13px; }
+  .hero-in { grid-template-columns: minmax(0, 1fr) 220px; gap: 40px; padding: 56px 20px 48px; }
     .layout { grid-template-columns: 1fr; gap: 24px; padding-top: 32px; }
   .sidebar { position: static; }
   .trab-grid { grid-template-columns: 1fr; gap: 32px; }
@@ -399,6 +370,14 @@ a.tag:hover { background: var(--primary); color: #fff; }
 
 /* ---------- Celular ---------- */
 @media (max-width: 640px) {
+  .hero-in { grid-template-columns: minmax(0, 1fr); padding: 36px 16px 32px; }
+  .hero-simbolo { display: none; }
+  .hero-nome { font-size: 34px; letter-spacing: -.5px; margin-bottom: 24px; }
+  .hero-busca input { height: 44px; font-size: 14px; padding: 0 10px; }
+  .hero-busca button { padding: 0 16px; }
+  .hero-kicker { font-size: 12px; }
+  .hero-resumo-in { padding: 0 16px; justify-content: space-between; }
+  .hero-resumo a { padding: 14px 0; margin: 0; border: 0; font-size: 13px; }
   html { scroll-padding-top: 112px; }
   .topbar { flex-wrap: wrap; height: auto; gap: 0; padding: 0 16px; }
   .topbar-org { height: 56px; }
@@ -406,17 +385,7 @@ a.tag:hover { background: var(--primary); color: #fff; }
   .idiomas { margin-left: auto; }
   .abas-nav { order: 3; width: calc(100% + 32px); margin: 0 -16px; border-top: 1px solid var(--line); height: 44px; justify-content: space-around; gap: 0; }
   .abas-nav a { padding: 8px 12px; font-size: 14px; }
-  .hero-busca-lado { padding: 36px 16px 28px; }
-  .hero-kicker { font-size: 12px; margin-bottom: 14px; }
-  .hero-nome { font-size: 34px; letter-spacing: -.5px; margin-bottom: 24px; }
-  .hero-busca input { height: 44px; font-size: 14px; padding: 0 10px; }
-  .hero-busca button { padding: 0 16px; }
-  .hero-chips { flex-wrap: nowrap; overflow-x: auto; width: calc(100% + 32px); max-width: none; margin: 16px -16px 0; padding: 0 16px; scrollbar-width: none; }
   .hero-chips::-webkit-scrollbar { display: none; }
-  .chip, .hero-chips-rot { flex: none; }
-  .hero-num { padding: 0 16px; }
-  .hero-num strong { font-size: 30px; }
-  .hero-num span { font-size: 12px; line-height: 1.3; }
     .sec { padding: 40px 16px 4px; }
   .layout, .trabalho { padding-left: 16px; padding-right: 16px; }
   .tit-sec, .pag-tit { font-size: 22px; }
