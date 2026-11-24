@@ -80,13 +80,9 @@ const monograma = (() => {
 
 const temHero = p => p === 'inicio';
 
-// Banner da página inicial em 60/30/10: azul (busca), azul-noturno (números), amarelo (pontilhado e ações).
+// Banner da página inicial em 60/30/10: azul (busca), azul-noturno (números), amarelo (ações).
 function hero(base) {
   const ano = trabalhos.find(x => x.ano)?.ano || '';
-  const pontos = Array.from({ length: 19 }, (_, i) => {
-    const a = (-90 + i * 10) * Math.PI / 180;
-    return `<circle cx="${(300 + 260 * Math.cos(a)).toFixed(1)}" cy="${(300 + 260 * Math.sin(a)).toFixed(1)}" r="9"/>`;
-  }).join('');
   return `<section class="hero">
   <div class="hero-busca-lado">
     <p class="hero-kicker"><span><span ${T('home.anais')}>${t('home.anais')}</span>${ano ? ` · ${e(ano)}` : ''}</span></p>
@@ -103,7 +99,6 @@ function hero(base) {
     <li><a href="${base}autores/"><strong>${autores.length}</strong><span ${T('home.autores')}>${t('home.autores')}</span></a></li>
     <li><a href="#eixos"><strong>${eixos.length}</strong><span ${T('home.eixos')}>${t('home.eixos')}</span></a></li>
   </ul>
-  <svg class="hero-pontilhado" viewBox="0 0 600 600" aria-hidden="true">${pontos}</svg>
 </section>`;
 }
 

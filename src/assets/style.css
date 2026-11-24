@@ -1,6 +1,6 @@
 /* Visual próprio da Rede Brasil, a partir do Manual de Identidade Visual (2026):
    fundo branco, azul Rede como cor dominante, azul-noturno para áreas escuras,
-   amarelo só no pontilhado e nas ações, Montserrat nos títulos e Open Sans no texto.
+   amarelo só nas ações, Montserrat nos títulos e Open Sans no texto.
    Sem cartões com sombra: listas separadas por fios, como um sumário. */
 :root {
   --primary: #2E54A2;
@@ -98,18 +98,14 @@ svg { fill: currentColor; }
 .chip:hover { background: #FFC24D; }
 .hero-num {
   position: relative; z-index: 1; list-style: none; margin: 0; background: var(--navy);
-  padding: 48px max(20px, calc((100vw - var(--max)) / 2 + 20px)) 48px 72px;
+  padding: 48px max(20px, calc((100vw - var(--max)) / 2 + 20px)) 48px 56px;
   display: flex; flex-direction: column; justify-content: center;
 }
 .hero-num li + li { border-top: 1px solid rgba(255,255,255,.14); }
-.hero-num a { display: flex; align-items: baseline; gap: 14px; padding: 18px 0; color: #fff; text-decoration: none; }
-.hero-num strong { font-family: var(--f-tit); font-size: 52px; font-weight: 800; line-height: 1; letter-spacing: -1.5px; min-width: 2.4ch; font-variant-numeric: tabular-nums; }
+.hero-num a { display: flex; flex-direction: column; gap: 6px; padding: 22px 0; color: #fff; text-decoration: none; }
+.hero-num strong { font-family: var(--f-tit); font-size: 52px; font-weight: 800; line-height: 1; letter-spacing: -1.5px; font-variant-numeric: tabular-nums; }
 .hero-num span { font-size: 15px; color: rgba(255,255,255,.78); }
 .hero-num a:hover span { color: #fff; text-decoration: underline; text-decoration-color: var(--accent); text-underline-offset: 4px; }
-.hero-pontilhado {
-  position: absolute; z-index: 2; width: 440px; height: 440px; fill: var(--accent);
-  left: calc(66.666% - 380px); top: 50%; transform: translateY(-50%); pointer-events: none;
-}
 
 main { max-width: var(--max); margin: 0 auto; min-height: 50vh; }
 
@@ -379,8 +375,7 @@ a.tag:hover { background: var(--primary); color: #fff; }
   .hero-num a { flex-direction: column; gap: 2px; padding: 20px 0; }
   .hero-num strong { font-size: 36px; }
   .hero-num span { font-size: 13px; }
-  .hero-pontilhado { width: 480px; height: 480px; left: auto; right: -260px; top: 40%; }
-  .layout { grid-template-columns: 1fr; gap: 24px; padding-top: 32px; }
+    .layout { grid-template-columns: 1fr; gap: 24px; padding-top: 32px; }
   .sidebar { position: static; }
   .trab-grid { grid-template-columns: 1fr; gap: 32px; }
   .trab-lado { display: contents; }
@@ -422,8 +417,7 @@ a.tag:hover { background: var(--primary); color: #fff; }
   .hero-num { padding: 0 16px; }
   .hero-num strong { font-size: 30px; }
   .hero-num span { font-size: 12px; line-height: 1.3; }
-  .hero-pontilhado { width: 360px; height: 360px; right: -230px; top: 30%; }
-  .sec { padding: 40px 16px 4px; }
+    .sec { padding: 40px 16px 4px; }
   .layout, .trabalho { padding-left: 16px; padding-right: 16px; }
   .tit-sec, .pag-tit { font-size: 22px; }
   .eixo { grid-template-columns: 44px minmax(0, 1fr); gap: 4px 12px; padding: 16px 2px; }
