@@ -46,26 +46,59 @@
   });
 
   // ---------------- Lista de trabalhos ----------------
+  // Autores no card: até 3 nomes em ABNT; mais que isso, "SOBRENOME, Nome et al."
+  function autoresCurto(x) {
+    var c = x.citacao && x.citacao.length ? x.citacao : x.autores;
+    return c.length > 3 ? c[0] + ' et al.' : c.join('; ');
+  }
+  function eixoBadge(eixo) {
+    var info = eixo && SITE.eixos && SITE.eixos[eixo];
+    return info ? '<span class="eixo-badge" style="--c:' + info[1] + '" title="' + esc(eixo) + '">' + esc(info[0]) + '</span>' : '';
+  }
+  function linhaTabela(x) {
+    var href = SITE.base + 'trabalho/' + encodeURIComponent(x.slug) + '/';
+    return '<tr><td class="t-id">' + esc(x.id) + '</td>' +
+      '<td class="t-tit"><a href="' + href + '">' + esc((x.titulos && x.titulos[idioma]) || x.titulo) + '</a></td>' +
+      '<td class="t-aut">' + esc(autoresCurto(x)) + '</td>' +
+      '<td class="t-eixo">' + eixoBadge(x.eixo) + '</td>' +
+      '<td class="t-mod">' + esc(x.modalidade || '') + '</td></tr>';
+  }
+  function cardTrabalho(x) {
+    return '<li><a class="paper-card" href="' + SITE.base + 'trabalho/' + encodeURIComponent(x.slug) + '/">' +
+      '<div class="paper-card__body"><p class="paper-card__title">' + esc((x.titulos && x.titulos[idioma]) || x.titulo) + '</p>' +
+      '<p class="paper-card__authors">' + esc(autoresCurto(x)) + '</p>' +
+      '<p class="paper-card__meta">' + eixoBadge(x.eixo) + (x.modalidade ? '<span class="paper-card__mod">' + esc(x.modalidade) + '</span>' : '') + '</p></div>' +
+      '<span class="paper-card__thumb" aria-hidden="true">' + esc(SITE.mono || '') + '</span>' +
+      (SITE.selo ? '<span class="paper-card__badge">' + esc(SITE.selo) + '</span>' : '') + '</a></li>';
+  }
+
   function paginaTrabalhos() {
-    var lista = $('#lista'), q = $('#q'), fEixo = $('#f-eixo'), fMod = $('#f-mod');
+    var lista = $('#lista'), q = $('#q'), qTopo = $('#q-topo');
     var contagem = $('#contagem'), pag = $('#paginacao');
     var porPagina = SITE.porPagina || 12;
     var dados = [], fuse = null;
     var params = new URLSearchParams(location.search);
     var estado = { q: params.get('q') || '', eixo: params.get('eixo') || '', mod: params.get('modalidade') || '', p: parseInt(params.get('p'), 10) || 1 };
-    q.value = estado.q; fEixo.value = estado.eixo; fMod.value = estado.mod;
+    q.value = estado.q; if (qTopo) qTopo.value = estado.q;
+
+    // Cards ou tabela: a escolha fica guardada neste navegador.
+    var tabela = $('#tabela'), vista = 'cards';
+    try { if (localStorage.getItem('vista') === 'tabela') vista = 'tabela'; } catch (e) {}
+    $$('.vista button').forEach(function (b) {
+      b.addEventListener('click', function () {
+        vista = b.dataset.vista;
+        try { localStorage.setItem('vista', vista); } catch (e) {}
+        render();
+      });
+    });
 
     // No celular os filtros ficam recolhidos atrás de um botão.
-    var btnFiltros = $('#abrir-filtros'), nFiltros = $('#n-filtros'), caixaFiltros = $('#selects');
+    var btnFiltros = $('#abrir-filtros'), nFiltros = $('#n-filtros'), caixaFiltros = $('#sidebar-corpo');
     btnFiltros.addEventListener('click', function () {
       var aberto = btnFiltros.getAttribute('aria-expanded') === 'true';
       btnFiltros.setAttribute('aria-expanded', String(!aberto));
       caixaFiltros.classList.toggle('aberto', !aberto);
     });
-    function atualizarNFiltros() {
-      var n = (estado.eixo ? 1 : 0) + (estado.mod ? 1 : 0);
-      nFiltros.textContent = n; nFiltros.hidden = !n;
-    }
     if (estado.eixo || estado.mod) { btnFiltros.setAttribute('aria-expanded', 'true'); caixaFiltros.classList.add('aberto'); }
 
     function urlEstado() {
@@ -76,17 +109,8 @@
       if (estado.p > 1) u.set('p', estado.p);
       var s = u.toString();
       history.replaceState(null, '', location.pathname + (s ? '?' + s : ''));
-      atualizarNFiltros();
-    }
-
-    function card(x) {
-      return '<article class="card"><div class="card-tags">' +
-        (x.eixo ? '<span class="tag tag-eixo">' + esc(x.eixo) + '</span>' : '') +
-        (x.modalidade ? '<span class="tag">' + esc(x.modalidade) + '</span>' : '') +
-        '</div><h3 class="card-tit"><a href="' + SITE.base + 'trabalho/' + encodeURIComponent(x.slug) + '/">' + esc((x.titulos && x.titulos[idioma]) || x.titulo) + '</a></h3>' +
-        '<p class="card-aut">' + esc(x.autores.join('; ')) + '</p>' +
-        (x.resumoTrecho ? '<p class="card-res">' + esc(x.resumoTrecho) + '</p>' : '') +
-        '</article>';
+      var n = (estado.eixo ? 1 : 0) + (estado.mod ? 1 : 0);
+      nFiltros.textContent = n; nFiltros.hidden = !n;
     }
 
     // Todas as palavras digitadas precisam aparecer; título e autores pesam mais que o resumo.
@@ -106,6 +130,7 @@
       }).filter(Boolean).sort(function (a, b) { return b.nota - a.nota; }).map(function (r) { return r.x; });
     }
 
+    var CAMPO = { eixo: 'eixo', mod: 'modalidade' };
     function render() {
       var res;
       var termo = semAcento(estado.q.trim());
@@ -114,17 +139,32 @@
         // Sem resultado exato: busca aproximada (erros de digitação) em título, autores e palavras-chave.
         if (!res.length && fuse) res = fuse.search(termo).map(function (r) { return r.item; });
       } else res = dados.slice();
+      var porBusca = res;
       if (estado.eixo) res = res.filter(function (x) { return x.eixo === estado.eixo; });
       if (estado.mod) res = res.filter(function (x) { return x.modalidade === estado.mod; });
+
+      // Contadores da barra lateral: quantos trabalhos cada opção mostraria com a busca e o outro filtro atuais.
+      $$('.filter-group[data-campo]').forEach(function (g) {
+        var campo = g.dataset.campo, outro = campo === 'eixo' ? 'mod' : 'eixo';
+        var base = porBusca.filter(function (x) { return !estado[outro] || x[CAMPO[outro]] === estado[outro]; });
+        $$('button[data-valor]', g).forEach(function (b) {
+          var n = base.filter(function (x) { return x[CAMPO[campo]] === b.dataset.valor; }).length;
+          var on = estado[campo] === b.dataset.valor;
+          $('.fl-n', b).textContent = n.toLocaleString('pt-BR');
+          b.setAttribute('aria-pressed', String(on));
+          b.disabled = !n && !on;
+        });
+      });
 
       var total = res.length, paginas = Math.max(1, Math.ceil(total / porPagina));
       if (estado.p > paginas) estado.p = paginas;
       var ini = (estado.p - 1) * porPagina;
-      res.slice(ini, ini + porPagina).forEach(function (x) {
-        var r = x.resumo[idioma] || x.resumo.pt || '';
-        x.resumoTrecho = r.length > 220 ? r.slice(0, 220).replace(/\s+\S*$/, '') + '…' : r;
-      });
-      lista.innerHTML = total ? res.slice(ini, ini + porPagina).map(card).join('') : '<p class="vazio-lista">' + esc(t('lista.nenhum')) + '</p>';
+      var pagina = res.slice(ini, ini + porPagina);
+      $$('.vista button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.vista === vista)); });
+      var emTabela = vista === 'tabela' && total > 0;
+      tabela.hidden = !emTabela; lista.hidden = emTabela;
+      if (emTabela) tabela.innerHTML = '<table class="papers-table"><thead><tr><th scope="col">Nº</th><th scope="col">' + esc(t('lista.col_titulo')) + '</th><th scope="col">' + esc(t('lista.col_autores')) + '</th><th scope="col">' + esc(t('lista.eixo')) + '</th><th scope="col">' + esc(t('lista.modalidade')) + '</th></tr></thead><tbody>' + pagina.map(linhaTabela).join('') + '</tbody></table>';
+      lista.innerHTML = total ? pagina.map(cardTrabalho).join('') : '<li class="vazio-lista">' + esc(t('lista.nenhum')) + '</li>';
       contagem.textContent = total === 1 ? t('lista.resultado') : t('lista.resultados', { n: total });
 
       if (paginas > 1) {
@@ -143,16 +183,27 @@
       render();
       $('.pag-tit').scrollIntoView({ behavior: 'smooth' });
     });
+    $$('.filter-group[data-campo] button[data-valor]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var campo = b.closest('.filter-group').dataset.campo;
+        estado[campo] = estado[campo] === b.dataset.valor ? '' : b.dataset.valor;
+        estado.p = 1; render();
+      });
+    });
     var timer;
+    function buscar(v) { estado.q = v; estado.p = 1; render(); }
     q.addEventListener('input', function () {
       clearTimeout(timer);
-      timer = setTimeout(function () { estado.q = q.value; estado.p = 1; render(); }, 120);
+      timer = setTimeout(function () { if (qTopo) qTopo.value = q.value; buscar(q.value); }, 120);
     });
-    fEixo.addEventListener('change', function () { estado.eixo = fEixo.value; estado.p = 1; render(); });
-    fMod.addEventListener('change', function () { estado.mod = fMod.value; estado.p = 1; render(); });
+    // A busca do banner também filtra aqui mesmo, sem recarregar a página.
+    if (qTopo) qTopo.form.addEventListener('submit', function (ev) {
+      ev.preventDefault(); q.value = qTopo.value; buscar(qTopo.value);
+      $('.pag-tit').scrollIntoView({ behavior: 'smooth' });
+    });
     $('#limpar').addEventListener('click', function () {
       estado = { q: '', eixo: '', mod: '', p: 1 };
-      q.value = ''; fEixo.value = ''; fMod.value = '';
+      q.value = ''; if (qTopo) qTopo.value = '';
       render(); q.focus();
     });
     fetch(SITE.base + 'data/trabalhos.json').then(function (r) { return r.json(); }).then(function (json) {
@@ -180,7 +231,7 @@
       window.__aoTrocarIdioma = render;
       render();
     }).catch(function () {
-      lista.innerHTML = '<p class="vazio-lista">Erro ao carregar os trabalhos.</p>';
+      lista.innerHTML = '<li class="vazio-lista">Erro ao carregar os trabalhos.</li>';
     });
   }
 
@@ -268,18 +319,47 @@
 
   // ---------------- Autores ----------------
   function paginaAutores() {
-    var q = $('#q-aut'), itens = $$('.autor'), letras = $$('.letra'), nenhum = $('#aut-nenhum');
-    q.addEventListener('input', function () {
+    var q = $('#q-aut'), qInst = $('#q-inst'), itens = $$('.author-card'), nenhum = $('#aut-nenhum');
+    var letrasBtn = $$('.alphabet button'), instBtn = $$('.filter-group[data-campo=inst] button[data-valor]');
+    var estado = { q: '', letra: '', inst: '' };
+    itens.forEach(function (li) { li._inst = JSON.parse(li.dataset.inst || '[]'); });
+    // No celular a lista de instituições começa fechada para os autores aparecerem logo.
+    var grupoInst = $('details.filter-group[data-campo=inst]');
+    if (grupoInst && window.matchMedia('(max-width: 900px)').matches) grupoInst.open = false;
+
+    function render() {
       var termo = semAcento(q.value.trim());
-      var algum = false;
-      itens.forEach(function (li) { var on = !termo || li.dataset.busca.indexOf(termo) >= 0; li.hidden = !on; if (on) algum = true; });
-      letras.forEach(function (s) { s.hidden = !$$('.autor', s).some(function (li) { return !li.hidden; }); });
+      var algum = false, letrasCom = {};
+      itens.forEach(function (li) {
+        var ok = (!termo || li.dataset.busca.indexOf(termo) >= 0) && (!estado.inst || li._inst.indexOf(estado.inst) >= 0);
+        if (ok) letrasCom[li.dataset.letra] = 1;
+        var on = ok && (!estado.letra || li.dataset.letra === estado.letra);
+        li.hidden = !on; if (on) algum = true;
+      });
+      letrasBtn.forEach(function (b) {
+        var l = b.dataset.letra;
+        b.classList.toggle('active', l === estado.letra);
+        b.setAttribute('aria-pressed', String(l === estado.letra));
+        if (l) b.disabled = !letrasCom[l] && l !== estado.letra;
+      });
+      instBtn.forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.valor === estado.inst)); });
       nenhum.hidden = algum;
+    }
+    q.addEventListener('input', render);
+    letrasBtn.forEach(function (b) { b.addEventListener('click', function () { estado.letra = b.dataset.letra; render(); }); });
+    instBtn.forEach(function (b) {
+      b.addEventListener('click', function () { estado.inst = estado.inst === b.dataset.valor ? '' : b.dataset.valor; render(); });
     });
+    if (qInst) qInst.addEventListener('input', function () {
+      var termo = semAcento(qInst.value.trim());
+      instBtn.forEach(function (b) { b.parentNode.hidden = termo && semAcento(b.dataset.valor).indexOf(termo) < 0; });
+    });
+
     function abrirHash() {
       var id = decodeURIComponent(location.hash.slice(1));
       var el = id && document.getElementById(id);
-      if (el && el.classList.contains('autor')) {
+      if (el && el.classList.contains('author-card')) {
+        estado = { q: '', letra: '', inst: '' }; q.value = ''; render();
         $('details', el).open = true;
         el.classList.add('destaque');
         el.scrollIntoView({ block: 'center' });

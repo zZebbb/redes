@@ -26,7 +26,7 @@ As colunas cinza (`RB (interno)`, `Observações (interno)`) são ignoradas e nu
 
 Enquanto a planilha não estiver publicada, o site usa `data/trabalhos.csv` (os 40 aprovados, só colunas públicas). O formato antigo de exemplo continua em `data/exemplo.csv`.
 
-**PDFs:** cada PDF precisa estar no Drive como *Qualquer pessoa com o link → **Leitor*** (não "Editor"). Os links ficam em `data/pdfs.csv` (`numero,link_pdf`) ou numa coluna `Link do PDF` na planilha.
+**PDFs:** o Drive é só a caixa de entrada. Cada PDF precisa estar lá como *Qualquer pessoa com o link → **Leitor*** (não "Editor"), com o link em `data/pdfs.csv` (`numero,link_pdf`) ou numa coluna `Link do PDF` na planilha. Na publicação diária, o GitHub copia cada PDF novo para a pasta `pdfs/` do repositório (`npm run pdfs`) e o site passa a servir o arquivo de dentro dele: quem lê ou baixa não é levado ao Drive, e o arquivo continua no site mesmo que a pasta do Drive mude. Também dá para pular o Drive e enviar o arquivo direto para `pdfs/` no GitHub, com o nome do número público (`001.pdf`, `002.pdf`…).
 
 ## 2. Ligar a planilha ao site
 
@@ -46,10 +46,11 @@ Tudo fica em [`config.json`](config.json), dividido em 4 blocos: **dados do even
 - `nome_citacao` e `numero_edicao`: como o evento aparece no "Como citar" (ex.: `In: ENCONTRO NACIONAL DA REDE BRASIL, 4., 2026, Brasília.`).
 - `sigla`, `edicao`, `issn`, `cidade`, `editora`: aparecem no topo, na home e no "Como citar".
 - `doi_prefixo`: *(opcional)* se os DOIs seguem o padrão prefixo + id, preencha ex.: `10.1234/evento.` e deixe a coluna `doi` vazia. Só use depois que os DOIs estiverem registrados.
-- `logo`, `banner`, `favicon`: coloque as imagens na pasta `public/` (crie se não existir) e escreva o nome aqui, ex.: `"banner": "banner.jpg"`. Banner: **1920×600 px** (o texto fica à esquerda, então deixe o lado esquerdo mais limpo). Opcional: `banner_celular` com **1080×1200 px**. Sem banner, a home usa um degradê com as cores do evento.
-- `cores`: `primaria` (títulos e botões), `secundaria` (destaques), `fundo` e `texto`, em hexadecimal.
+- `logo`, `banner`, `favicon`: coloque as imagens na pasta `public/` (crie se não existir) e escreva o nome aqui, ex.: `"banner": "banner.jpg"`. Banner: **1920×600 px**. Ele fica atrás do logo, do nome e da busca, que vão no centro, então funciona melhor uma textura ou padrão do que uma imagem com texto; em telas largas o topo e a base podem ser cortados. Opcional: `banner_celular` com **1080×1200 px**. Sem banner, o site desenha um padrão de círculos com `banner_fundo` e `banner_pontos`.
+- `cores`, em hexadecimal: `primaria` (barra do topo, abas, botões e destaques; é a única cor de interface), `banner_fundo` e `banner_pontos` (padrão de círculos do banner), `fundo` (fundo da página) e `texto`.
 - `site_url`: endereço final do site (usado nos links de citação e no sitemap).
 - `itens_por_pagina`: trabalhos por página na lista.
+- `sugestoes_busca` *(opcional)*: lista de termos que aparecem como atalhos embaixo da busca do banner, por exemplo `["Desinformação", "Saúde bucal", "Doulas"]`. Sem ela, o site mostra as palavras-chave mais comuns.
 
 Os textos da interface estão em `i18n/pt.json`, `i18n/en.json` e `i18n/es.json`.
 
@@ -75,5 +76,6 @@ npm test         # testes das funções de leitura da planilha e citação
 ## Como funciona
 
 - `scripts/sync.mjs` lê o CSV, confere colunas obrigatórias, avisa sobre ids repetidos e PDFs faltando, converte os links do Drive e gera `data/trabalhos.json` e `data/autores.json`.
+- `scripts/baixar-pdfs.mjs` (`npm run pdfs`) copia do Drive para `pdfs/` os PDFs que ainda não estão lá; o build usa `pdfs/NNN.pdf` quando existe e o link do Drive quando não.
 - `scripts/build.mjs` gera páginas HTML estáticas em `dist/` (uma por trabalho, com meta tags para Google Acadêmico: `citation_title`, `citation_author`, `citation_pdf_url` etc.), além de `sitemap.xml`.
 - `src/assets/app.js` cuida da busca (Fuse.js, tolerante a erros de digitação e acentos), filtros, troca de idioma e botão de copiar a citação.

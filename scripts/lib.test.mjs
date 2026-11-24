@@ -33,3 +33,17 @@ test('autores com instituições entre parênteses', () => {
   assert.deepEqual(a, { nome: 'Ana Silva', instituicoes: ['Fundação Oswaldo Cruz Ceará (Fiocruz Ceará)/RENASF', 'Centro Universitário Christus'] });
   assert.deepEqual(b, { nome: 'João Souza', instituicoes: [] });
 });
+
+import http from 'node:http';
+import { baixarDoDrive } from './baixar-pdfs.mjs';
+test('cópia de PDF do Drive aceita só PDF', async () => {
+  const srv = http.createServer((req, res) => {
+    const id = new URL(req.url, 'http://x').searchParams.get('id');
+    res.end(id === 'ok' ? '%PDF-1.7 teste' : '<html>login</html>');
+  }).listen(0);
+  const base = `http://127.0.0.1:${srv.address().port}`;
+  try {
+    assert.equal((await baixarDoDrive('ok', base)).toString(), '%PDF-1.7 teste');
+    await assert.rejects(baixarDoDrive('privado', base), /não devolveu um PDF/);
+  } finally { srv.close(); }
+});
