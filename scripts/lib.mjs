@@ -44,11 +44,12 @@ export function driveLinks(link) {
   link = String(link ?? '').trim();
   if (!link) return null;
   const m = link.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) || link.match(/[?&]id=([a-zA-Z0-9_-]+)/);
-  if (!m) return { ver: link, baixar: link };
+  if (!m) return { ver: link, baixar: link, previa: null };
   const id = m[1];
   return {
     ver: `https://drive.google.com/file/d/${id}/view`,
-    baixar: `https://drive.google.com/uc?export=download&id=${id}`
+    baixar: `https://drive.google.com/uc?export=download&id=${id}`,
+    previa: `https://drive.google.com/file/d/${id}/preview`
   };
 }
 

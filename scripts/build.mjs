@@ -332,6 +332,13 @@ for (const x of trabalhos) {
       ${x.eixo ? `<section class="caixa"><div class="caixa-cab"><h2 ${T('trab.eixo')}>${t('trab.eixo')}</h2></div><p class="caixa-corpo"><a href="${base}trabalhos/?eixo=${encodeURIComponent(x.eixo)}">${e(x.eixo)}</a></p></section>` : ''}
     </aside>
   </div>
+  ${(() => {
+    const src = x.pdfLocal ? `${base}${x.pdfLocal}#view=FitH` : x.pdf?.previa;
+    return src ? `<section class="previa" aria-labelledby="previa-tit">
+    <h2 class="tit-sec" id="previa-tit" ${T('trab.previa')}>${t('trab.previa')}</h2>
+    <div class="previa-quadro"><iframe src="${e(src)}" title="${e(t('trab.previa'))}: ${e(x.titulo)}" loading="lazy" allow="fullscreen"></iframe></div>
+  </section>` : '';
+  })()}
 </article>`;
   await salvar(`trabalho/${x.slug}/index.html`, layout({ base, titulo: x.titulo, descricao: desc, pagina: 'trabalho', corpo, metaExtra: meta, canonical: url }));
 }

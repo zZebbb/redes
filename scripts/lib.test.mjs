@@ -14,7 +14,7 @@ test('nome no padrão ABNT', () => {
 });
 
 test('links do Drive', () => {
-  const esperado = { ver: 'https://drive.google.com/file/d/ABC_1/view', baixar: 'https://drive.google.com/uc?export=download&id=ABC_1' };
+  const esperado = { ver: 'https://drive.google.com/file/d/ABC_1/view', baixar: 'https://drive.google.com/uc?export=download&id=ABC_1', previa: 'https://drive.google.com/file/d/ABC_1/preview' };
   assert.deepEqual(driveLinks('https://drive.google.com/file/d/ABC_1/view?usp=sharing'), esperado);
   assert.deepEqual(driveLinks('https://drive.google.com/open?id=ABC_1'), esperado);
   assert.equal(driveLinks(''), null);
