@@ -439,7 +439,9 @@
   // letras que surgem em nuvens, rastro ao passar o mouse e ondas ao clicar.
   function fundoGlifos(raiz, opcoes) {
     if (!raiz || !window.WebGLRenderingContext) return;
-    var CH = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    // Cada célula mostra um destes textos (padrão: as siglas das 27 unidades da federação, a rede é nacional).
+    var CH = opcoes.simbolos || 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'.split('');
+    var LARGO = Math.max.apply(null, CH.map(function (c) { return c.length; }));
     var MAX_WAVES = 12, TRAIL = 12, TRAIL_LIFE = 700, WAVE_LIFE = 4, WAVE_GAP = 0.3, WAVE_SPEED = 560, WAVE_SLOWDOWN = 0.66;
     var DRIFT = [-30, 12], ACTIVITY_DECAY = 900, fontSize = opcoes.fontSize || 11;
     var VERTEX = 'attribute vec2 position;void main(){gl_Position=vec4(position,0.0,1.0);}';
@@ -501,9 +503,9 @@
       if (fixo) { largura = window.innerWidth; altura = window.innerHeight; } else { var r = raiz.getBoundingClientRect(); largura = r.width; altura = r.height; }
       dpr = Math.max(1, Math.min(window.devicePixelRatio || 1, 2));
       canvas.width = Math.max(1, Math.round(largura * dpr)); canvas.height = Math.max(1, Math.round(altura * dpr));
-      var fonte = (fontSize * dpr) + 'px Menlo, ui-monospace, SFMono-Regular, Consolas, monospace';
+      var fonte = (opcoes.peso || 400) + ' ' + (fontSize * dpr) + 'px ' + (opcoes.fonte || 'Menlo, ui-monospace, SFMono-Regular, Consolas, monospace');
       var m = document.createElement('canvas').getContext('2d'); m.font = fonte;
-      cell = [Math.round(m.measureText('0').width), Math.round(fontSize * 1.25 * dpr)];
+      cell = [Math.round(m.measureText('M'.repeat(LARGO)).width + (LARGO > 1 ? fontSize * 0.9 * dpr : 0)), Math.round(fontSize * (LARGO > 1 ? 1.9 : 1.25) * dpr)];
       var at = document.createElement('canvas'); at.width = Math.ceil(cell[0] * CH.length); at.height = Math.ceil(cell[1]);
       var c = at.getContext('2d'); c.font = fonte; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillStyle = '#fff';
       for (var i = 0; i < CH.length; i++) c.fillText(CH[i], (i + 0.5) * cell[0], cell[1] / 2);
@@ -533,6 +535,7 @@
       gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT); gl.drawArrays(gl.TRIANGLES, 0, 3);
     }
     redimensionar(); desenhar();
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { redimensionar(); desenhar(); });
     if (fixo) window.addEventListener('resize', function () { redimensionar(); desenhar(); });
     else if ('ResizeObserver' in window) new ResizeObserver(function () { redimensionar(); desenhar(); }).observe(raiz);
 
@@ -593,7 +596,10 @@
   aplicarIdioma();
   if (SITE.pagina === 'trabalho') marcarVisto();
   if (SITE.pagina === 'inicio') mostrarVistos();
-  fundoGlifos(document.body, { cor: '#2E54A2', destaque: '#F9B234', haze: 0.13 });
+  if (SITE.pagina === 'inicio') fundoGlifos($('.hero'), {
+    cor: '#2E54A2', destaque: '#F9B234', haze: 0.15, fontSize: 11, peso: 600, fonte: 'Montserrat, Arial, sans-serif',
+    simbolos: ['AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS', 'MG', 'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO']
+  });
   if (SITE.pagina === 'trabalhos') paginaTrabalhos();
   if (SITE.pagina === 'trabalho') paginaTrabalho();
   if (SITE.pagina === 'autores') paginaAutores();
