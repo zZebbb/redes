@@ -11,6 +11,34 @@
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
   function semAcento(s) { return String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase(); }
 
+  // ---------------- Título que "rola" letra a letra ----------------
+  // Recriação do "Text Roll" (Motion Primitives, 21st.dev, licença MIT) só com CSS.
+  // Anima uma vez ao abrir e de novo ao trocar de idioma; leitores de tela ouvem o título inteiro.
+  function textRoll(el, texto) {
+    if (el.getAttribute('data-texto') === texto) return;
+    el.setAttribute('data-texto', texto);
+    el.textContent = '';
+    var i = 0;
+    texto.split(' ').forEach(function (palavra, w) {
+      if (w) el.appendChild(document.createTextNode(' '));
+      var pal = document.createElement('span');
+      pal.className = 'tr-palavra'; pal.setAttribute('aria-hidden', 'true');
+      palavra.split('').forEach(function (letra) {
+        var l = document.createElement('span');
+        l.className = 'tr-letra'; l.style.setProperty('--i', i++);
+        l.innerHTML = '<span class="tr-cima"></span><span class="tr-baixo"></span><span class="tr-fantasma"></span>';
+        l.querySelectorAll('span').forEach(function (p) { p.textContent = letra; });
+        pal.appendChild(l);
+      });
+      i++;
+      el.appendChild(pal);
+    });
+    var leitor = document.createElement('span');
+    leitor.className = 'sr'; leitor.textContent = texto;
+    el.appendChild(leitor);
+    el.classList.remove('rodando'); void el.offsetWidth; el.classList.add('rodando');
+  }
+
   // ---------------- Idioma ----------------
   function lerIdioma() {
     var p = new URLSearchParams(location.search).get('lang');
@@ -32,7 +60,10 @@
     });
     $$('[data-i18n-ph]').forEach(function (el) { el.placeholder = t(el.dataset.i18nPh); });
     $$('[data-tr]').forEach(function (el) {
-      try { var o = JSON.parse(el.dataset.tr); el.textContent = o[idioma] || o.pt || el.textContent; } catch (e) {}
+      try {
+        var o = JSON.parse(el.dataset.tr), novo = o[idioma] || o.pt || el.textContent;
+        if (el.hasAttribute('data-text-roll')) textRoll(el, novo); else el.textContent = novo;
+      } catch (e) {}
     });
     $$('.idiomas button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.lang === idioma)); });
     if (window.__aoTrocarIdioma) window.__aoTrocarIdioma();
@@ -318,6 +349,7 @@
     if (document.fonts) document.fonts.ready.then(posicionar);
   }
 
+  $$('[data-text-roll]:not([data-tr])').forEach(function (el) { textRoll(el, el.textContent); });
   aplicarIdioma();
   if (SITE.pagina === 'trabalhos') paginaTrabalhos();
   if (SITE.pagina === 'trabalho') paginaTrabalho();

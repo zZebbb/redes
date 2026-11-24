@@ -176,7 +176,7 @@ await writeFile(path.join(dist, '.nojekyll'), '');
 <section class="hero${config.banner ? ' hero-img' : ''}"${bannerStyle}>
   <div class="hero-in">
     <p class="hero-ed">${e(config.sigla || '')} ${e(config.edicao || '')}</p>
-    <h1 class="hero-tit" ${TR(config.nome_evento)}>${e(nomeEvento)}</h1>
+    <h1 class="hero-tit text-roll" data-text-roll ${TR(config.nome_evento)}>${e(nomeEvento)}</h1>
     <p class="hero-sub" ${TR(config.subtitulo)}>${e(txt(config.subtitulo))}</p>
     <form class="busca busca-hero" action="trabalhos/" method="get" role="search">
       <label class="sr" for="q-home" ${T('home.buscar_titulo')}>${t('home.buscar_titulo')}</label>
