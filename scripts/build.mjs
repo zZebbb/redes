@@ -88,7 +88,7 @@ ${metaExtra}
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="${base}assets/style.css">
 <style>:root{--c-pri:${e(cores.primaria)};--c-sec:${e(cores.secundaria)};--c-bg:${e(cores.fundo)};--c-txt:${e(cores.texto)}}</style>
-<script>window.SITE={base:${JSON.stringify(base)},pagina:${JSON.stringify(pagina)},porPagina:${Number(config.itens_por_pagina) || 12},idiomaPadrao:${JSON.stringify(config.idioma_padrao || 'pt')}};</script>
+<script>window.SITE={base:${JSON.stringify(base)},pagina:${JSON.stringify(pagina)},porPagina:${Number(config.itens_por_pagina) || 12},idiomaPadrao:${JSON.stringify(config.idioma_padrao || 'pt')},repetirTitulo:${Number(config.repetir_animacao_titulo ?? 12) || 0}};</script>
 </head>
 <body>
 <a class="pular" href="#conteudo" ${T('nav.pular')}>${t('nav.pular')}</a>

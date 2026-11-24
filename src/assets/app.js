@@ -350,6 +350,20 @@
   }
 
   $$('[data-text-roll]:not([data-tr])').forEach(function (el) { textRoll(el, el.textContent); });
+
+  // Repete a animação do título de tempos em tempos (SITE.repetirTitulo, em segundos; 0 desliga),
+  // só com o título visível, a aba em primeiro plano e ninguém digitando na busca.
+  (function () {
+    var el = $('[data-text-roll]'), seg = Number(SITE.repetirTitulo) || 0;
+    if (!el || seg <= 0 || !window.matchMedia || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    var visivel = true;
+    if ('IntersectionObserver' in window) new IntersectionObserver(function (e) { visivel = e[0].isIntersecting; }).observe(el);
+    setInterval(function () {
+      var ativo = document.activeElement;
+      if (document.hidden || !visivel || (ativo && /^(INPUT|TEXTAREA|SELECT)$/.test(ativo.tagName))) return;
+      el.classList.remove('rodando'); void el.offsetWidth; el.classList.add('rodando');
+    }, seg * 1000);
+  })();
   aplicarIdioma();
   if (SITE.pagina === 'trabalhos') paginaTrabalhos();
   if (SITE.pagina === 'trabalho') paginaTrabalho();
