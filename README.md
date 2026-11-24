@@ -46,11 +46,10 @@ Tudo fica em [`config.json`](config.json), dividido em 4 blocos: **dados do even
 - `nome_citacao` e `numero_edicao`: como o evento aparece no "Como citar" (ex.: `In: ENCONTRO NACIONAL DA REDE BRASIL, 4., 2026, Brasília.`).
 - `sigla`, `edicao`, `issn`, `cidade`, `editora`: aparecem no topo, na home e no "Como citar".
 - `doi_prefixo`: *(opcional)* se os DOIs seguem o padrão prefixo + id, preencha ex.: `10.1234/evento.` e deixe a coluna `doi` vazia. Só use depois que os DOIs estiverem registrados.
-- `logo`, `banner`, `favicon`: coloque as imagens na pasta `public/` (crie se não existir) e escreva o nome aqui, ex.: `"banner": "banner.jpg"`. Banner: **1920×600 px**. Ele fica atrás do logo, do nome e da busca, que vão no centro, então funciona melhor uma textura ou padrão do que uma imagem com texto; em telas largas o topo e a base podem ser cortados. Opcional: `banner_celular` com **1080×1200 px**. Sem banner, o site desenha um padrão de círculos com `banner_fundo` e `banner_pontos`.
-- `cores`, em hexadecimal: `primaria` (barra do topo, abas, botões e destaques; é a única cor de interface), `banner_fundo` e `banner_pontos` (padrão de círculos do banner), `fundo` (fundo da página) e `texto`.
+- `logo`, `banner`, `favicon`: coloque as imagens na pasta `public/` (crie se não existir) e escreva o nome aqui, ex.: `"banner": "banner.jpg"`. Banner: **1920×600 px** (o texto fica à esquerda, então deixe o lado esquerdo mais limpo). Opcional: `banner_celular` com **1080×1200 px**. Sem banner, a home usa um degradê com as cores do evento.
+- `cores`: `primaria` (títulos e botões), `secundaria` (destaques), `fundo` e `texto`, em hexadecimal.
 - `site_url`: endereço final do site (usado nos links de citação e no sitemap).
 - `itens_por_pagina`: trabalhos por página na lista.
-- `sugestoes_busca` *(opcional)*: lista de termos que aparecem como atalhos embaixo da busca do banner, por exemplo `["Desinformação", "Saúde bucal", "Doulas"]`. Sem ela, o site mostra as palavras-chave mais comuns.
 
 Os textos da interface estão em `i18n/pt.json`, `i18n/en.json` e `i18n/es.json`.
 

@@ -54,14 +54,5 @@
   "404.texto": "The address may have changed. Use the search to find the paper.",
   "lista.filtros": "Filters",
   "trab.compartilhar": "Share",
-  "trab.link_copiado": "Link copied!",
-  "autores.instituicoes": "Institutions",
-  "autores.todos": "All",
-  "autores.filtrar_inst": "Filter institutions",
-  "home.sugestoes": "Search suggestions",
-  "lista.vista": "View",
-  "lista.vista_cards": "Cards",
-  "lista.vista_tabela": "Table",
-  "lista.col_titulo": "Title",
-  "lista.col_autores": "Authors"
+  "trab.link_copiado": "Link copied!"
 }
