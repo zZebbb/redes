@@ -127,7 +127,7 @@ ${metaExtra}
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="${base}assets/style.css">
-<style>:root{--primary:${e(cores.primaria)};--hero-bg:${e(cores.banner_fundo)};--hero-dots:${e(cores.banner_pontos)};--bg:${e(cores.fundo)};--text:${e(cores.texto)}}</style>
+<style>:root{--primary:${e(cores.primaria)};--accent:${e(cores.secundaria || cores.primaria)};--accent-ink:${e(cores.texto_sobre_secundaria || '#1D1B20')};--hero-bg:${e(cores.banner_fundo)};--hero-dots:${e(cores.banner_pontos)};--hero-ink:${e(cores.banner_texto || '#FFFFFF')};--bg:${e(cores.fundo)};--text:${e(cores.texto)};--footer:${e(cores.rodape || cores.texto)}}</style>
 <script>window.SITE={base:${JSON.stringify(base)},pagina:${JSON.stringify(pagina)},porPagina:${Number(config.itens_por_pagina) || 12},idiomaPadrao:${JSON.stringify(config.idioma_padrao || 'pt')},selo:${JSON.stringify(selo)},mono:${JSON.stringify(monograma)},eixos:${JSON.stringify(Object.fromEntries(eixos.map(x => [x, [eixoCurto(x), eixoCor(x)]])))}};</script>
 </head>
 <body>

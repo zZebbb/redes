@@ -70,10 +70,10 @@ svg { fill: currentColor; }
   color: var(--primary); font-size: 26px; font-weight: 700; letter-spacing: .5px;
 }
 .hero-nome {
-  color: #fff; font-size: clamp(26px, 4.2vw, 48px); font-weight: 700; line-height: 1.1; margin: 0;
+  color: var(--hero-ink); font-size: clamp(26px, 4.2vw, 48px); font-weight: 700; line-height: 1.1; margin: 0;
   text-shadow: 0 1px 2px rgba(0,0,0,.18);
 }
-.hero-sub { color: #fff; margin: 6px 0 0; font-size: 15px; font-weight: 500; text-shadow: 0 1px 2px rgba(0,0,0,.18); }
+.hero-sub { color: var(--hero-ink); margin: 6px 0 0; font-size: 15px; font-weight: 500; text-shadow: 0 1px 2px rgba(0,0,0,.18); }
 .hero-busca { position: relative; width: 440px; max-width: 100%; }
 .hero-busca input {
   width: 100%; height: 38px; border-radius: var(--radius-pill);
@@ -216,7 +216,7 @@ details.filter-group[open] > summary h3::after { transform: rotate(-135deg) tran
 .paper-card__authors { font-size: 12px; font-weight: 500; color: var(--text-authors); margin: 0; }
 .paper-card__thumb {
   width: 48px; height: 48px; flex: none; border-radius: 6px;
-  background: var(--hero-bg); color: #fff; font-size: 13px; font-weight: 700;
+  background: var(--accent); color: var(--accent-ink); font-size: 13px; font-weight: 700;
   display: grid; place-items: center; letter-spacing: .3px;
 }
 .paper-card__badge {
@@ -327,7 +327,7 @@ a.tag:hover { border-color: var(--primary); color: var(--primary); }
 .vazio h1 { font-size: 24px; font-weight: 400; color: var(--text-strong); }
 
 /* ---------- Rodapé ---------- */
-.rodape { background: var(--text); font-size: 12px; color: rgba(255,255,255,.82); margin-top: 32px; }
+.rodape { background: var(--footer); font-size: 12px; color: rgba(255,255,255,.82); margin-top: 32px; }
 .rodape-in { max-width: var(--max); margin: 0 auto; padding: 20px 16px; display: flex; justify-content: space-between; gap: 12px 24px; flex-wrap: wrap; }
 .rodape strong { font-weight: 500; color: #fff; }
 
@@ -473,9 +473,9 @@ a.tag:hover { border-color: var(--primary); color: var(--primary); }
 .vt-hover { background: rgba(0,0,0,.06); border-radius: 6px; opacity: 0; }
 .vt-ind { height: 2px; background: var(--primary); border-radius: 2px; }
 .idiomas .vt-hover { background: rgba(255,255,255,.18); }
-.idiomas .vt-ind { background: #fff; }
+.idiomas .vt-ind { background: var(--accent); }
 .abas-nav .vt-hover { display: none; }
-.abas-nav .vt-ind { top: auto; bottom: 0; height: 4px; background: #fff; border-radius: 4px 4px 0 0; }
+.abas-nav .vt-ind { top: auto; bottom: 0; height: 4px; background: var(--accent); border-radius: 4px 4px 0 0; }
 @media (prefers-reduced-motion: reduce) { .vt-hover, .vt-ind, .abas button { transition: none !important; } }
 
 /* ---------- Título do banner: letras que rolam (Text Roll, MIT) ---------- */

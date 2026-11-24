@@ -21,11 +21,15 @@
   "banner_celular": "",
   "favicon": "",
   "cores": {
-    "primaria": "#E69138",
-    "banner_fundo": "#F2A900",
-    "banner_pontos": "#E5520F",
-    "fundo": "#F5F6F8",
-    "texto": "#3E3E3E"
+    "primaria": "#2E54A2",
+    "secundaria": "#F9B234",
+    "texto_sobre_secundaria": "#172A55",
+    "banner_fundo": "#2E54A2",
+    "banner_pontos": "#2A4D96",
+    "banner_texto": "#FFFFFF",
+    "fundo": "#FFFFFF",
+    "texto": "#5E595B",
+    "rodape": "#172A55"
   },
 
   "_____ 3. PLANILHA (link CSV publicado do Google Sheets) _____": "",
