@@ -325,7 +325,7 @@ for (const x of trabalhos) {
     <aside class="trab-lado">
       <div class="pdf-botoes">
         ${(x.pdfLocal || x.pdf)
-          ? `<a class="btn" href="${x.pdfLocal ? base + x.pdfLocal : e(x.pdf.ver)}" target="_blank" rel="noopener"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 5c-7 0-10 7-10 7s3 7 10 7 10-7 10-7-3-7-10-7zm0 11a4 4 0 110-8 4 4 0 010 8z"/></svg><span ${T('trab.ver_pdf')}>${t('trab.ver_pdf')}</span></a>
+          ? `<a class="btn" ${x.pdfLocal || x.pdf?.previa ? 'href="#previa"' : `href="${e(x.pdf.ver)}" target="_blank" rel="noopener"`}><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 5c-7 0-10 7-10 7s3 7 10 7 10-7 10-7-3-7-10-7zm0 11a4 4 0 110-8 4 4 0 010 8z"/></svg><span ${T('trab.ver_pdf')}>${t('trab.ver_pdf')}</span></a>
         <a class="btn btn-sec" href="${x.pdfLocal ? base + x.pdfLocal : e(x.pdf.baixar)}" ${x.pdfLocal ? `download="${e(x.slug)}.pdf"` : 'rel="noopener"'}><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 16l-5-5h3V4h4v7h3l-5 5zm-7 2h14v2H5z"/></svg><span ${T('trab.baixar_pdf')}>${t('trab.baixar_pdf')}</span></a>`
           : `<p class="aviso" ${T('trab.sem_pdf')}>${t('trab.sem_pdf')}</p>`}
       </div>
@@ -334,7 +334,7 @@ for (const x of trabalhos) {
   </div>
   ${(() => {
     const src = x.pdfLocal ? `${base}${x.pdfLocal}#view=FitH` : x.pdf?.previa;
-    return src ? `<section class="previa" aria-labelledby="previa-tit">
+    return src ? `<section class="previa" id="previa" aria-labelledby="previa-tit">
     <h2 class="tit-sec" id="previa-tit" ${T('trab.previa')}>${t('trab.previa')}</h2>
     <div class="previa-quadro"><iframe src="${e(src)}" title="${e(t('trab.previa'))}: ${e(x.titulo)}" loading="lazy" allow="fullscreen"></iframe></div>
   </section>` : '';
