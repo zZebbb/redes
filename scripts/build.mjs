@@ -2,6 +2,7 @@
 import { readFile, writeFile, mkdir, rm, cp, access, readdir } from 'node:fs/promises';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
+import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import { escapeHTML as e, txt, slugify, nomeABNT } from './lib.mjs';
@@ -31,6 +32,12 @@ if (!(await existe(path.join(raiz, 'data/trabalhos.json')))) {
 }
 const trabalhos = await ler('data/trabalhos.json');
 const autores = await ler('data/autores.json');
+// Versão dos arquivos (?v=...) para o navegador não misturar a página nova com CSS/JS/dados guardados em cache.
+const versao = createHash('sha1')
+  .update(await readFile(path.join(raiz, 'src/assets/app.js')))
+  .update(await readFile(path.join(raiz, 'src/assets/style.css')))
+  .update(JSON.stringify(trabalhos))
+  .digest('hex').slice(0, 10);
 for (const x of trabalhos) {
   x.titulos ??= { pt: x.titulo, en: '', es: '' };
   x.pc ??= { pt: x.palavras_chave, en: [], es: [] };
@@ -128,9 +135,9 @@ ${metaExtra}
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Open+Sans:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="${base}assets/style.css">
+<link rel="stylesheet" href="${base}assets/style.css?v=${versao}">
 <style>:root{--primary:${e(cores.primaria)};--accent:${e(cores.secundaria || cores.primaria)};--accent-ink:${e(cores.texto_sobre_secundaria || '#1D1B20')};--hero-bg:${e(cores.banner_fundo)};--hero-dots:${e(cores.banner_pontos)};--hero-ink:${e(cores.banner_texto || '#FFFFFF')};--bg:${e(cores.fundo)};--text:${e(cores.texto)};--footer:${e(cores.rodape || cores.texto)}}</style>
-<script>window.SITE={base:${JSON.stringify(base)},pagina:${JSON.stringify(pagina)},porPagina:${Number(config.itens_por_pagina) || 12},idiomaPadrao:${JSON.stringify(config.idioma_padrao || 'pt')},selo:${JSON.stringify(selo)},mono:${JSON.stringify(monograma)},eixos:${JSON.stringify(Object.fromEntries(eixos.map(x => [x, [eixoCurto(x), eixoCor(x)]])))}};</script>
+<script>window.SITE={base:${JSON.stringify(base)},v:${JSON.stringify(versao)},pagina:${JSON.stringify(pagina)},porPagina:${Number(config.itens_por_pagina) || 12},idiomaPadrao:${JSON.stringify(config.idioma_padrao || 'pt')},selo:${JSON.stringify(selo)},mono:${JSON.stringify(monograma)},eixos:${JSON.stringify(Object.fromEntries(eixos.map(x => [x, [eixoCurto(x), eixoCor(x)]])))}};</script>
 </head>
 <body>
 <a class="pular" href="#conteudo" ${T('nav.pular')}>${t('nav.pular')}</a>
@@ -165,7 +172,7 @@ ${corpo}
 </footer>
 <script>window.I18N=${JSON.stringify(i18n)};</script>
 ${pagina === 'trabalhos' ? `<script src="${base}assets/fuse.min.js" defer></script>` : ''}
-<script src="${base}assets/app.js" defer></script>
+<script src="${base}assets/app.js?v=${versao}" defer></script>
 </body>
 </html>
 `;

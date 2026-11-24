@@ -251,7 +251,7 @@
       q.value = ''; if (qTopo) qTopo.value = '';
       render(); q.focus();
     });
-    fetch(SITE.base + 'data/trabalhos.json').then(function (r) { return r.json(); }).then(function (json) {
+    fetch(SITE.base + 'data/trabalhos.json' + (SITE.v ? '?v=' + SITE.v : '')).then(function (r) { return r.json(); }).then(function (json) {
       dados = json.map(function (x) {
         x._b = {
           titulo: semAcento(x.titulos ? [x.titulos.pt, x.titulos.en, x.titulos.es].join(' ') : x.titulo),
@@ -562,7 +562,7 @@
   function mostrarVistos() {
     var sec = $('#vistos'), lista = $('#vistos-lista'), slugs = lerVistos();
     if (!sec || !lista || !slugs.length) return;
-    fetch(SITE.base + 'data/trabalhos.json').then(function (r) { return r.json(); }).then(function (json) {
+    fetch(SITE.base + 'data/trabalhos.json' + (SITE.v ? '?v=' + SITE.v : '')).then(function (r) { return r.json(); }).then(function (json) {
       var todos = Array.isArray(json) ? json : json.trabalhos || [];
       var por = {}; todos.forEach(function (x) { por[x.slug] = x; });
       var itens = slugs.map(function (s) { return por[s]; }).filter(Boolean);
