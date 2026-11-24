@@ -505,7 +505,7 @@
       canvas.width = Math.max(1, Math.round(largura * dpr)); canvas.height = Math.max(1, Math.round(altura * dpr));
       var fonte = (opcoes.peso || 400) + ' ' + (fontSize * dpr) + 'px ' + (opcoes.fonte || 'Menlo, ui-monospace, SFMono-Regular, Consolas, monospace');
       var m = document.createElement('canvas').getContext('2d'); m.font = fonte;
-      cell = [Math.round(m.measureText('M'.repeat(LARGO)).width + (LARGO > 1 ? fontSize * 0.9 * dpr : 0)), Math.round(fontSize * (LARGO > 1 ? 1.9 : 1.25) * dpr)];
+      cell = [Math.round(m.measureText('M'.repeat(LARGO)).width + (LARGO > 1 ? fontSize * 0.25 * dpr : 0)), Math.round(fontSize * 1.25 * dpr)];
       var at = document.createElement('canvas'); at.width = Math.ceil(cell[0] * CH.length); at.height = Math.ceil(cell[1]);
       var c = at.getContext('2d'); c.font = fonte; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillStyle = '#fff';
       for (var i = 0; i < CH.length; i++) c.fillText(CH[i], (i + 0.5) * cell[0], cell[1] / 2);
@@ -597,7 +597,7 @@
   if (SITE.pagina === 'trabalho') marcarVisto();
   if (SITE.pagina === 'inicio') mostrarVistos();
   if (SITE.pagina === 'inicio') fundoGlifos($('.hero'), {
-    cor: '#2E54A2', destaque: '#F9B234', haze: 0.15, fontSize: 11, peso: 600, fonte: 'Montserrat, Arial, sans-serif',
+    cor: '#2E54A2', destaque: '#F9B234', haze: 0.17, fontSize: 9, peso: 500, fonte: 'Menlo, ui-monospace, SFMono-Regular, Consolas, monospace',
     simbolos: ['AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS', 'MG', 'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO']
   });
   if (SITE.pagina === 'trabalhos') paginaTrabalhos();
