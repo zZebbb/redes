@@ -337,7 +337,6 @@
       partes.push('In: ' + x(evento) + (dados.numero ? ', ' + x(dados.numero) + '.' : '') + ', ' + x(dados.ano) + (dados.cidade ? ', ' + x(dados.cidade) : '') + '. ');
       partes.push(b('Anais') + ' [...]. ');
       partes.push((dados.cidade ? x(dados.cidade) + ': ' : '') + (dados.editora ? x(dados.editora) + ', ' : '') + x(dados.ano) + '. ');
-      if (dados.issn) partes.push('ISSN ' + x(dados.issn) + '. ');
       if (dados.doi) partes.push('DOI: ' + x('https://doi.org/' + dados.doi) + '. ');
       partes.push('Disponível em: ' + x(url) + '. Acesso em: ' + acesso + '.');
       return partes.join('');
