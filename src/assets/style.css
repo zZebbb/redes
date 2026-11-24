@@ -351,3 +351,16 @@ a.tag:hover { background: var(--c-pri-claro); color: var(--c-pri); }
   .tr-baixo { transform: none; }
   .tr-cima { visibility: hidden; }
 }
+
+/* ---------- Autores: grade alinhada ---------- */
+.autor { display: flex; }
+.autor details { flex: 1; display: flex; flex-direction: column; }
+.autor summary { align-items: flex-start; height: 100%; }
+.autor-n { flex: none; margin-top: 2px; }
+.autor summary::after { flex: none; width: 12px; text-align: center; line-height: 22px; }
+.autor-inst { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin-top: 2px; }
+/* Ao abrir, o card ocupa a linha inteira para a lista de trabalhos caber sem desalinhar a grade */
+.autores { grid-auto-flow: row dense; }
+.autor:has(details[open]) { grid-column: 1 / -1; }
+.autor details[open] summary { height: auto; }
+.autor details[open] .autor-inst { -webkit-line-clamp: unset; display: block; }
