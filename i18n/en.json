@@ -64,5 +64,6 @@
   "lista.vista_tabela": "Table",
   "lista.col_titulo": "Title",
   "lista.col_autores": "Authors",
-  "home.anais": "Proceedings"
+  "home.anais": "Proceedings",
+  "home.vistos": "Recently viewed"
 }

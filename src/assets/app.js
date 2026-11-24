@@ -338,7 +338,8 @@
       });
     }
 
-    // Como citar (ABNT NBR 6023)
+    // Como citar (ABNT NBR 6023), se a página tiver o bloco
+    if (!$('#dados-citacao') || !$('#citacao')) return;
     var dados = JSON.parse($('#dados-citacao').textContent);
     var MESES = ['jan.', 'fev.', 'mar.', 'abr.', 'maio', 'jun.', 'jul.', 'ago.', 'set.', 'out.', 'nov.', 'dez.'];
     var hoje = new Date();
@@ -432,7 +433,163 @@
     abrirHash();
   }
 
+
+  // ---------------- Fundo de letras animado no banner ----------------
+  // Adaptado do componente "Glyph Background" do Animate UI (licença MIT), sem React/Motion:
+  // letras que surgem em nuvens, rastro ao passar o mouse e ondas ao clicar.
+  function fundoGlifos(raiz, opcoes) {
+    if (!raiz || !window.WebGLRenderingContext) return;
+    var CH = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    var MAX_WAVES = 12, TRAIL = 12, TRAIL_LIFE = 700, WAVE_LIFE = 4, WAVE_GAP = 0.3, WAVE_SPEED = 560, WAVE_SLOWDOWN = 0.66;
+    var DRIFT = [-30, 12], ACTIVITY_DECAY = 900, fontSize = opcoes.fontSize || 11;
+    var VERTEX = 'attribute vec2 position;void main(){gl_Position=vec4(position,0.0,1.0);}';
+    var FRAGMENT = [
+      'precision highp float;',
+      'uniform sampler2D atlas;uniform vec2 size;uniform vec2 cell;uniform float dpr;uniform float count;uniform float time;',
+      'uniform float rest;uniform float haze;uniform float hoverInk;uniform float activity;uniform vec2 drift;uniform vec3 color;uniform vec3 accent;',
+      'uniform vec4 waves[' + MAX_WAVES * 2 + '];uniform vec4 trail[' + TRAIL + '];',
+      'float hash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}',
+      'float smoothNoise(vec2 p){vec2 i=floor(p);vec2 f=fract(p);vec2 u=f*f*(3.0-2.0*f);return mix(mix(hash(i),hash(i+vec2(1.0,0.0)),u.x),mix(hash(i+vec2(0.0,1.0)),hash(i+vec2(1.0,1.0)),u.x),u.y);}',
+      'float outline(float kind,float angle,float phase){if(kind<0.5)return 1.0;if(kind<1.5){float s=sin(angle);float c=cos(angle);return (2.0-2.0*s+s*sqrt(abs(c))/(s+1.4))*0.42;}return 1.0+0.14*sin(3.0*angle+phase)+0.08*sin(5.0*angle-phase*1.3);}',
+      'void main(){',
+      ' vec2 pixel=vec2(gl_FragCoord.x,size.y-gl_FragCoord.y);vec2 index=floor(pixel/cell);vec2 point=(index+0.5)*cell/dpr;',
+      ' float ring=0.0;',
+      ' for(int i=0;i<' + MAX_WAVES + ';i++){vec4 a=waves[i*2];vec4 b=waves[i*2+1];if(a.w<=0.0)continue;vec2 v=point-a.xy;float angle=atan(-v.y,v.x);',
+      '  float shape=mix(1.0,outline(b.x,angle,b.z),b.y);shape*=1.0+0.07*sin(3.0*angle+b.z+b.w)+0.05*sin(5.0*angle-b.z*1.7-b.w*1.3)+0.03*sin(9.0*angle+b.w*2.1);',
+      '  float d=length(v)-a.z*shape;float k=d>0.0?d/10.0:d/30.0;ring=max(ring,exp(-k*k)*a.w);}',
+      ' float hover=0.0;',
+      ' for(int i=0;i<' + TRAIL + ';i++){vec4 t=trail[i];if(t.w<=0.0)continue;vec2 v=point-t.xy;hover+=t.w*exp(-dot(v,v)/(2.0*t.z*t.z));}',
+      ' hover=min(hover,1.0);',
+      ' mat2 turn=mat2(0.82,0.57,-0.57,0.82);vec2 q=turn*(point-drift);',
+      ' float blob=smoothNoise(vec2(q.x/140.0,q.y/80.0)+vec2(time*0.04,0.0))*0.62+smoothNoise(vec2(q.x/62.0,q.y/36.0)+vec2(3.7,time*0.06))*0.38;',
+      ' float grain=smoothNoise(vec2(q.x/30.0,q.y/14.0)+vec2(time*0.2,7.3));float cloud=blob*(0.82+0.24*grain);',
+      ' float mask=pow(smoothstep(0.47-0.2*activity,0.84,cloud),2.6);',
+      ' float seed=hash(index);float epoch=floor(time*0.08*(0.4+seed)+seed*97.0);float character=floor(hash(index+epoch*0.137)*count);',
+      ' vec2 local=fract(pixel/cell);float ink=pow(texture2D(atlas,vec2((character+local.x)/count,local.y)).a,1.7);',
+      ' float grey=ink*clamp(rest+haze*mask*(1.0+0.3*activity)+hoverInk*hover*(0.6+0.4*mask),0.0,1.0);',
+      ' float blue=ink*ring*0.72;float alpha=grey+blue-grey*blue;vec3 tint=color*grey*(1.0-blue)+accent*blue;gl_FragColor=vec4(tint,alpha);',
+      '}'
+    ].join('\n');
+
+    var canvas = document.createElement('canvas');
+    canvas.className = 'glifos'; canvas.setAttribute('aria-hidden', 'true');
+    raiz.insertBefore(canvas, raiz.firstChild);
+    var gl = canvas.getContext('webgl', { premultipliedAlpha: true, preserveDrawingBuffer: true, antialias: false });
+    if (!gl) { canvas.remove(); return; }
+    function compilar(tipo, fonte) { var s = gl.createShader(tipo); gl.shaderSource(s, fonte); gl.compileShader(s); return gl.getShaderParameter(s, gl.COMPILE_STATUS) ? s : null; }
+    var vs = compilar(gl.VERTEX_SHADER, VERTEX), fs = compilar(gl.FRAGMENT_SHADER, FRAGMENT), prog = gl.createProgram();
+    if (!vs || !fs) { canvas.remove(); return; }
+    gl.attachShader(prog, vs); gl.attachShader(prog, fs); gl.linkProgram(prog);
+    if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) { canvas.remove(); return; }
+    gl.useProgram(prog);
+    gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+    var pos = gl.getAttribLocation(prog, 'position'); gl.enableVertexAttribArray(pos); gl.vertexAttribPointer(pos, 2, gl.FLOAT, false, 0, 0);
+    var tex = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, tex);
+    [gl.TEXTURE_MIN_FILTER, gl.TEXTURE_MAG_FILTER].forEach(function (p) { gl.texParameteri(gl.TEXTURE_2D, p, gl.LINEAR); });
+    [gl.TEXTURE_WRAP_S, gl.TEXTURE_WRAP_T].forEach(function (p) { gl.texParameteri(gl.TEXTURE_2D, p, gl.CLAMP_TO_EDGE); });
+    var U = {}; ['atlas', 'size', 'cell', 'dpr', 'count', 'time', 'rest', 'haze', 'hoverInk', 'activity', 'drift', 'color', 'accent', 'waves', 'trail'].forEach(function (n) { U[n] = gl.getUniformLocation(prog, n); });
+    gl.uniform1i(U.atlas, 0); gl.uniform1f(U.count, CH.length); gl.uniform1f(U.rest, 0);
+    gl.uniform1f(U.haze, opcoes.haze || 0.1); gl.uniform1f(U.hoverInk, 0.3);
+    function rgb(c) { var x = document.createElement('canvas').getContext('2d'); x.fillStyle = c; x.fillRect(0, 0, 1, 1); var d = x.getImageData(0, 0, 1, 1).data; return [d[0] / 255, d[1] / 255, d[2] / 255]; }
+    var cor = rgb(opcoes.cor), destaque = rgb(opcoes.destaque);
+
+    var largura = 0, altura = 0, dpr = 1, cell = [7, 13], tempo = 0, ondas = [], rastro = [], energia = { v: 0, at: 0 };
+    var W = new Float32Array(MAX_WAVES * 8), T = new Float32Array(TRAIL * 4);
+    function redimensionar() {
+      var r = raiz.getBoundingClientRect(); largura = r.width; altura = r.height;
+      dpr = Math.max(1, Math.min(window.devicePixelRatio || 1, 2));
+      canvas.width = Math.max(1, Math.round(largura * dpr)); canvas.height = Math.max(1, Math.round(altura * dpr));
+      var fonte = (fontSize * dpr) + 'px Menlo, ui-monospace, SFMono-Regular, Consolas, monospace';
+      var m = document.createElement('canvas').getContext('2d'); m.font = fonte;
+      cell = [Math.round(m.measureText('0').width), Math.round(fontSize * 1.25 * dpr)];
+      var at = document.createElement('canvas'); at.width = Math.ceil(cell[0] * CH.length); at.height = Math.ceil(cell[1]);
+      var c = at.getContext('2d'); c.font = fonte; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillStyle = '#fff';
+      for (var i = 0; i < CH.length; i++) c.fillText(CH[i], (i + 0.5) * cell[0], cell[1] / 2);
+      gl.bindTexture(gl.TEXTURE_2D, tex); gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, at);
+    }
+    function desenhar() {
+      if (!largura || !altura) return;
+      W.fill(0);
+      ondas = ondas.filter(function (o) { return tempo / 1000 - o.inicio < WAVE_LIFE + o.atraso; });
+      ondas.slice(-MAX_WAVES).forEach(function (o, i) {
+        var idade = tempo / 1000 - o.inicio - o.atraso; if (idade <= 0) return;
+        var raio = (WAVE_SPEED * idade) / (1 + WAVE_SLOWDOWN * idade);
+        var fade = Math.min(1, idade / 0.05) * Math.exp(-Math.max(0, idade - 0.4) / 1.3) * Math.min(1, (WAVE_LIFE - idade) / 0.5);
+        W.set([o.x, o.y, raio, Math.max(0, fade) * o.forca, o.tipo, 0.12 + 0.5 * Math.min(1, idade / 2.2), o.fase, idade * 3], i * 8);
+      });
+      T.fill(0);
+      rastro.forEach(function (p, i) {
+        var idade = (tempo - p.t) / TRAIL_LIFE; if (idade < 0 || idade >= 1) return;
+        T.set([p.x, p.y, 40 + 25 * idade, 0.3 * (1 - idade) * (1 - idade)], i * 4);
+      });
+      var s = tempo / 1000, act = energia.v * Math.exp(-Math.max(0, tempo - energia.at) / ACTIVITY_DECAY);
+      gl.viewport(0, 0, canvas.width, canvas.height);
+      gl.uniform2f(U.size, canvas.width, canvas.height); gl.uniform2f(U.cell, cell[0], cell[1]); gl.uniform1f(U.dpr, dpr);
+      gl.uniform1f(U.time, s); gl.uniform1f(U.activity, act); gl.uniform2f(U.drift, DRIFT[0] * s, DRIFT[1] * s);
+      gl.uniform3f(U.color, cor[0], cor[1], cor[2]); gl.uniform3f(U.accent, destaque[0], destaque[1], destaque[2]);
+      gl.uniform4fv(U.waves, W); gl.uniform4fv(U.trail, T);
+      gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT); gl.drawArrays(gl.TRIANGLES, 0, 3);
+    }
+    redimensionar(); desenhar();
+    if ('ResizeObserver' in window) new ResizeObserver(function () { redimensionar(); desenhar(); }).observe(raiz);
+
+    var menos = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (menos) return;
+    var visivel = true, rodando = false, ultimo = 0;
+    function passo(agora) {
+      if (!visivel || document.hidden) { rodando = false; return; }
+      tempo += Math.min(agora - (ultimo || agora), 64); ultimo = agora;
+      desenhar(); requestAnimationFrame(passo);
+    }
+    function ligar() { if (!rodando && visivel && !document.hidden) { rodando = true; ultimo = 0; requestAnimationFrame(passo); } }
+    if ('IntersectionObserver' in window) new IntersectionObserver(function (e) { visivel = e[0].isIntersecting; ligar(); }).observe(raiz);
+    document.addEventListener('visibilitychange', ligar);
+    ligar();
+    function ponto(ev) { var r = raiz.getBoundingClientRect(); return { x: ev.clientX - r.left, y: ev.clientY - r.top }; }
+    raiz.addEventListener('pointermove', function (ev) {
+      var p = ponto(ev), ult = rastro[rastro.length - 1];
+      var atual = energia.v * Math.exp(-Math.max(0, tempo - energia.at) / ACTIVITY_DECAY);
+      energia = { v: Math.min(1, atual + (ult ? Math.hypot(p.x - ult.x, p.y - ult.y) : 0) / 600), at: tempo };
+      if (ult && Math.hypot(p.x - ult.x, p.y - ult.y) < 18) return;
+      rastro = rastro.filter(function (q) { return tempo - q.t < TRAIL_LIFE; }).slice(1 - TRAIL);
+      rastro.push({ x: p.x, y: p.y, t: tempo });
+    });
+    raiz.addEventListener('pointerdown', function (ev) {
+      if (ev.target.closest('a, button, input, form')) return;
+      var p = ponto(ev), tipo = 1 + Math.floor(Math.random() * 2), fase = Math.random() * Math.PI * 2;
+      [[0, 1], [WAVE_GAP, 0.55]].forEach(function (d) { ondas.push({ x: p.x, y: p.y, tipo: tipo, fase: fase, forca: d[1], inicio: tempo / 1000, atraso: d[0] }); });
+      ondas = ondas.slice(-MAX_WAVES);
+    });
+  }
+
+  // ---------------- Trabalhos vistos recentemente ----------------
+  var CHAVE_VISTOS = 'rb-vistos';
+  function lerVistos() { try { return JSON.parse(localStorage.getItem(CHAVE_VISTOS)) || []; } catch (e) { return []; } }
+  function marcarVisto() {
+    var m = location.pathname.match(/trabalho\/([^/]+)\//); if (!m) return;
+    var slug = decodeURIComponent(m[1]);
+    var l = lerVistos().filter(function (s) { return s !== slug; }); l.unshift(slug);
+    try { localStorage.setItem(CHAVE_VISTOS, JSON.stringify(l.slice(0, 5))); } catch (e) {}
+  }
+  function mostrarVistos() {
+    var sec = $('#vistos'), lista = $('#vistos-lista'), slugs = lerVistos();
+    if (!sec || !lista || !slugs.length) return;
+    fetch(SITE.base + 'data/trabalhos.json').then(function (r) { return r.json(); }).then(function (json) {
+      var todos = Array.isArray(json) ? json : json.trabalhos || [];
+      var por = {}; todos.forEach(function (x) { por[x.slug] = x; });
+      var itens = slugs.map(function (s) { return por[s]; }).filter(Boolean);
+      if (!itens.length) return;
+      function render() { lista.innerHTML = itens.map(cardTrabalho).join(''); }
+      render(); sec.hidden = false;
+      var antes = window.__aoTrocarIdioma;
+      window.__aoTrocarIdioma = function () { if (antes) antes(); render(); };
+    }).catch(function () {});
+  }
+
   aplicarIdioma();
+  if (SITE.pagina === 'trabalho') marcarVisto();
+  if (SITE.pagina === 'inicio') { mostrarVistos(); fundoGlifos($('.hero'), { cor: '#2E54A2', destaque: '#F9B234', haze: 0.16 }); }
   if (SITE.pagina === 'trabalhos') paginaTrabalhos();
   if (SITE.pagina === 'trabalho') paginaTrabalho();
   if (SITE.pagina === 'autores') paginaAutores();

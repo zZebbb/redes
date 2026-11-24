@@ -80,13 +80,13 @@ const monograma = (() => {
 
 const temHero = p => p === 'inicio';
 
-// Banner da página inicial em 60/30/10: azul de fundo, branco no símbolo da marca e na busca, amarelo nas ações.
+// Banner da página inicial em 60/30/10: branco de fundo (com letras animadas), azul no título e no símbolo, amarelo nas ações.
 function hero(base) {
   const ano = trabalhos.find(x => x.ano)?.ano || '';
   return `<section class="hero">
   <div class="hero-in">
     <div class="hero-texto">
-      <p class="hero-kicker"><span ${T('home.anais')}>${t('home.anais')}</span>${ano ? ` · ${e(ano)}` : ''}</p>
+      <p class="hero-kicker"><span><span ${T('home.anais')}>${t('home.anais')}</span>${ano ? ` · ${e(ano)}` : ''}</span></p>
       <h1 class="hero-nome text-roll" data-text-roll ${TR(config.nome_evento)}>${e(nomeEvento)}</h1>
       <form class="hero-busca" action="${base}trabalhos/" method="get" role="search">
         <label class="sr" for="q-topo" ${T('home.buscar_titulo')}>${t('home.buscar_titulo')}</label>
@@ -97,7 +97,6 @@ function hero(base) {
     </div>
     ${config.simbolo_banner ? `<img class="hero-simbolo" src="${base}${e(config.simbolo_banner)}" alt="" width="445" height="339">` : ''}
   </div>
-  <p class="hero-resumo"><span class="hero-resumo-in"><a href="${base}trabalhos/"><b>${trabalhos.length}</b> <span ${T('home.trabalhos')}>${t('home.trabalhos')}</span></a><a href="${base}autores/"><b>${autores.length}</b> <span ${T('home.autores')}>${t('home.autores')}</span></a><a href="#eixos"><b>${eixos.length}</b> <span ${T('home.eixos')}>${t('home.eixos')}</span></a></span></p>
 </section>`;
 }
 
@@ -203,25 +202,20 @@ await writeFile(path.join(dist, '.nojekyll'), '');
 // ---------- Início ----------
 {
   const base = './';
-  // Até 6 trabalhos, alternando entre os eixos para mostrar variedade.
-  const filas = eixos.map(x => trabalhos.filter(y => y.eixo === x));
-  if (trabalhos.some(y => !y.eixo)) filas.push(trabalhos.filter(y => !y.eixo));
-  const destaque = [];
-  for (let i = 0; destaque.length < Math.min(6, trabalhos.length); i++) for (const f of filas) if (f[i] && destaque.length < 6) destaque.push(f[i]);
   const corpo = `
 ${txt(config.apresentacao) ? `<section class="sec apresentacao"><p ${TR(config.apresentacao)}>${e(txt(config.apresentacao))}</p></section>` : ''}
 <section class="sec" id="eixos">
-  <h2 class="tit-sec" ${T('home.eixos_titulo')}>${t('home.eixos_titulo')}</h2>
-  <ol class="eixos">
-    ${eixos.map((x, i) => `<li><a class="eixo" style="--c:${eixoCor(x)}" href="trabalhos/?eixo=${encodeURIComponent(x)}"><b class="eixo-n">${String(i + 1).padStart(2, '0')}</b><span class="eixo-nome">${e(x.replace(/^Eixo\s*\d+\s*[–-]\s*/i, ''))}</span><span class="eixo-qtd">${contarEixo(x)} <small ${T('home.trabalhos')}>${t('home.trabalhos')}</small></span></a></li>`).join('\n    ')}
-  </ol>
-</section>
-<section class="sec">
   <div class="sec-cab">
-    <h2 class="tit-sec" ${T('home.recentes')}>${t('home.recentes')}</h2>
+    <h2 class="tit-sec" ${T('home.eixos_titulo')}>${t('home.eixos_titulo')}</h2>
     <a class="link-seta" href="trabalhos/" ${T('home.ver_todos')}>${t('home.ver_todos')}</a>
   </div>
-  <ul class="papers">${destaque.map(x => card(x, base)).join('\n')}</ul>
+  <ol class="eixos">
+    ${eixos.map((x, i) => `<li><a class="eixo" style="--c:${eixoCor(x)}" href="trabalhos/?eixo=${encodeURIComponent(x)}"><b class="eixo-n">${String(i + 1).padStart(2, '0')}</b><span class="eixo-nome">${e(x.replace(/^Eixo\s*\d+\s*[–-]\s*/i, ''))}</span></a></li>`).join('\n    ')}
+  </ol>
+</section>
+<section class="sec" id="vistos" hidden>
+  <h2 class="tit-sec" ${T('home.vistos')}>${t('home.vistos')}</h2>
+  <ul class="papers" id="vistos-lista"></ul>
 </section>`;
   await salvar('index.html', layout({ base, titulo: '', pagina: 'inicio', corpo, canonical: siteURL ? siteURL + '/' : '' }));
 }
@@ -291,18 +285,6 @@ for (const x of trabalhos) {
     ['citation_abstract_html_url', url],
     ['citation_language', 'pt']
   ].filter(([, v]) => v).map(([n, v]) => `<meta name="${n}" content="${e(v)}">`).join('\n');
-  const dadosCit = {
-    autores: x.citacao,
-    titulo: x.titulo,
-    evento: config.nome_citacao || nomeEvento,
-    numero: config.numero_edicao || '',
-    cidade: config.cidade || '',
-    editora: config.editora || '',
-    ano: x.ano,
-    issn: config.issn || '',
-    doi: x.doi || '',
-    url: url || null
-  };
   const corpo = `
 <article class="sec trabalho">
   <a class="voltar" href="${base}trabalhos/" ${T('trab.voltar')}>${t('trab.voltar')}</a>
@@ -350,16 +332,8 @@ for (const x of trabalhos) {
           : `<p class="aviso" ${T('trab.sem_pdf')}>${t('trab.sem_pdf')}</p>`}
       </div>
       ${x.eixo ? `<section class="caixa"><div class="caixa-cab"><h2 ${T('trab.eixo')}>${t('trab.eixo')}</h2></div><p class="caixa-corpo"><a href="${base}trabalhos/?eixo=${encodeURIComponent(x.eixo)}">${e(x.eixo)}</a></p></section>` : ''}
-      <section class="caixa citar">
-        <div class="caixa-cab"><h2 ${T('trab.como_citar')}>${t('trab.como_citar')}</h2><span class="norma">ABNT</span></div>
-        <div class="caixa-corpo">
-          <p id="citacao" class="citacao"></p>
-          <button type="button" id="copiar" class="btn btn-sec btn-peq" ${T('trab.copiar')}>${t('trab.copiar')}</button>
-        </div>
-      </section>
     </aside>
   </div>
-  <script type="application/json" id="dados-citacao">${JSON.stringify(dadosCit).replace(/</g, '\\u003c')}</script>
 </article>`;
   await salvar(`trabalho/${x.slug}/index.html`, layout({ base, titulo: x.titulo, descricao: desc, pagina: 'trabalho', corpo, metaExtra: meta, canonical: url }));
 }

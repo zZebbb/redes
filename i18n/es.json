@@ -64,5 +64,6 @@
   "lista.vista_tabela": "Tabla",
   "lista.col_titulo": "Título",
   "lista.col_autores": "Autores",
-  "home.anais": "Anales"
+  "home.anais": "Anales",
+  "home.vistos": "Vistos recientemente"
 }
