@@ -40,7 +40,7 @@ Enquanto não houver link, o site usa os 5 trabalhos fictícios de `data/exemplo
 
 ## 3. Dados do evento, banner e cores
 
-Tudo fica em [`config.json`](config.json). Campos entre `[colchetes]` são provisórios.
+Tudo fica em [`config.json`](config.json), dividido em 4 blocos: **dados do evento**, **visual**, **planilha** e **opcional**. Campos entre `[colchetes]` são provisórios: ao rodar `npm run build` (ou no log do GitHub Actions) aparece a lista do que ainda falta preencher.
 
 - `nome_evento`, `subtitulo`, `apresentacao`: texto em `pt`, `en` e `es` (se deixar só `pt`, ele é usado nos três idiomas).
 - `sigla`, `edicao`, `issn`, `cidade`, `editora`: aparecem no topo, na home e no "Como citar".

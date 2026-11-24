@@ -10,6 +10,18 @@ const ler = async f => JSON.parse(await readFile(path.join(raiz, f), 'utf8'));
 const existe = async f => access(f).then(() => true, () => false);
 
 const config = await ler('config.json');
+
+// Campos provisórios: qualquer texto entre [colchetes] ou campos essenciais vazios.
+const pendentes = [];
+(function procurar(obj, caminho) {
+  for (const [k, v] of Object.entries(obj)) {
+    if (k.startsWith('_')) continue;
+    const c = caminho ? `${caminho}.${k}` : k;
+    if (v && typeof v === 'object') procurar(v, c);
+    else if (typeof v === 'string' && /^\[.*\]$/.test(v.trim())) pendentes.push(c);
+  }
+})(config, '');
+for (const c of ['logo', 'banner', 'planilha_csv_url']) if (!config[c] && !(c === 'planilha_csv_url' && process.env.PLANILHA_CSV_URL)) pendentes.push(c);
 const i18n = { pt: await ler('i18n/pt.json'), en: await ler('i18n/en.json'), es: await ler('i18n/es.json') };
 if (!(await existe(path.join(raiz, 'data/trabalhos.json')))) {
   console.error('data/trabalhos.json não existe. Rode "npm run sync" antes.');
@@ -44,6 +56,7 @@ function layout({ base, titulo, descricao = '', pagina, corpo, metaExtra = '', c
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="${e(cores.primaria)}">
 <title>${e(tituloCompleto)}</title>
 <meta name="description" content="${e(descricao || txt(config.subtitulo))}">
 <meta property="og:title" content="${e(titulo || nomeEvento)}">
@@ -185,7 +198,11 @@ ${txt(config.apresentacao) ? `<section class="sec apresentacao"><p ${TR(config.a
       <label class="sr" for="q" ${T('lista.buscar_placeholder')}>${t('lista.buscar_placeholder')}</label>
       <input id="q" type="search" placeholder="${e(t('lista.buscar_placeholder'))}" data-i18n-ph="lista.buscar_placeholder" autocomplete="off">
     </div>
-    <div class="selects">
+    <button type="button" id="abrir-filtros" class="btn-filtros" aria-expanded="false" aria-controls="selects">
+      <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M3 5h18l-7 8v6l-4-2v-4z"/></svg>
+      <span ${T('lista.filtros')}>${t('lista.filtros')}</span><span id="n-filtros" class="n-filtros" hidden></span>
+    </button>
+    <div class="selects" id="selects">
       <label><span ${T('lista.eixo')}>${t('lista.eixo')}</span>
         <select id="f-eixo"><option value="" ${T('lista.todos')}>${t('lista.todos')}</option>${eixos.map(x => `<option>${e(x)}</option>`).join('')}</select>
       </label>
@@ -245,6 +262,10 @@ for (const x of trabalhos) {
     ${x.ano ? `<div><dt ${T('trab.ano')}>${t('trab.ano')}</dt><dd>${e(x.ano)}</dd></div>` : ''}
     ${x.doi ? `<div><dt>DOI</dt><dd><a href="https://doi.org/${e(x.doi)}">${e(x.doi)}</a></dd></div>` : ''}
   </dl>
+  <button type="button" id="compartilhar" class="btn-link" hidden>
+    <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M18 16a3 3 0 00-2.4 1.2l-6.7-3.4a3 3 0 000-1.6l6.7-3.4A3 3 0 1015 7l-6.7 3.4a3 3 0 100 3.2L15 17a3 3 0 103-1z"/></svg>
+    <span ${T('trab.compartilhar')}>${t('trab.compartilhar')}</span>
+  </button>
   <div class="trab-grid">
     <div class="trab-princ">
       <section class="caixa">
@@ -329,4 +350,9 @@ if (siteURL) {
   await salvar('robots.txt', `User-agent: *\nAllow: /\nSitemap: ${siteURL}/sitemap.xml\n`);
 }
 
+if (pendentes.length) {
+  console.warn(`\nAtenção: ${pendentes.length} campo(s) do config.json ainda provisório(s):`);
+  for (const c of pendentes) console.warn(`  - ${c}`);
+  console.warn('');
+}
 console.log(`Site gerado em dist/: ${trabalhos.length} páginas de trabalho, ${autores.length} autores, ${eixos.length} eixos.`);

@@ -5,7 +5,6 @@
   "nav.idioma": "Language",
   "nav.pular": "Skip to content",
   "nav.menu": "Menu",
-
   "home.buscar_titulo": "Find a paper",
   "home.buscar_placeholder": "Search by title, author, keyword or abstract",
   "home.buscar_botao": "Search",
@@ -15,7 +14,6 @@
   "home.eixos_titulo": "Thematic areas",
   "home.ver_todos": "See all papers",
   "home.recentes": "Some papers",
-
   "lista.titulo": "Papers",
   "lista.buscar_placeholder": "Title, author, keyword or abstract",
   "lista.eixo": "Thematic area",
@@ -29,7 +27,6 @@
   "lista.anterior": "Previous",
   "lista.proxima": "Next",
   "lista.pagina": "Page {p} of {t}",
-
   "trab.resumo": "Abstract",
   "trab.palavras_chave": "Keywords",
   "trab.eixo": "Thematic area",
@@ -46,16 +43,16 @@
   "trab.voltar": "Back to papers",
   "trab.acesso_em": "Accessed on",
   "trab.disponivel_em": "Available at",
-
   "autores.titulo": "Authors",
   "autores.buscar_placeholder": "Search author",
   "autores.trabalhos": "papers",
   "autores.trabalho": "paper",
   "autores.nenhum": "No authors found.",
-
   "rodape.issn": "ISSN",
   "rodape.feito": "Open access proceedings.",
-
   "404.titulo": "Page not found",
-  "404.texto": "The address may have changed. Use the search to find the paper."
+  "404.texto": "The address may have changed. Use the search to find the paper.",
+  "lista.filtros": "Filters",
+  "trab.compartilhar": "Share",
+  "trab.link_copiado": "Link copied!"
 }

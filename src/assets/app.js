@@ -55,6 +55,19 @@
     var estado = { q: params.get('q') || '', eixo: params.get('eixo') || '', mod: params.get('modalidade') || '', p: parseInt(params.get('p'), 10) || 1 };
     q.value = estado.q; fEixo.value = estado.eixo; fMod.value = estado.mod;
 
+    // No celular os filtros ficam recolhidos atrás de um botão.
+    var btnFiltros = $('#abrir-filtros'), nFiltros = $('#n-filtros'), caixaFiltros = $('#selects');
+    btnFiltros.addEventListener('click', function () {
+      var aberto = btnFiltros.getAttribute('aria-expanded') === 'true';
+      btnFiltros.setAttribute('aria-expanded', String(!aberto));
+      caixaFiltros.classList.toggle('aberto', !aberto);
+    });
+    function atualizarNFiltros() {
+      var n = (estado.eixo ? 1 : 0) + (estado.mod ? 1 : 0);
+      nFiltros.textContent = n; nFiltros.hidden = !n;
+    }
+    if (estado.eixo || estado.mod) { btnFiltros.setAttribute('aria-expanded', 'true'); caixaFiltros.classList.add('aberto'); }
+
     function urlEstado() {
       var u = new URLSearchParams();
       if (estado.q) u.set('q', estado.q);
@@ -63,6 +76,7 @@
       if (estado.p > 1) u.set('p', estado.p);
       var s = u.toString();
       history.replaceState(null, '', location.pathname + (s ? '?' + s : ''));
+      atualizarNFiltros();
     }
 
     function card(x) {
@@ -174,6 +188,22 @@
     });
     window.__aoTrocarIdioma = function () { ativar(idioma); };
     ativar(idioma);
+
+    // Compartilhar: menu nativo no celular; no computador, copia o link.
+    var btnComp = $('#compartilhar');
+    if (btnComp) {
+      btnComp.hidden = false;
+      btnComp.addEventListener('click', function () {
+        var link = location.href.split('#')[0].split('?')[0];
+        if (navigator.share) {
+          navigator.share({ title: document.querySelector('.trab-tit').textContent, url: link }).catch(function () {});
+          return;
+        }
+        var rot = $('span', btnComp);
+        var ok = function () { rot.textContent = t('trab.link_copiado'); setTimeout(function () { rot.textContent = t('trab.compartilhar'); }, 2000); };
+        if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(link).then(ok, function () {});
+      });
+    }
 
     // Como citar (ABNT NBR 6023)
     var dados = JSON.parse($('#dados-citacao').textContent);

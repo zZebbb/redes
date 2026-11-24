@@ -1,6 +1,7 @@
 {
-  "_leia_me": "Campos entre [colchetes] são provisórios: troque pelos dados reais do evento. Veja o README.",
+  "_leia_me": "Troque tudo que está entre [colchetes]. Ao rodar o build, o site lista no terminal os campos que ainda faltam. Imagens vão na pasta public/. Detalhes no README.",
 
+  "_____ 1. DADOS DO EVENTO (obrigatório) _____": "",
   "nome_evento": {
     "pt": "[Nome do Evento]",
     "en": "[Event Name]",
@@ -8,6 +9,26 @@
   },
   "sigla": "[SIGLA]",
   "edicao": "2026",
+  "issn": "[XXXX-XXXX]",
+  "cidade": "[Cidade]",
+  "editora": "[Instituição organizadora]",
+
+  "_____ 2. VISUAL (logo e banner: nome do arquivo dentro de public/) _____": "",
+  "logo": "",
+  "banner": "",
+  "favicon": "",
+  "cores": {
+    "primaria": "#0f5f73",
+    "secundaria": "#e07a2e",
+    "fundo": "#f6f4ef",
+    "texto": "#1d2733"
+  },
+
+  "_____ 3. PLANILHA (link CSV publicado do Google Sheets) _____": "",
+  "planilha_csv_url": "",
+
+  "_____ 4. OPCIONAL _____": "",
+  "doi_prefixo": "",
   "subtitulo": {
     "pt": "Anais do evento: trabalhos apresentados",
     "en": "Proceedings: papers presented at the event",
@@ -18,24 +39,6 @@
     "en": "",
     "es": ""
   },
-
-  "issn": "[XXXX-XXXX]",
-  "doi_prefixo": "",
-  "cidade": "[Cidade]",
-  "editora": "[Instituição organizadora]",
-
-  "logo": "",
-  "banner": "",
-  "favicon": "",
-
-  "cores": {
-    "primaria": "#0f5f73",
-    "secundaria": "#e07a2e",
-    "fundo": "#f6f4ef",
-    "texto": "#1d2733"
-  },
-
-  "planilha_csv_url": "",
   "site_url": "https://zzebbb.github.io/redes",
   "itens_por_pagina": 12,
   "idioma_padrao": "pt"

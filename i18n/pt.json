@@ -5,7 +5,6 @@
   "nav.idioma": "Idioma",
   "nav.pular": "Pular para o conteúdo",
   "nav.menu": "Menu",
-
   "home.buscar_titulo": "Encontre um trabalho",
   "home.buscar_placeholder": "Busque por título, autor, palavra-chave ou resumo",
   "home.buscar_botao": "Buscar",
@@ -15,7 +14,6 @@
   "home.eixos_titulo": "Eixos temáticos",
   "home.ver_todos": "Ver todos os trabalhos",
   "home.recentes": "Alguns trabalhos",
-
   "lista.titulo": "Trabalhos",
   "lista.buscar_placeholder": "Título, autor, palavra-chave ou resumo",
   "lista.eixo": "Eixo temático",
@@ -29,7 +27,6 @@
   "lista.anterior": "Anterior",
   "lista.proxima": "Próxima",
   "lista.pagina": "Página {p} de {t}",
-
   "trab.resumo": "Resumo",
   "trab.palavras_chave": "Palavras-chave",
   "trab.eixo": "Eixo temático",
@@ -46,16 +43,16 @@
   "trab.voltar": "Voltar aos trabalhos",
   "trab.acesso_em": "Acesso em",
   "trab.disponivel_em": "Disponível em",
-
   "autores.titulo": "Autores",
   "autores.buscar_placeholder": "Buscar autor",
   "autores.trabalhos": "trabalhos",
   "autores.trabalho": "trabalho",
   "autores.nenhum": "Nenhum autor encontrado.",
-
   "rodape.issn": "ISSN",
   "rodape.feito": "Anais publicados com acesso aberto.",
-
   "404.titulo": "Página não encontrada",
-  "404.texto": "O endereço pode ter mudado. Use a busca para encontrar o trabalho."
+  "404.texto": "O endereço pode ter mudado. Use a busca para encontrar o trabalho.",
+  "lista.filtros": "Filtros",
+  "trab.compartilhar": "Compartilhar",
+  "trab.link_copiado": "Link copiado!"
 }

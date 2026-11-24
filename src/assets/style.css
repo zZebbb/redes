@@ -243,6 +243,19 @@ a.tag:hover { background: var(--c-pri-claro); color: var(--c-pri); }
 .rodape strong { color: #fff; font-family: var(--f-titulo); font-size: 16px; }
 .vazio { text-align: center; padding-top: 80px; }
 
+/* Botão de filtros (aparece só no celular) e compartilhar */
+.btn-filtros { display: none; }
+.n-filtros {
+  display: inline-grid; place-items: center; min-width: 20px; height: 20px; padding: 0 6px; border-radius: 999px;
+  background: var(--c-sec); color: #fff; font-size: 12px; font-weight: 700;
+}
+.btn-link {
+  display: inline-flex; align-items: center; gap: 6px; margin: -8px 0 20px; padding: 8px 12px 8px 0;
+  background: none; border: 0; font: 600 14px var(--f-texto); color: var(--c-pri); cursor: pointer;
+}
+.btn-link svg { width: 18px; height: 18px; fill: currentColor; }
+.btn-link:hover { color: var(--c-sec); }
+
 /* ---------- Celular ---------- */
 @media (max-width: 860px) {
   .trab-grid { grid-template-columns: 1fr; }
@@ -252,7 +265,29 @@ a.tag:hover { background: var(--c-pri-claro); color: var(--c-pri); }
   .trab-lado > .caixa { order: 3; }
 }
 @media (max-width: 560px) {
-  html { scroll-padding-top: 110px; }
+  html { scroll-padding-top: 16px; }
+  /* Topo não fica fixo no celular: sobra mais tela para o conteúdo. */
+  .topo { position: static; }
+  .topo-in { padding-top: 8px; padding-bottom: 8px; }
+  .nav a { padding: 12px 10px; }
+  .idiomas button { padding: 9px 10px; min-width: 38px; }
+  .btn-filtros {
+    display: inline-flex; align-items: center; gap: 8px; justify-self: start;
+    font: 600 15px var(--f-texto); padding: 11px 16px; border-radius: 10px; cursor: pointer;
+    border: 1px solid var(--c-linha); background: var(--c-sup); color: var(--c-txt);
+  }
+  .btn-filtros svg { width: 18px; height: 18px; fill: var(--c-pri); }
+  .btn-filtros[aria-expanded="true"] { border-color: var(--c-pri); }
+  .selects { display: none; background: var(--c-sup); border: 1px solid var(--c-linha); border-radius: var(--raio); padding: 12px; }
+  .selects.aberto { display: flex; }
+  .selects .btn-sec { width: 100%; }
+  .card { padding: 16px; }
+  .card-tit { font-size: 17px; }
+  .trab-meta { gap: 4px 18px; margin-bottom: 16px; }
+  .pdf-botoes .btn { padding: 14px 12px; }
+  .paginacao button { padding: 12px 18px; }
+  .az a { min-width: 40px; padding: 9px 8px; }
+  .autor summary { padding: 13px 14px; }
   .marca-sub { display: none; }
   .marca-nome { font-size: 16px; }
   .logo-mono, .logo-img { width: 38px; height: 38px; }
