@@ -45,7 +45,8 @@ svg { fill: currentColor; }
   display: flex; align-items: center; justify-content: space-between;
   padding: 0 16px; font-size: 15px; position: sticky; top: 0; z-index: 20;
 }
-.topbar-org { color: #fff; text-decoration: none; font-weight: 500; letter-spacing: .3px; }
+.topbar-org { color: #fff; text-decoration: none; font-weight: 500; letter-spacing: .3px; display: flex; align-items: center; }
+.topbar-org img { height: 38px; width: auto; display: block; }
 .idiomas { display: flex; gap: 2px; padding-bottom: 4px; }
 .idiomas button {
   background: transparent; border: 0; color: rgba(255,255,255,.75);
@@ -362,6 +363,7 @@ a.tag:hover { border-color: var(--primary); color: var(--primary); }
 /* ---------- Celular ---------- */
 @media (max-width: 600px) {
   .topbar { height: 48px; padding: 0 12px; }
+  .topbar-org img { height: 32px; }
   html { scroll-padding-top: 56px; }
   .hero {
     min-height: 0; padding: 24px 16px; gap: 16px;
@@ -397,9 +399,10 @@ a.tag:hover { border-color: var(--primary); color: var(--primary); }
 .hero-chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; max-width: 640px; margin-top: -12px; }
 .chip {
   display: inline-flex; align-items: center; height: 28px; padding: 0 12px; border-radius: var(--radius-pill);
-  background: rgba(61,61,61,.78); color: #fff; font-size: 12px; font-weight: 500; text-decoration: none; letter-spacing: .2px;
+  background: var(--accent); color: var(--accent-ink); font-size: 12px; font-weight: 600; text-decoration: none; letter-spacing: .2px;
+  transition: filter .15s;
 }
-.chip:hover { background: #3d3d3d; }
+.chip:hover { filter: brightness(1.08); }
 
 /* ---------- Selo do eixo (ponto colorido; a interface continua só com o laranja) ---------- */
 .paper-card__meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; margin: 8px 0 0; }

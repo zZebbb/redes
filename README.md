@@ -51,6 +51,7 @@ Tudo fica em [`config.json`](config.json), dividido em 4 blocos: **dados do even
 - `site_url`: endereço final do site (usado nos links de citação e no sitemap).
 - `itens_por_pagina`: trabalhos por página na lista.
 - `instagram` *(opcional)*: perfil que aparece no rodapé, sem o @ (ex.: `"ecos_unb"`). Deixe vazio para esconder.
+- `logo_topo` e `logo_topo_alt` *(opcional)*: imagem em `public/` no canto superior esquerdo (hoje, a versão reduzida da marca Rede Brasil em branco, tirada do manual de identidade visual). Sem ela, aparece a `sigla` em texto.
 - `logo_rodape` e `logo_rodape_alt` *(opcional)*: imagem em `public/` mostrada no rodapé (hoje, o logo do ECoS em branco e rosa, para fundo escuro) e a descrição dela para leitores de tela.
 - `sugestoes_busca` *(opcional)*: lista de termos que aparecem como atalhos embaixo da busca do banner, por exemplo `["Desinformação", "Saúde bucal", "Doulas"]`. Sem ela, o site mostra as palavras-chave mais comuns.
 

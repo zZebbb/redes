@@ -80,19 +80,12 @@ const monograma = (() => {
 const temHero = p => ['inicio', 'trabalhos', 'autores', '404'].includes(p);
 
 function hero(base, pagina) {
-  const logo = config.logo
-    ? `<img src="${base}${e(config.logo)}" alt="" class="hero-logo">`
-    : `<span class="hero-logo hero-logo-mono" aria-hidden="true">${e(monograma)}</span>`;
   const bannerStyle = config.banner
     ? ` style="--banner:url('${base}${e(config.banner)}');--banner-cel:url('${base}${e(config.banner_celular || config.banner)}')"` : '';
   const Nome = pagina === 'inicio' ? 'h1' : 'p';
   return `<section class="hero${config.banner ? ' hero-img' : ''}"${bannerStyle}>
   <div class="hero-marca">
-    ${logo}
-    <div>
-      <${Nome} class="hero-nome${pagina === 'inicio' ? ' text-roll" data-text-roll' : '"'} ${TR(config.nome_evento)}>${e(nomeEvento)}</${Nome}>
-      <p class="hero-sub"><span ${TR(config.subtitulo)}>${e(txt(config.subtitulo))}</span>${config.issn ? ` · ISSN ${e(config.issn)}` : ''}</p>
-    </div>
+    <${Nome} class="hero-nome${pagina === 'inicio' ? ' text-roll" data-text-roll' : '"'} ${TR(config.nome_evento)}>${e(nomeEvento)}</${Nome}>
   </div>
   <form class="hero-busca" action="${base}trabalhos/" method="get" role="search">
     <label class="sr" for="q-topo" ${T('home.buscar_titulo')}>${t('home.buscar_titulo')}</label>
@@ -133,7 +126,9 @@ ${metaExtra}
 <body>
 <a class="pular" href="#conteudo" ${T('nav.pular')}>${t('nav.pular')}</a>
 <header class="topbar">
-  <a class="topbar-org" href="${base}">${e((config.sigla || nomeEvento).replace(/[\[\]]/g, ''))}</a>
+  <a class="topbar-org" href="${base}">${config.logo_topo
+    ? `<img src="${base}${e(config.logo_topo)}" alt="${e(config.logo_topo_alt || config.sigla || nomeEvento)}">`
+    : e((config.sigla || nomeEvento).replace(/[\[\]]/g, ''))}</a>
   <div class="idiomas" role="group" aria-label="${t('nav.idioma')}" ${T('nav.idioma')} data-i18n-attr="aria-label">
     <button type="button" data-lang="pt" lang="pt">PT</button>
     <button type="button" data-lang="en" lang="en">EN</button>
