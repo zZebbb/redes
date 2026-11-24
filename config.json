@@ -21,10 +21,11 @@
   "banner_celular": "",
   "favicon": "",
   "cores": {
-    "primaria": "#1a6b3c",
-    "secundaria": "#d9472b",
-    "fundo": "#f5f4ee",
-    "texto": "#1b2a22"
+    "primaria": "#E69138",
+    "banner_fundo": "#F2A900",
+    "banner_pontos": "#E5520F",
+    "fundo": "#F5F6F8",
+    "texto": "#3E3E3E"
   },
 
   "_____ 3. PLANILHA (link CSV publicado do Google Sheets) _____": "",

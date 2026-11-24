@@ -54,5 +54,14 @@
   "404.texto": "O endereço pode ter mudado. Use a busca para encontrar o trabalho.",
   "lista.filtros": "Filtros",
   "trab.compartilhar": "Compartilhar",
-  "trab.link_copiado": "Link copiado!"
+  "trab.link_copiado": "Link copiado!",
+  "autores.instituicoes": "Instituições",
+  "autores.todos": "Todos",
+  "autores.filtrar_inst": "Filtrar instituições",
+  "home.sugestoes": "Sugestões de busca",
+  "lista.vista": "Modo de exibição",
+  "lista.vista_cards": "Cards",
+  "lista.vista_tabela": "Tabela",
+  "lista.col_titulo": "Título",
+  "lista.col_autores": "Autores"
 }
