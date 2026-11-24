@@ -49,7 +49,6 @@
   "autores.trabalhos": "trabalhos",
   "autores.trabalho": "trabalho",
   "autores.nenhum": "Nenhum autor encontrado.",
-  "rodape.issn": "ISSN",
   "rodape.feito": "Anais publicados com acesso aberto.",
   "404.titulo": "Página não encontrada",
   "404.texto": "O endereço pode ter mudado. Use a busca para encontrar o trabalho.",
@@ -66,5 +65,9 @@
   "lista.col_titulo": "Título",
   "lista.col_autores": "Autores",
   "home.anais": "Anais",
-  "home.vistos": "Vistos recentemente"
+  "home.vistos": "Vistos recentemente",
+  "nav.principal": "Principal",
+  "lista.paginacao": "Paginação",
+  "autores.alfabeto": "Autores por inicial",
+  "trab.previa_dica": "Toque na imagem para abrir o PDF completo."
 }
