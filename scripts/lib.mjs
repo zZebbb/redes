@@ -74,3 +74,28 @@ export function txt(v, lang = 'pt') {
   if (typeof v === 'string') return v;
   return v[lang] || v.pt || '';
 }
+
+// Separa por um caractere apenas fora de parênteses: "A (x; y); B" → ["A (x; y)", "B"].
+export function separarNivel0(s, sep = ';') {
+  const partes = [];
+  let nivel = 0, atual = '';
+  for (const c of String(s ?? '')) {
+    if (c === '(') nivel++;
+    else if (c === ')') nivel = Math.max(0, nivel - 1);
+    if (c === sep && nivel === 0) { partes.push(atual); atual = ''; } else atual += c;
+  }
+  partes.push(atual);
+  return partes.map(v => v.trim()).filter(Boolean);
+}
+
+// "Ana Silva (UnB (DF); Fiocruz)" → { nome: "Ana Silva", instituicoes: ["UnB (DF)", "Fiocruz"] }
+const SEM_INST = /^\(?\s*(institui[çc][ãa]o\s+)?n[ãa]o\s+informad[ao]\s*\)?$/i;
+export function autorComInstituicao(s) {
+  s = String(s ?? '').trim();
+  const i = s.indexOf('(');
+  if (i < 0 || !s.endsWith(')')) return { nome: s, instituicoes: [] };
+  const nome = s.slice(0, i).trim();
+  const dentro = s.slice(i + 1, -1).trim();
+  const instituicoes = SEM_INST.test(dentro) ? [] : separarNivel0(dentro, ';');
+  return { nome, instituicoes };
+}

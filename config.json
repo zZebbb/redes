@@ -3,11 +3,13 @@
 
   "_____ 1. DADOS DO EVENTO (obrigatório) _____": "",
   "nome_evento": {
-    "pt": "[Nome do Evento]",
-    "en": "[Event Name]",
-    "es": "[Nombre del Evento]"
+    "pt": "4º Encontro Nacional da Rede Brasil",
+    "en": "4th National Meeting of Rede Brasil",
+    "es": "4º Encuentro Nacional de la Rede Brasil"
   },
-  "sigla": "[SIGLA]",
+  "nome_citacao": "Encontro Nacional da Rede Brasil",
+  "numero_edicao": "4",
+  "sigla": "Rede Brasil",
   "edicao": "2026",
   "issn": "[XXXX-XXXX]",
   "cidade": "[Cidade]",
@@ -16,12 +18,13 @@
   "_____ 2. VISUAL (logo e banner: nome do arquivo dentro de public/) _____": "",
   "logo": "",
   "banner": "",
+  "banner_celular": "",
   "favicon": "",
   "cores": {
-    "primaria": "#0f5f73",
-    "secundaria": "#e07a2e",
-    "fundo": "#f6f4ef",
-    "texto": "#1d2733"
+    "primaria": "#1a6b3c",
+    "secundaria": "#d9472b",
+    "fundo": "#f5f4ee",
+    "texto": "#1b2a22"
   },
 
   "_____ 3. PLANILHA (link CSV publicado do Google Sheets) _____": "",
@@ -30,9 +33,9 @@
   "_____ 4. OPCIONAL _____": "",
   "doi_prefixo": "",
   "subtitulo": {
-    "pt": "Anais do evento: trabalhos apresentados",
-    "en": "Proceedings: papers presented at the event",
-    "es": "Anales del evento: trabajos presentados"
+    "pt": "Letramento em Saúde Protege Vidas · Anais",
+    "en": "Health Literacy Protects Lives · Proceedings",
+    "es": "La Alfabetización en Salud Protege Vidas · Anales"
   },
   "apresentacao": {
     "pt": "",

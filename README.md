@@ -6,46 +6,47 @@ Os dados vêm de uma planilha do Google Sheets e os PDFs ficam no Google Drive. 
 
 > O plano original está em [`docs/PLANO.md`](docs/PLANO.md).
 
-## 1. Preparar a planilha
+## 1. A planilha
 
-Uma linha por trabalho, com estas colunas na primeira linha (maiúsculas e acentos não importam):
+O site lê a aba **Trabalhos** da planilha da Rede Brasil (só as colunas azuis). Colunas reconhecidas, com qualquer acentuação:
 
-| Coluna | O que colocar |
+| Coluna | Uso no site |
 |---|---|
-| `id` | Identificador único, ex.: `001`. Vira o endereço da página: `/trabalho/001/` |
-| `titulo` | Título do trabalho |
-| `autores` | Nomes completos separados por **ponto e vírgula**: `Ana da Silva; João Santos Filho` |
-| `eixo` | Eixo temático (o site cria os filtros a partir do que estiver aqui) |
-| `modalidade` | Ex.: Comunicação Oral, Pôster, Relato de Experiência |
-| `palavras_chave` | Separadas por `;` |
-| `resumo_pt`, `resumo_en`, `resumo_es` | Resumos. Se faltar algum idioma, o site mostra o resumo em português |
-| `link_pdf` | Link de compartilhamento do PDF no Drive |
-| `ano` | Ano de publicação |
-| `doi` | *(opcional)* DOI do trabalho, ex.: `10.1234/abcd.001` |
+| `Status` | Se existir, só entram as linhas com **Aprovado** |
+| `Nº público` | Número do trabalho e endereço da página: `/trabalho/001/` |
+| `Eixo temático`, `Categoria` | Filtros e etiquetas (o site monta a lista a partir do que estiver aqui) |
+| `Título (PT)`, `Título (EN)`, `Título (ES)` | Título no idioma escolhido (sem tradução, mostra o PT) |
+| `Autores (como citar)` | Nomes no "Como citar" (ABNT), separados por `;` |
+| `Autores e instituições` | `Nome (Instituição); Nome (Instituição)` → autores e afiliações numeradas |
+| `Resumo (PT/EN/ES)`, `Palavras-chave (PT/EN/ES)` | Abas do resumo; palavras-chave separadas por `;` |
+| `Link do PDF` *(opcional)* | Link do banner no Drive. Sem essa coluna, o site usa `data/pdfs.csv` |
+| `DOI` *(opcional)* | DOI do trabalho |
 
-Veja o exemplo em [`data/exemplo.csv`](data/exemplo.csv).
+As colunas cinza (`RB (interno)`, `Observações (interno)`) são ignoradas e nunca aparecem no site.
 
-**PDFs:** no Drive, cada PDF (ou a pasta inteira) precisa estar em *Compartilhar → Qualquer pessoa com o link → Leitor*. Cole o link na coluna `link_pdf`; o site gera sozinho os botões "Ver PDF" e "Baixar PDF".
+Enquanto a planilha não estiver publicada, o site usa `data/trabalhos.csv` (os 40 aprovados, só colunas públicas). O formato antigo de exemplo continua em `data/exemplo.csv`.
 
-**Publicar a planilha:** no Google Sheets, *Arquivo → Compartilhar → Publicar na web*, escolha a aba e o formato **CSV**, e copie o link gerado.
+**PDFs:** cada PDF precisa estar no Drive como *Qualquer pessoa com o link → **Leitor*** (não "Editor"). Os links ficam em `data/pdfs.csv` (`numero,link_pdf`) ou numa coluna `Link do PDF` na planilha.
 
 ## 2. Ligar a planilha ao site
 
-Escolha uma das opções:
+Para não publicar as colunas internas, crie na planilha uma aba **Site** com esta fórmula na célula A1:
 
-- **Pelo GitHub (recomendado):** em *Settings → Secrets and variables → Actions → Variables*, crie a variável `PLANILHA_CSV_URL` com o link do CSV.
-- **Pelo arquivo:** cole o link em `planilha_csv_url` no `config.json`.
+```
+=QUERY(Trabalhos!A:R; "select C,D,E,F,G,H,I,J,L,M,N,O,P,Q,R where B = 'Aprovado'"; 1)
+```
 
-Enquanto não houver link, o site usa os 5 trabalhos fictícios de `data/exemplo.csv`.
+Depois, *Arquivo → Compartilhar → Publicar na web*, escolha **só a aba Site**, formato **CSV**, e copie o link. Coloque o link em *Settings → Secrets and variables → Actions → Variables* como `PLANILHA_CSV_URL` (ou em `planilha_csv_url` no `config.json`).
 
 ## 3. Dados do evento, banner e cores
 
 Tudo fica em [`config.json`](config.json), dividido em 4 blocos: **dados do evento**, **visual**, **planilha** e **opcional**. Campos entre `[colchetes]` são provisórios: ao rodar `npm run build` (ou no log do GitHub Actions) aparece a lista do que ainda falta preencher.
 
 - `nome_evento`, `subtitulo`, `apresentacao`: texto em `pt`, `en` e `es` (se deixar só `pt`, ele é usado nos três idiomas).
+- `nome_citacao` e `numero_edicao`: como o evento aparece no "Como citar" (ex.: `In: ENCONTRO NACIONAL DA REDE BRASIL, 4., 2026, Brasília.`).
 - `sigla`, `edicao`, `issn`, `cidade`, `editora`: aparecem no topo, na home e no "Como citar".
 - `doi_prefixo`: *(opcional)* se os DOIs seguem o padrão prefixo + id, preencha ex.: `10.1234/evento.` e deixe a coluna `doi` vazia. Só use depois que os DOIs estiverem registrados.
-- `logo`, `banner`, `favicon`: coloque as imagens na pasta `public/` (crie se não existir) e escreva o nome aqui, ex.: `"banner": "banner.jpg"`. Banner sugerido: 1920×600 px. Sem banner, a home usa um degradê com as cores do evento.
+- `logo`, `banner`, `favicon`: coloque as imagens na pasta `public/` (crie se não existir) e escreva o nome aqui, ex.: `"banner": "banner.jpg"`. Banner: **1920×600 px** (o texto fica à esquerda, então deixe o lado esquerdo mais limpo). Opcional: `banner_celular` com **1080×1200 px**. Sem banner, a home usa um degradê com as cores do evento.
 - `cores`: `primaria` (títulos e botões), `secundaria` (destaques), `fundo` e `texto`, em hexadecimal.
 - `site_url`: endereço final do site (usado nos links de citação e no sitemap).
 - `itens_por_pagina`: trabalhos por página na lista.

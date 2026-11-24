@@ -83,17 +83,37 @@
       return '<article class="card"><div class="card-tags">' +
         (x.eixo ? '<span class="tag tag-eixo">' + esc(x.eixo) + '</span>' : '') +
         (x.modalidade ? '<span class="tag">' + esc(x.modalidade) + '</span>' : '') +
-        '</div><h3 class="card-tit"><a href="' + SITE.base + 'trabalho/' + encodeURIComponent(x.slug) + '/">' + esc(x.titulo) + '</a></h3>' +
+        '</div><h3 class="card-tit"><a href="' + SITE.base + 'trabalho/' + encodeURIComponent(x.slug) + '/">' + esc((x.titulos && x.titulos[idioma]) || x.titulo) + '</a></h3>' +
         '<p class="card-aut">' + esc(x.autores.join('; ')) + '</p>' +
         (x.resumoTrecho ? '<p class="card-res">' + esc(x.resumoTrecho) + '</p>' : '') +
         '</article>';
     }
 
+    // Todas as palavras digitadas precisam aparecer; título e autores pesam mais que o resumo.
+    var PESOS = { titulo: 3, autores: 2.5, pc: 2, id: 2, resumo: 1 };
+    function buscaExata(termo) {
+      var palavras = termo.split(/\s+/).filter(function (p) { return p.length > 1; });
+      if (!palavras.length) return dados.slice();
+      return dados.map(function (x) {
+        var nota = 0;
+        for (var i = 0; i < palavras.length; i++) {
+          var achou = 0;
+          for (var campo in PESOS) if (x._b[campo].indexOf(palavras[i]) >= 0) achou += PESOS[campo];
+          if (!achou) return null;
+          nota += achou;
+        }
+        return { x: x, nota: nota };
+      }).filter(Boolean).sort(function (a, b) { return b.nota - a.nota; }).map(function (r) { return r.x; });
+    }
+
     function render() {
       var res;
       var termo = semAcento(estado.q.trim());
-      if (termo && fuse) res = fuse.search(termo).map(function (r) { return r.item; });
-      else res = dados.slice();
+      if (termo) {
+        res = buscaExata(termo);
+        // Sem resultado exato: busca aproximada (erros de digitação) em título, autores e palavras-chave.
+        if (!res.length && fuse) res = fuse.search(termo).map(function (r) { return r.item; });
+      } else res = dados.slice();
       if (estado.eixo) res = res.filter(function (x) { return x.eixo === estado.eixo; });
       if (estado.mod) res = res.filter(function (x) { return x.modalidade === estado.mod; });
 
@@ -138,9 +158,9 @@
     fetch(SITE.base + 'data/trabalhos.json').then(function (r) { return r.json(); }).then(function (json) {
       dados = json.map(function (x) {
         x._b = {
-          titulo: semAcento(x.titulo),
+          titulo: semAcento(x.titulos ? [x.titulos.pt, x.titulos.en, x.titulos.es].join(' ') : x.titulo),
           autores: semAcento(x.autores.join(' ')),
-          pc: semAcento(x.palavras_chave.join(' ')),
+          pc: semAcento(x.pc ? [].concat(x.pc.pt, x.pc.en, x.pc.es).join(' ') : x.palavras_chave.join(' ')),
           resumo: semAcento([x.resumo.pt, x.resumo.en, x.resumo.es].join(' ')),
           id: semAcento(x.id)
         };
@@ -151,8 +171,7 @@
           { name: '_b.titulo', weight: 3 },
           { name: '_b.autores', weight: 2.5 },
           { name: '_b.pc', weight: 2 },
-          { name: '_b.id', weight: 2 },
-          { name: '_b.resumo', weight: 1 }
+          { name: '_b.id', weight: 2 }
         ],
         threshold: 0.3,
         ignoreLocation: true,
@@ -218,7 +237,7 @@
       var partes = [];
       partes.push(x(dados.autores.join('; ')) + '. ');
       partes.push(x(dados.titulo.replace(/\.$/, '')) + '. ');
-      partes.push('In: ' + x(evento) + (dados.edicao && dados.edicao !== dados.ano ? ', ' + x(dados.edicao) : '') + ', ' + x(dados.ano) + (dados.cidade ? ', ' + x(dados.cidade) : '') + '. ');
+      partes.push('In: ' + x(evento) + (dados.numero ? ', ' + x(dados.numero) + '.' : '') + ', ' + x(dados.ano) + (dados.cidade ? ', ' + x(dados.cidade) : '') + '. ');
       partes.push(b('Anais') + ' [...]. ');
       partes.push((dados.cidade ? x(dados.cidade) + ': ' : '') + (dados.editora ? x(dados.editora) + ', ' : '') + x(dados.ano) + '. ');
       if (dados.issn) partes.push('ISSN ' + x(dados.issn) + '. ');

@@ -25,3 +25,11 @@ test('cabeçalhos tolerantes', () => {
   assert.equal(normalizarCabecalho(' Resumo (PT) '), 'resumo_pt');
   assert.equal(normalizarCabecalho('Título'), 'titulo');
 });
+
+import { separarNivel0, autorComInstituicao } from './lib.mjs';
+test('autores com instituições entre parênteses', () => {
+  const s = 'Ana Silva (Fundação Oswaldo Cruz Ceará (Fiocruz Ceará)/RENASF; Centro Universitário Christus); João Souza (instituição não informada)';
+  const [a, b] = separarNivel0(s).map(autorComInstituicao);
+  assert.deepEqual(a, { nome: 'Ana Silva', instituicoes: ['Fundação Oswaldo Cruz Ceará (Fiocruz Ceará)/RENASF', 'Centro Universitário Christus'] });
+  assert.deepEqual(b, { nome: 'João Souza', instituicoes: [] });
+});

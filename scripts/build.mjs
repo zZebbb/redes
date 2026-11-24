@@ -29,7 +29,14 @@ if (!(await existe(path.join(raiz, 'data/trabalhos.json')))) {
 }
 const trabalhos = await ler('data/trabalhos.json');
 const autores = await ler('data/autores.json');
+for (const x of trabalhos) {
+  x.titulos ??= { pt: x.titulo, en: '', es: '' };
+  x.pc ??= { pt: x.palavras_chave, en: [], es: [] };
+  x.instituicoes ??= x.autores.map(() => []);
+  x.citacao ??= x.autores.map(nomeABNT);
+}
 const porSlug = new Map(trabalhos.map(t => [t.slug, t]));
+const titTR = x => TR({ pt: x.titulos.pt, en: x.titulos.en || x.titulos.pt, es: x.titulos.es || x.titulos.pt });
 const autorSlug = nome => slugify(nome);
 
 const t = k => i18n.pt[k] ?? k;                       // texto padrão (PT) no HTML
@@ -44,11 +51,17 @@ const contarEixo = eixo => trabalhos.filter(x => x.eixo === eixo).length;
 
 const cores = Object.assign({ primaria: '#0f5f73', secundaria: '#e07a2e', fundo: '#f6f4ef', texto: '#1d2733' }, config.cores);
 
+const monograma = (() => {
+  const s = (config.sigla || nomeEvento).replace(/[\[\]]/g, '').trim();
+  const p = s.split(/\s+/).filter(w => /^[A-ZÀ-Ú0-9]/.test(w));
+  return (p.length > 1 ? p.map(w => w[0]).join('') : s).slice(0, 4).toUpperCase();
+})();
+
 function layout({ base, titulo, descricao = '', pagina, corpo, metaExtra = '', canonical = '' }) {
   const tituloCompleto = titulo ? `${titulo} · ${nomeEvento}` : nomeEvento;
   const logo = config.logo
     ? `<img src="${base}${e(config.logo)}" alt="" class="logo-img">`
-    : `<span class="logo-mono" aria-hidden="true">${e((config.sigla || nomeEvento).replace(/[\[\]]/g, '').slice(0, 4))}</span>`;
+    : `<span class="logo-mono" aria-hidden="true">${e(monograma)}</span>`;
   const nav = [['inicio', '', 'nav.inicio'], ['trabalhos', 'trabalhos/', 'nav.trabalhos'], ['autores', 'autores/', 'nav.autores']]
     .map(([id, href, k]) => `<a href="${base}${href}" ${T(k)}${pagina === id ? ' aria-current="page"' : ''}>${t(k)}</a>`).join('');
   return `<!doctype html>
@@ -119,7 +132,7 @@ ${pagina === 'trabalhos' ? `<script src="${base}assets/fuse.min.js" defer></scri
 function card(x, base) {
   return `<article class="card">
   <div class="card-tags">${x.eixo ? `<span class="tag tag-eixo">${e(x.eixo)}</span>` : ''}${x.modalidade ? `<span class="tag">${e(x.modalidade)}</span>` : ''}</div>
-  <h3 class="card-tit"><a href="${base}trabalho/${x.slug}/">${e(x.titulo)}</a></h3>
+  <h3 class="card-tit"><a href="${base}trabalho/${x.slug}/" ${titTR(x)}>${e(x.titulo)}</a></h3>
   <p class="card-aut">${e(x.autores.join('; '))}</p>
 </article>`;
 }
@@ -144,7 +157,8 @@ await writeFile(path.join(dist, '.nojekyll'), '');
 // ---------- Início ----------
 {
   const base = './';
-  const bannerStyle = config.banner ? ` style="--banner:url('${e(config.banner)}')"` : '';
+  const bannerStyle = config.banner
+    ? ` style="--banner:url('${e(config.banner)}');--banner-cel:url('${e(config.banner_celular || config.banner)}')"` : '';
   // Até 6 trabalhos, alternando entre os eixos para mostrar variedade.
   const filas = eixos.map(x => trabalhos.filter(y => y.eixo === x));
   if (trabalhos.some(y => !y.eixo)) filas.push(trabalhos.filter(y => !y.eixo));
@@ -234,16 +248,17 @@ for (const x of trabalhos) {
     ['citation_conference_title', nomeEvento],
     ['citation_issn', config.issn],
     ['citation_doi', x.doi],
-    ['citation_keywords', x.palavras_chave.join('; ')],
+    ['citation_keywords', [...new Set([...x.pc.pt, ...x.pc.en, ...x.pc.es])].join('; ')],
+    ...(x.titulos.en ? [['DC.title.alternative', x.titulos.en]] : []),
     ['citation_pdf_url', x.pdf?.baixar],
     ['citation_abstract_html_url', url],
     ['citation_language', 'pt']
   ].filter(([, v]) => v).map(([n, v]) => `<meta name="${n}" content="${e(v)}">`).join('\n');
   const dadosCit = {
-    autores: x.autores.map(nomeABNT),
+    autores: x.citacao,
     titulo: x.titulo,
-    evento: nomeEvento,
-    edicao: config.edicao || '',
+    evento: config.nome_citacao || nomeEvento,
+    numero: config.numero_edicao || '',
     cidade: config.cidade || '',
     editora: config.editora || '',
     ano: x.ano,
@@ -254,8 +269,15 @@ for (const x of trabalhos) {
   const corpo = `
 <article class="sec trabalho">
   <a class="voltar" href="${base}trabalhos/" ${T('trab.voltar')}>${t('trab.voltar')}</a>
-  <h1 class="trab-tit">${e(x.titulo)}</h1>
-  <p class="trab-aut">${x.autores.map(a => `<a href="${base}autores/#${autorSlug(a)}">${e(a)}</a>`).join('<span aria-hidden="true">; </span>')}</p>
+  <h1 class="trab-tit" ${titTR(x)}>${e(x.titulo)}</h1>
+  ${(() => {
+    // Afiliações numeradas, como em artigo: Nome¹; Nome²
+    const insts = [];
+    const nums = x.instituicoes.map(l => l.map(i => { if (!insts.includes(i)) insts.push(i); return insts.indexOf(i) + 1; }));
+    const multi = insts.length > 1;
+    return `<p class="trab-aut">${x.autores.map((a, j) => `<a href="${base}autores/#${autorSlug(a)}">${e(a)}</a>${multi && nums[j].length ? `<sup>${nums[j].join(',')}</sup>` : ''}`).join('<span aria-hidden="true">; </span>')}</p>
+  ${insts.length ? `<ol class="afil${multi ? '' : ' afil-uma'}">${insts.map(i => `<li>${e(i)}</li>`).join('')}</ol>` : ''}`;
+  })()}
   <dl class="trab-meta">
     <div><dt ${T('trab.id')}>${t('trab.id')}</dt><dd>${e(x.id)}</dd></div>
     ${x.modalidade ? `<div><dt ${T('trab.modalidade')}>${t('trab.modalidade')}</dt><dd><a href="${base}trabalhos/?modalidade=${encodeURIComponent(x.modalidade)}">${e(x.modalidade)}</a></dd></div>` : ''}
@@ -277,8 +299,10 @@ for (const x of trabalhos) {
         </div>
         ${langs.map((l, i) => `<div class="resumo" role="tabpanel" id="res-${l}" aria-labelledby="aba-${l}" lang="${l}"${i === 0 ? '' : ' hidden'}>${x.resumo[l]
           ? x.resumo[l].split(/\n+/).map(p => `<p>${e(p)}</p>`).join('')
-          : `<p class="aviso" ${T('trab.sem_resumo_idioma')}>${t('trab.sem_resumo_idioma')}</p>${(x.resumo.pt || '').split(/\n+/).map(p => `<p lang="pt">${e(p)}</p>`).join('')}`}</div>`).join('\n        ')}
-        ${x.palavras_chave.length ? `<div class="pc"><span><strong ${T('trab.palavras_chave')}>${t('trab.palavras_chave')}</strong>:</span> ${x.palavras_chave.map(p => `<a class="tag" href="${base}trabalhos/?q=${encodeURIComponent(p)}">${e(p)}</a>`).join(' ')}</div>` : ''}
+          : `<p class="aviso" ${T('trab.sem_resumo_idioma')}>${t('trab.sem_resumo_idioma')}</p>${(x.resumo.pt || '').split(/\n+/).map(p => `<p lang="pt">${e(p)}</p>`).join('')}`}${(() => {
+            const lista = x.pc[l]?.length ? x.pc[l] : x.pc.pt;
+            return lista.length ? `<div class="pc"><span><strong>${e(i18n[l]['trab.palavras_chave'])}</strong>:</span> ${lista.map(p => `<a class="tag" href="${base}trabalhos/?q=${encodeURIComponent(p)}">${e(p)}</a>`).join(' ')}</div>` : '';
+          })()}</div>`).join('\n        ')}
       </section>
     </div>
     <aside class="trab-lado">
@@ -326,7 +350,7 @@ for (const x of trabalhos) {
     <ul class="autores">
       ${lista.map(a => `<li class="autor" id="${a.slug}" data-busca="${e(a.nome.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase())}">
         <details>
-          <summary><span class="autor-nome">${e(a.nome)}</span> <span class="autor-n">${a.trabalhos.length}</span></summary>
+          <summary><span class="autor-nome">${e(a.nome)}${a.instituicoes?.length ? `<span class="autor-inst">${e(a.instituicoes.join('; '))}</span>` : ''}</span> <span class="autor-n">${a.trabalhos.length}</span></summary>
           <ul>${a.trabalhos.map(s => porSlug.get(s)).map(x => `<li><a href="${base}trabalho/${x.slug}/">${e(x.titulo)}</a>${x.eixo ? ` <span class="autor-eixo">${e(x.eixo)}</span>` : ''}</li>`).join('')}</ul>
         </details>
       </li>`).join('\n      ')}
