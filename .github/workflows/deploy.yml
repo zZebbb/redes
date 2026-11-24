@@ -1,0 +1,58 @@
+name: Publicar site
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+  schedule:
+    - cron: "0 9 * * *" # todo dia às 6h (horário de Brasília)
+
+permissions:
+  contents: write # para guardar no repositório os PDFs copiados do Drive
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - name: Baixar planilha
+        run: npm run sync
+        env:
+          PLANILHA_CSV_URL: ${{ vars.PLANILHA_CSV_URL }}
+      - name: Copiar PDFs novos do Drive para o site
+        run: npm run pdfs
+      - name: Guardar os PDFs no repositório
+        run: |
+          if [ -n "$(git status --porcelain pdfs)" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add pdfs
+            git commit -m "Copia PDFs novos do Drive"
+            git push
+          fi
+      - run: npm run build
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

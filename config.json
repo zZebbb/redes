@@ -1,0 +1,61 @@
+{
+  "_leia_me": "Troque tudo que está entre [colchetes]. Ao rodar o build, o site lista no terminal os campos que ainda faltam. Imagens vão na pasta public/. Detalhes no README.",
+
+  "_____ 1. DADOS DO EVENTO (obrigatório) _____": "",
+  "nome_evento": {
+    "pt": "4º Encontro Nacional da Rede Brasil",
+    "en": "4th National Meeting of Rede Brasil",
+    "es": "4º Encuentro Nacional de la Rede Brasil"
+  },
+  "nome_citacao": "Encontro Nacional da Rede Brasil",
+  "numero_edicao": "4",
+  "sigla": "Rede Brasil",
+  "edicao": "2026",
+  "issn": "[XXXX-XXXX]",
+  "cidade": "[Cidade]",
+  "editora": "[Instituição organizadora]",
+
+  "_____ 2. VISUAL (logo e banner: nome do arquivo dentro de public/) _____": "",
+  "logo": "",
+  "banner": "",
+  "banner_celular": "",
+  "favicon": "",
+  "cores": {
+    "primaria": "#2E54A2",
+    "secundaria": "#F9B234",
+    "texto_sobre_secundaria": "#172A55",
+    "banner_fundo": "#2E54A2",
+    "banner_pontos": "#2A4D96",
+    "banner_texto": "#FFFFFF",
+    "fundo": "#FFFFFF",
+    "texto": "#5E595B",
+    "rodape": "#172A55"
+  },
+
+  "_____ 3. PLANILHA (link CSV publicado do Google Sheets) _____": "",
+  "planilha_csv_url": "",
+
+  "_____ 4. OPCIONAL _____": "",
+  "doi_prefixo": "",
+  "instagram": "ecos_unb",
+  "logo_topo": "rede-brasil-cor.png",
+  "logo_topo_alt": "Rede Brasil",
+  "simbolo_banner": "rede-brasil-simbolo.png",
+  "logo_rodape_rede": "rede-brasil-negativo.png",
+  "logo_rodape_rede_alt": "Rede Brasil: Gestão da Informação e Tradução do Conhecimento em Saúde",
+  "logo_rodape": "ecos-logo.png",
+  "logo_rodape_alt": "Laboratório ECoS – Educação, Informação e Comunicação em Saúde (UnB)",
+  "subtitulo": {
+    "pt": "Letramento em Saúde Protege Vidas · Anais",
+    "en": "Health Literacy Protects Lives · Proceedings",
+    "es": "La Alfabetización en Salud Protege Vidas · Anales"
+  },
+  "apresentacao": {
+    "pt": "",
+    "en": "",
+    "es": ""
+  },
+  "site_url": "https://zzebbb.github.io/redes",
+  "itens_por_pagina": 12,
+  "idioma_padrao": "pt"
+}
