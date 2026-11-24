@@ -51,7 +51,6 @@ Tudo fica em [`config.json`](config.json), dividido em 4 blocos: **dados do even
 - `site_url`: endereço final do site (usado nos links de citação e no sitemap).
 - `itens_por_pagina`: trabalhos por página na lista.
 - `instagram` *(opcional)*: perfil que aparece no rodapé, sem o @ (ex.: `"ecos_unb"`). Deixe vazio para esconder.
-- `repetir_animacao_titulo` *(opcional)*: de quantos em quantos segundos o título da página inicial repete a animação (padrão 12; `0` faz animar só ao abrir). Não repete enquanto alguém digita na busca, com a aba em segundo plano ou para quem pediu menos movimento.
 - `logo_rodape` e `logo_rodape_alt` *(opcional)*: imagem em `public/` mostrada no rodapé (hoje, o logo do ECoS em branco e rosa, para fundo escuro) e a descrição dela para leitores de tela.
 
 Os textos da interface estão em `i18n/pt.json`, `i18n/en.json` e `i18n/es.json`.
