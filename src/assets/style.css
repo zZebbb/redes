@@ -477,7 +477,7 @@ a.tag:hover { border-color: var(--primary); color: var(--primary); }
 .vt-ind { height: 2px; background: var(--primary); border-radius: 2px; }
 .idiomas .vt-hover { background: rgba(255,255,255,.18); }
 .idiomas .vt-ind { background: var(--accent); }
-.abas-nav .vt-hover { display: none; }
+.abas-nav .vt-hover { box-sizing: content-box; margin: -6px 0 0 -16px; padding: 0 32px 0 0; transform: translateY(0); background: rgba(255,255,255,.14); border-radius: 8px 8px 0 0; }
 .abas-nav .vt-ind { top: auto; bottom: 0; height: 4px; background: var(--accent); border-radius: 4px 4px 0 0; }
 @media (prefers-reduced-motion: reduce) { .vt-hover, .vt-ind, .abas button { transition: none !important; } }
 
