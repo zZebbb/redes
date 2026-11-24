@@ -315,7 +315,6 @@ a.tag:hover { background: var(--c-pri-claro); color: var(--c-pri); }
   .numeros div { padding: 12px; }
   .numeros span { font-size: 12px; }
   .cards, .autores { grid-template-columns: 1fr; }
-  .resumo p { text-align: left; }
   .sec { padding-top: 28px; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto !important; } }
