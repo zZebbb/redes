@@ -289,8 +289,40 @@
     abrirHash();
   }
 
+  // ---------------- Abas com indicador deslizante ----------------
+  // Um fundo suave segue o mouse e uma linha marca a aba ativa (inspirado no "Vercel Tabs", licença MIT).
+  function abasDeslizantes(raiz, sel, ativa) {
+    if (!raiz) return;
+    raiz.classList.add('vt');
+    var hover = document.createElement('span'), ind = document.createElement('span');
+    hover.className = 'vt-hover'; ind.className = 'vt-ind';
+    hover.setAttribute('aria-hidden', 'true'); ind.setAttribute('aria-hidden', 'true');
+    raiz.insertBefore(hover, raiz.firstChild); raiz.insertBefore(ind, raiz.firstChild);
+    var itens = $$(sel, raiz);
+    function por(el, alvo) { el.style.left = alvo.offsetLeft + 'px'; el.style.width = alvo.offsetWidth + 'px'; }
+    function posicionar() {
+      var a = $(ativa, raiz);
+      ind.style.opacity = a ? 1 : 0;
+      if (a) { por(ind, a); ind.style.top = (a.offsetTop + a.offsetHeight + 4) + 'px'; }
+    }
+    itens.forEach(function (it) {
+      it.addEventListener('mouseenter', function () {
+        por(hover, it); hover.style.top = it.offsetTop + 'px'; hover.style.height = it.offsetHeight + 'px'; hover.style.opacity = 1;
+      });
+    });
+    raiz.addEventListener('mouseleave', function () { hover.style.opacity = 0; });
+    ind.style.transition = 'none'; posicionar();
+    requestAnimationFrame(function () { ind.style.transition = ''; });
+    new MutationObserver(posicionar).observe(raiz, { attributes: true, subtree: true, attributeFilter: ['aria-pressed', 'aria-selected', 'aria-current'] });
+    window.addEventListener('resize', posicionar);
+    if (document.fonts) document.fonts.ready.then(posicionar);
+  }
+
   aplicarIdioma();
   if (SITE.pagina === 'trabalhos') paginaTrabalhos();
   if (SITE.pagina === 'trabalho') paginaTrabalho();
   if (SITE.pagina === 'autores') paginaAutores();
+  abasDeslizantes($('.nav-in'), 'a', 'a[aria-current="page"]');
+  abasDeslizantes($('.idiomas'), 'button', 'button[aria-pressed="true"]');
+  abasDeslizantes($('.abas'), 'button', 'button[aria-selected="true"]');
 })();
