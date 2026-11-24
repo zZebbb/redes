@@ -85,7 +85,7 @@ function hero(base) {
   return `<section class="hero">
   <div class="hero-in">
     <div class="hero-texto">
-      <h1 class="hero-nome text-roll" data-text-roll ${TR(config.nome_evento)}>${e(nomeEvento)}</h1>
+      <h1 class="hero-nome" ${TR(config.nome_evento)}>${e(nomeEvento)}</h1>
       <form class="hero-busca" action="${base}trabalhos/" method="get" role="search">
         <label class="sr" for="q-topo" ${T('home.buscar_titulo')}>${t('home.buscar_titulo')}</label>
         <input id="q-topo" name="q" type="search" placeholder="${e(t('home.buscar_placeholder'))}" data-i18n-ph="home.buscar_placeholder" autocomplete="off">

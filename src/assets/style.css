@@ -415,23 +415,3 @@ a.tag:hover { background: var(--primary); color: #fff; }
 .abas-nav .vt-ind { top: auto !important; bottom: -1px; height: 3px; background: var(--accent); border-radius: 3px 3px 0 0; }
 @media (prefers-reduced-motion: reduce) { .vt-hover, .vt-ind, .abas button { transition: none !important; } }
 
-/* ---------- Título do banner: letras que rolam (Text Roll, MIT) ---------- */
-.text-roll { --tr-duracao: .5s; --tr-passo: .035s; --tr-saida: .2s; }
-.tr-palavra { display: inline-block; white-space: nowrap; }
-.tr-letra { position: relative; display: inline-block; perspective: 10000px; transform-style: preserve-3d; }
-.tr-cima, .tr-baixo {
-  position: absolute; left: 0; top: 0; display: inline-block; backface-visibility: hidden;
-  animation-duration: var(--tr-duracao); animation-timing-function: cubic-bezier(.42, 0, 1, 1); animation-fill-mode: both;
-}
-.tr-cima { transform-origin: 50% 25%; transform: rotateX(0deg); }
-.tr-baixo { transform-origin: 50% 100%; transform: rotateX(90deg); }
-.tr-fantasma { visibility: hidden; }
-.text-roll.rodando .tr-cima { animation-name: tr-sai; animation-delay: calc(var(--i) * var(--tr-passo)); }
-.text-roll.rodando .tr-baixo { animation-name: tr-entra; animation-delay: calc(var(--i) * var(--tr-passo) + var(--tr-saida)); }
-@keyframes tr-sai { from { transform: rotateX(0deg); } to { transform: rotateX(90deg); } }
-@keyframes tr-entra { from { transform: rotateX(90deg); } to { transform: rotateX(0deg); } }
-@media (prefers-reduced-motion: reduce) {
-  .text-roll.rodando .tr-cima, .text-roll.rodando .tr-baixo { animation: none; }
-  .tr-baixo { transform: none; }
-  .tr-cima { visibility: hidden; }
-}
