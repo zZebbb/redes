@@ -474,6 +474,7 @@
     var canvas = document.createElement('canvas');
     canvas.className = 'glifos'; canvas.setAttribute('aria-hidden', 'true');
     raiz.insertBefore(canvas, raiz.firstChild);
+    var fixo = raiz === document.body; if (fixo) canvas.classList.add('glifos-fixo');
     var gl = canvas.getContext('webgl', { premultipliedAlpha: true, preserveDrawingBuffer: true, antialias: false });
     if (!gl) { canvas.remove(); return; }
     function compilar(tipo, fonte) { var s = gl.createShader(tipo); gl.shaderSource(s, fonte); gl.compileShader(s); return gl.getShaderParameter(s, gl.COMPILE_STATUS) ? s : null; }
@@ -497,7 +498,7 @@
     var largura = 0, altura = 0, dpr = 1, cell = [7, 13], tempo = 0, ondas = [], rastro = [], energia = { v: 0, at: 0 };
     var W = new Float32Array(MAX_WAVES * 8), T = new Float32Array(TRAIL * 4);
     function redimensionar() {
-      var r = raiz.getBoundingClientRect(); largura = r.width; altura = r.height;
+      if (fixo) { largura = window.innerWidth; altura = window.innerHeight; } else { var r = raiz.getBoundingClientRect(); largura = r.width; altura = r.height; }
       dpr = Math.max(1, Math.min(window.devicePixelRatio || 1, 2));
       canvas.width = Math.max(1, Math.round(largura * dpr)); canvas.height = Math.max(1, Math.round(altura * dpr));
       var fonte = (fontSize * dpr) + 'px Menlo, ui-monospace, SFMono-Regular, Consolas, monospace';
@@ -532,7 +533,8 @@
       gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT); gl.drawArrays(gl.TRIANGLES, 0, 3);
     }
     redimensionar(); desenhar();
-    if ('ResizeObserver' in window) new ResizeObserver(function () { redimensionar(); desenhar(); }).observe(raiz);
+    if (fixo) window.addEventListener('resize', function () { redimensionar(); desenhar(); });
+    else if ('ResizeObserver' in window) new ResizeObserver(function () { redimensionar(); desenhar(); }).observe(raiz);
 
     var menos = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (menos) return;
@@ -543,11 +545,12 @@
       desenhar(); requestAnimationFrame(passo);
     }
     function ligar() { if (!rodando && visivel && !document.hidden) { rodando = true; ultimo = 0; requestAnimationFrame(passo); } }
-    if ('IntersectionObserver' in window) new IntersectionObserver(function (e) { visivel = e[0].isIntersecting; ligar(); }).observe(raiz);
+    if (!fixo && 'IntersectionObserver' in window) new IntersectionObserver(function (e) { visivel = e[0].isIntersecting; ligar(); }).observe(raiz);
     document.addEventListener('visibilitychange', ligar);
     ligar();
-    function ponto(ev) { var r = raiz.getBoundingClientRect(); return { x: ev.clientX - r.left, y: ev.clientY - r.top }; }
-    raiz.addEventListener('pointermove', function (ev) {
+    function ponto(ev) { if (fixo) return { x: ev.clientX, y: ev.clientY }; var r = raiz.getBoundingClientRect(); return { x: ev.clientX - r.left, y: ev.clientY - r.top }; }
+    var alvo = fixo ? window : raiz;
+    alvo.addEventListener('pointermove', function (ev) {
       var p = ponto(ev), ult = rastro[rastro.length - 1];
       var atual = energia.v * Math.exp(-Math.max(0, tempo - energia.at) / ACTIVITY_DECAY);
       energia = { v: Math.min(1, atual + (ult ? Math.hypot(p.x - ult.x, p.y - ult.y) : 0) / 600), at: tempo };
@@ -555,8 +558,8 @@
       rastro = rastro.filter(function (q) { return tempo - q.t < TRAIL_LIFE; }).slice(1 - TRAIL);
       rastro.push({ x: p.x, y: p.y, t: tempo });
     });
-    raiz.addEventListener('pointerdown', function (ev) {
-      if (ev.target.closest('a, button, input, form')) return;
+    alvo.addEventListener('pointerdown', function (ev) {
+      if (ev.target.closest && ev.target.closest('a, button, input, select, textarea, label, summary, form, .resumo, .papers, .trab-meta')) return;
       var p = ponto(ev), tipo = 1 + Math.floor(Math.random() * 2), fase = Math.random() * Math.PI * 2;
       [[0, 1], [WAVE_GAP, 0.55]].forEach(function (d) { ondas.push({ x: p.x, y: p.y, tipo: tipo, fase: fase, forca: d[1], inicio: tempo / 1000, atraso: d[0] }); });
       ondas = ondas.slice(-MAX_WAVES);
@@ -589,7 +592,8 @@
 
   aplicarIdioma();
   if (SITE.pagina === 'trabalho') marcarVisto();
-  if (SITE.pagina === 'inicio') { mostrarVistos(); fundoGlifos($('.hero'), { cor: '#2E54A2', destaque: '#F9B234', haze: 0.16 }); }
+  if (SITE.pagina === 'inicio') mostrarVistos();
+  fundoGlifos(document.body, { cor: '#2E54A2', destaque: '#F9B234', haze: 0.13 });
   if (SITE.pagina === 'trabalhos') paginaTrabalhos();
   if (SITE.pagina === 'trabalho') paginaTrabalho();
   if (SITE.pagina === 'autores') paginaAutores();

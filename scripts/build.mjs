@@ -82,11 +82,9 @@ const temHero = p => p === 'inicio';
 
 // Banner da página inicial em 60/30/10: branco de fundo (com letras animadas), azul no título e no símbolo, amarelo nas ações.
 function hero(base) {
-  const ano = trabalhos.find(x => x.ano)?.ano || '';
   return `<section class="hero">
   <div class="hero-in">
     <div class="hero-texto">
-      <p class="hero-kicker"><span><span ${T('home.anais')}>${t('home.anais')}</span>${ano ? ` · ${e(ano)}` : ''}</span></p>
       <h1 class="hero-nome text-roll" data-text-roll ${TR(config.nome_evento)}>${e(nomeEvento)}</h1>
       <form class="hero-busca" action="${base}trabalhos/" method="get" role="search">
         <label class="sr" for="q-topo" ${T('home.buscar_titulo')}>${t('home.buscar_titulo')}</label>
