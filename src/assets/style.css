@@ -46,12 +46,12 @@ svg { fill: currentColor; }
   padding: 0 16px; font-size: 15px; position: sticky; top: 0; z-index: 20;
 }
 .topbar-org { color: #fff; text-decoration: none; font-weight: 500; letter-spacing: .3px; }
-.idiomas { display: flex; gap: 2px; }
+.idiomas { display: flex; gap: 2px; padding-bottom: 4px; }
 .idiomas button {
   background: transparent; border: 0; color: rgba(255,255,255,.75);
   font-size: 13px; font-weight: 500; letter-spacing: .3px; padding: 6px 8px; border-radius: 4px;
 }
-.idiomas button[aria-pressed="true"] { color: #fff; background: rgba(255,255,255,.18); }
+.idiomas button[aria-pressed="true"] { color: #fff; }
 .idiomas button:hover { color: #fff; }
 
 /* ---------- Banner (padrão de círculos, sem imagem) ---------- */
@@ -97,10 +97,7 @@ svg { fill: currentColor; }
 }
 .abas-nav a:hover { color: #fff; }
 .abas-nav a[aria-current="page"] { color: #fff; }
-.abas-nav a[aria-current="page"]::after {
-  content: ""; position: absolute; left: 0; right: 0; bottom: 0;
-  height: 4px; background: #fff; border-radius: 4px 4px 0 0;
-}
+/* a barrinha branca da aba ativa é desenhada pelo indicador deslizante (.vt-ind) */
 
 main { max-width: var(--max); margin: 0 auto; min-height: 50vh; }
 
@@ -296,10 +293,11 @@ details.filter-group[open] > summary h3::after { transform: rotate(-135deg) tran
 .caixa-corpo a { color: var(--text-strong); font-weight: 500; }
 .abas { display: flex; gap: 4px; }
 .abas button {
-  background: transparent; border: 1px solid var(--border); border-radius: var(--radius-pill);
-  padding: 4px 12px; font-size: 12px; font-weight: 500; letter-spacing: .3px; color: var(--text-letter);
+  position: relative; background: transparent; border: 0; border-radius: 6px;
+  height: 28px; padding: 0 10px; font-size: 12px; font-weight: 500; letter-spacing: .3px; color: var(--text-letter); transition: color .3s;
 }
-.abas button[aria-selected="true"] { background: var(--primary); border-color: var(--primary); color: #fff; }
+.abas button[aria-selected="true"] { color: var(--primary); }
+.abas { padding-bottom: 4px; }
 .abas button[data-vazio] { opacity: .55; }
 .resumo { padding: 16px 16px 4px; font-size: 15px; line-height: 1.7; color: var(--text); }
 .resumo p { margin: 0 0 1em; text-align: justify; hyphens: auto; }
@@ -329,9 +327,9 @@ a.tag:hover { border-color: var(--primary); color: var(--primary); }
 .vazio h1 { font-size: 24px; font-weight: 400; color: var(--text-strong); }
 
 /* ---------- Rodapé ---------- */
-.rodape { background: #E0E0E0; font-size: 12px; color: var(--text); margin-top: 32px; }
+.rodape { background: var(--text); font-size: 12px; color: rgba(255,255,255,.82); margin-top: 32px; }
 .rodape-in { max-width: var(--max); margin: 0 auto; padding: 20px 16px; display: flex; justify-content: space-between; gap: 12px 24px; flex-wrap: wrap; }
-.rodape strong { font-weight: 500; color: var(--text-strong); }
+.rodape strong { font-weight: 500; color: #fff; }
 
 /* ---------- Tablet ---------- */
 @media (max-width: 900px) {
@@ -391,7 +389,6 @@ a.tag:hover { border-color: var(--primary); color: var(--primary); }
   .paper-card__thumb { width: 40px; height: 40px; font-size: 11px; }
   .pdf-botoes .btn { padding: 12px 10px; font-size: 13px; }
   .resumo { font-size: 15px; }
-  .resumo p { text-align: left; }
 }
 
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto !important; } }
@@ -462,3 +459,42 @@ a.tag:hover { border-color: var(--primary); color: var(--primary); }
 @media (max-width: 600px) { .author-card__avatar b { font-size: 19px; } }
 .eixo span { display: flex; gap: 10px; align-items: baseline; }
 .eixo span::before { content: ""; width: 10px; height: 10px; border-radius: 50%; background: var(--c); flex: none; }
+
+/* ---------- Rodapé: logo e Instagram ---------- */
+.rodape-dir { display: flex; flex-direction: column; gap: 10px; align-items: flex-start; }
+.rodape-logo { display: block; width: 180px; height: auto; }
+.rodape-ig { display: inline-flex; align-items: center; gap: 8px; color: #fff; text-decoration: none; font-weight: 500; }
+.rodape-ig svg { width: 18px; height: 18px; }
+.rodape-ig:hover span { text-decoration: underline; }
+
+/* ---------- Abas com indicador deslizante (abas, idiomas e resumo) ---------- */
+.vt { position: relative; }
+.vt-hover, .vt-ind { position: absolute; left: 0; width: 0; pointer-events: none; transition: left .3s ease-out, width .3s ease-out, opacity .3s ease-out; }
+.vt-hover { background: rgba(0,0,0,.06); border-radius: 6px; opacity: 0; }
+.vt-ind { height: 2px; background: var(--primary); border-radius: 2px; }
+.idiomas .vt-hover { background: rgba(255,255,255,.18); }
+.idiomas .vt-ind { background: #fff; }
+.abas-nav .vt-hover { display: none; }
+.abas-nav .vt-ind { top: auto; bottom: 0; height: 4px; background: #fff; border-radius: 4px 4px 0 0; }
+@media (prefers-reduced-motion: reduce) { .vt-hover, .vt-ind, .abas button { transition: none !important; } }
+
+/* ---------- Título do banner: letras que rolam (Text Roll, MIT) ---------- */
+.text-roll { --tr-duracao: .5s; --tr-passo: .035s; --tr-saida: .2s; }
+.tr-palavra { display: inline-block; white-space: nowrap; }
+.tr-letra { position: relative; display: inline-block; perspective: 10000px; transform-style: preserve-3d; }
+.tr-cima, .tr-baixo {
+  position: absolute; left: 0; top: 0; display: inline-block; backface-visibility: hidden;
+  animation-duration: var(--tr-duracao); animation-timing-function: cubic-bezier(.42, 0, 1, 1); animation-fill-mode: both;
+}
+.tr-cima { transform-origin: 50% 25%; transform: rotateX(0deg); }
+.tr-baixo { transform-origin: 50% 100%; transform: rotateX(90deg); }
+.tr-fantasma { visibility: hidden; }
+.text-roll.rodando .tr-cima { animation-name: tr-sai; animation-delay: calc(var(--i) * var(--tr-passo)); }
+.text-roll.rodando .tr-baixo { animation-name: tr-entra; animation-delay: calc(var(--i) * var(--tr-passo) + var(--tr-saida)); }
+@keyframes tr-sai { from { transform: rotateX(0deg); } to { transform: rotateX(90deg); } }
+@keyframes tr-entra { from { transform: rotateX(90deg); } to { transform: rotateX(0deg); } }
+@media (prefers-reduced-motion: reduce) {
+  .text-roll.rodando .tr-cima, .text-roll.rodando .tr-baixo { animation: none; }
+  .tr-baixo { transform: none; }
+  .tr-cima { visibility: hidden; }
+}

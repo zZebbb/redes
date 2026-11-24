@@ -50,6 +50,8 @@ Tudo fica em [`config.json`](config.json), dividido em 4 blocos: **dados do even
 - `cores`, em hexadecimal: `primaria` (barra do topo, abas, botões e destaques; é a única cor de interface), `banner_fundo` e `banner_pontos` (padrão de círculos do banner), `fundo` (fundo da página) e `texto`.
 - `site_url`: endereço final do site (usado nos links de citação e no sitemap).
 - `itens_por_pagina`: trabalhos por página na lista.
+- `instagram` *(opcional)*: perfil que aparece no rodapé, sem o @ (ex.: `"ecos_unb"`). Deixe vazio para esconder.
+- `logo_rodape` e `logo_rodape_alt` *(opcional)*: imagem em `public/` mostrada no rodapé (hoje, o logo do ECoS em branco e rosa, para fundo escuro) e a descrição dela para leitores de tela.
 - `sugestoes_busca` *(opcional)*: lista de termos que aparecem como atalhos embaixo da busca do banner, por exemplo `["Desinformação", "Saúde bucal", "Doulas"]`. Sem ela, o site mostra as palavras-chave mais comuns.
 
 Os textos da interface estão em `i18n/pt.json`, `i18n/en.json` e `i18n/es.json`.
