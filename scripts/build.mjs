@@ -380,7 +380,7 @@ for (const x of trabalhos) {
             ${a.instituicoes?.length ? `<span class="author-card__inst">${e(a.instituicoes.join('; '))}</span>` : ''}
             <span class="author-card__count">${a.trabalhos.length} <span ${T(a.trabalhos.length === 1 ? 'autores.trabalho' : 'autores.trabalhos')}>${t(a.trabalhos.length === 1 ? 'autores.trabalho' : 'autores.trabalhos')}</span></span>
           </summary>
-          <ul class="author-card__works">${a.trabalhos.map(s => porSlug.get(s)).map(x => `<li><a href="${base}trabalho/${x.slug}/" ${titTR(x)}>${e(x.titulo)}</a></li>`).join('')}</ul>
+          <ul class="author-card__works">${a.trabalhos.map(s => porSlug.get(s)).map(x => `<li><span class="author-card__wn" aria-hidden="true">${e(x.id)}</span><a href="${base}trabalho/${x.slug}/" ${titTR(x)}>${e(x.titulo)}</a></li>`).join('')}</ul>
         </details>
       </li>`).join('\n      ')}
     </ul>

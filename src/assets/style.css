@@ -250,8 +250,10 @@ details.filter-group[open] > summary h3::after { transform: rotate(-135deg) tran
   transform: rotate(45deg) translateY(-2px); transition: transform .15s;
 }
 .author-card details[open] .author-card__count::after { transform: rotate(-135deg) translateY(-1px); }
-.author-card__works { list-style: none; margin: 0; padding: 0 4px 14px 14px; border-left: 2px solid var(--accent); margin-left: 4px; }
-.author-card__works li + li { margin-top: 8px; }
+.author-card__works { list-style: none; margin: 0 0 14px 4px; padding: 0; border-left: 2px solid var(--accent); }
+.author-card__works li { display: grid; grid-template-columns: 40px minmax(0, 1fr); align-items: baseline; padding: 10px 4px 10px 12px; }
+.author-card__works li + li { border-top: 1px solid var(--line); }
+.author-card__wn { font-family: var(--f-tit); font-size: 12px; font-weight: 700; color: var(--muted); font-variant-numeric: tabular-nums; }
 .author-card__works a { font-family: var(--f-tit); font-size: 12px; font-weight: 600; text-transform: uppercase; color: var(--ink); text-decoration: none; line-height: 1.45; }
 .author-card__works a:hover { color: var(--primary); }
 
