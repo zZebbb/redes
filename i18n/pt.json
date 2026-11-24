@@ -58,10 +58,11 @@
   "autores.instituicoes": "Instituições",
   "autores.todos": "Todos",
   "autores.filtrar_inst": "Filtrar instituições",
-  "home.sugestoes": "Sugestões de busca",
+  "home.sugestoes": "Temas:",
   "lista.vista": "Modo de exibição",
   "lista.vista_cards": "Cards",
   "lista.vista_tabela": "Tabela",
   "lista.col_titulo": "Título",
-  "lista.col_autores": "Autores"
+  "lista.col_autores": "Autores",
+  "home.anais": "Anais"
 }

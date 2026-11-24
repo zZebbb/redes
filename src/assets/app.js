@@ -128,11 +128,11 @@
   }
   function cardTrabalho(x) {
     return '<li><a class="paper-card" href="' + SITE.base + 'trabalho/' + encodeURIComponent(x.slug) + '/">' +
+      '<span class="paper-card__n">' + esc(x.id) + '</span>' +
       '<div class="paper-card__body"><p class="paper-card__title">' + esc((x.titulos && x.titulos[idioma]) || x.titulo) + '</p>' +
       '<p class="paper-card__authors">' + esc(autoresCurto(x)) + '</p>' +
       '<p class="paper-card__meta">' + eixoBadge(x.eixo) + (x.modalidade ? '<span class="paper-card__mod">' + esc(x.modalidade) + '</span>' : '') + '</p></div>' +
-      '<span class="paper-card__thumb" aria-hidden="true">' + esc(SITE.mono || '') + '</span>' +
-      (SITE.selo ? '<span class="paper-card__badge">' + esc(SITE.selo) + '</span>' : '') + '</a></li>';
+      '</a></li>';
   }
 
   function paginaTrabalhos() {

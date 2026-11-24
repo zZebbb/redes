@@ -56,7 +56,8 @@ const cores = Object.assign({ primaria: '#E69138', banner_fundo: '#F2A900', bann
 const selo = [config.sigla, config.edicao].filter(v => v && !/^\[/.test(v)).join(' ');
 
 // Cada eixo ganha um ponto colorido (o laranja continua sendo a única cor de interface).
-const CORES_EIXO = ['#3B6FB6', '#2E8B57', '#8E5BB5', '#C0504D', '#B8860B', '#1F8A8A', '#7A6A58'];
+// Cores da identidade Rede Brasil: azul, verde, roxo, amarelo (escurecido para leitura) e azul-noturno.
+const CORES_EIXO = ['#2E54A2', '#076633', '#B86CAA', '#C98A12', '#172A55', '#5E595B'];
 const eixoCor = eixo => CORES_EIXO[Math.max(0, eixos.indexOf(eixo)) % CORES_EIXO.length];
 const eixoCurto = eixo => (eixo.match(/^eixo\s*\d+/i) || [eixo.length > 28 ? eixo.slice(0, 26) + '…' : eixo])[0];
 const eixoBadge = eixo => eixo ? `<span class="eixo-badge" style="--c:${eixoCor(eixo)}" title="${e(eixo)}">${e(eixoCurto(eixo))}</span>` : '';
@@ -77,22 +78,32 @@ const monograma = (() => {
   return (p.length > 1 ? p.map(w => w[0]).join('') : s).slice(0, 4).toUpperCase();
 })();
 
-const temHero = p => ['inicio', 'trabalhos', 'autores', '404'].includes(p);
+const temHero = p => p === 'inicio';
 
-function hero(base, pagina) {
-  const bannerStyle = config.banner
-    ? ` style="--banner:url('${base}${e(config.banner)}');--banner-cel:url('${base}${e(config.banner_celular || config.banner)}')"` : '';
-  const Nome = pagina === 'inicio' ? 'h1' : 'p';
-  return `<section class="hero${config.banner ? ' hero-img' : ''}"${bannerStyle}>
-  <div class="hero-marca">
-    <${Nome} class="hero-nome${pagina === 'inicio' ? ' text-roll" data-text-roll' : '"'} ${TR(config.nome_evento)}>${e(nomeEvento)}</${Nome}>
+// Banner da página inicial em 60/30/10: azul (busca), azul-noturno (números), amarelo (pontilhado e ações).
+function hero(base) {
+  const ano = trabalhos.find(x => x.ano)?.ano || '';
+  const pontos = Array.from({ length: 19 }, (_, i) => {
+    const a = (-90 + i * 10) * Math.PI / 180;
+    return `<circle cx="${(300 + 260 * Math.cos(a)).toFixed(1)}" cy="${(300 + 260 * Math.sin(a)).toFixed(1)}" r="9"/>`;
+  }).join('');
+  return `<section class="hero">
+  <div class="hero-busca-lado">
+    <p class="hero-kicker"><span><span ${T('home.anais')}>${t('home.anais')}</span>${ano ? ` · ${e(ano)}` : ''}</span></p>
+    <h1 class="hero-nome text-roll" data-text-roll ${TR(config.nome_evento)}>${e(nomeEvento)}</h1>
+    <form class="hero-busca" action="${base}trabalhos/" method="get" role="search">
+      <label class="sr" for="q-topo" ${T('home.buscar_titulo')}>${t('home.buscar_titulo')}</label>
+      <input id="q-topo" name="q" type="search" placeholder="${e(t('home.buscar_placeholder'))}" data-i18n-ph="home.buscar_placeholder" autocomplete="off">
+      <button type="submit"><span ${T('home.buscar_botao')}>${t('home.buscar_botao')}</span></button>
+    </form>
+    ${sugestoes.length ? `<div class="hero-chips"><span class="hero-chips-rot" ${T('home.sugestoes')}>${t('home.sugestoes')}</span>${sugestoes.map(v => `<a class="chip" href="${base}trabalhos/?q=${encodeURIComponent(v)}">${e(v)}</a>`).join('')}</div>` : ''}
   </div>
-  <form class="hero-busca" action="${base}trabalhos/" method="get" role="search">
-    <label class="sr" for="q-topo" ${T('home.buscar_titulo')}>${t('home.buscar_titulo')}</label>
-    <input id="q-topo" name="q" type="search" placeholder="${e(t('home.buscar_placeholder'))}" data-i18n-ph="home.buscar_placeholder" autocomplete="off">
-    <button type="submit" aria-label="${e(t('home.buscar_botao'))}"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M15.5 14h-.8l-.3-.3A6.5 6.5 0 109.5 16a6.5 6.5 0 004.2-1.6l.3.3v.8l5 5 1.5-1.5-5-5zm-6 0a4.5 4.5 0 110-9 4.5 4.5 0 010 9z"/></svg></button>
-  </form>
-  ${sugestoes.length ? `<div class="hero-chips"><span class="sr" ${T('home.sugestoes')}>${t('home.sugestoes')}</span>${sugestoes.map(v => `<a class="chip" href="${base}trabalhos/?q=${encodeURIComponent(v)}">${e(v)}</a>`).join('')}</div>` : ''}
+  <ul class="hero-num" aria-label="Resumo">
+    <li><a href="${base}trabalhos/"><strong>${trabalhos.length}</strong><span ${T('home.trabalhos')}>${t('home.trabalhos')}</span></a></li>
+    <li><a href="${base}autores/"><strong>${autores.length}</strong><span ${T('home.autores')}>${t('home.autores')}</span></a></li>
+    <li><a href="#eixos"><strong>${eixos.length}</strong><span ${T('home.eixos')}>${t('home.eixos')}</span></a></li>
+  </ul>
+  <svg class="hero-pontilhado" viewBox="0 0 600 600" aria-hidden="true">${pontos}</svg>
 </section>`;
 }
 
@@ -118,7 +129,7 @@ ${metaExtra}
 <link rel="icon" href="${config.favicon ? base + e(config.favicon) : 'data:,'}">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Open+Sans:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="${base}assets/style.css">
 <style>:root{--primary:${e(cores.primaria)};--accent:${e(cores.secundaria || cores.primaria)};--accent-ink:${e(cores.texto_sobre_secundaria || '#1D1B20')};--hero-bg:${e(cores.banner_fundo)};--hero-dots:${e(cores.banner_pontos)};--hero-ink:${e(cores.banner_texto || '#FFFFFF')};--bg:${e(cores.fundo)};--text:${e(cores.texto)};--footer:${e(cores.rodape || cores.texto)}}</style>
 <script>window.SITE={base:${JSON.stringify(base)},pagina:${JSON.stringify(pagina)},porPagina:${Number(config.itens_por_pagina) || 12},idiomaPadrao:${JSON.stringify(config.idioma_padrao || 'pt')},selo:${JSON.stringify(selo)},mono:${JSON.stringify(monograma)},eixos:${JSON.stringify(Object.fromEntries(eixos.map(x => [x, [eixoCurto(x), eixoCor(x)]])))}};</script>
@@ -129,27 +140,27 @@ ${metaExtra}
   <a class="topbar-org" href="${base}">${config.logo_topo
     ? `<img src="${base}${e(config.logo_topo)}" alt="${e(config.logo_topo_alt || config.sigla || nomeEvento)}">`
     : e((config.sigla || nomeEvento).replace(/[\[\]]/g, ''))}</a>
+  <nav class="abas-nav" aria-label="Principal">${nav}</nav>
   <div class="idiomas" role="group" aria-label="${t('nav.idioma')}" ${T('nav.idioma')} data-i18n-attr="aria-label">
     <button type="button" data-lang="pt" lang="pt">PT</button>
     <button type="button" data-lang="en" lang="en">EN</button>
     <button type="button" data-lang="es" lang="es">ES</button>
   </div>
 </header>
-${temHero(pagina) ? hero(base, pagina) : ''}
-<nav class="abas-nav" aria-label="Principal">${nav}</nav>
+${temHero(pagina) ? hero(base) : ''}
 <main id="conteudo">
 ${corpo}
 </main>
 <footer class="rodape">
   <div class="rodape-in">
-    <div>
-      <strong ${TR(config.nome_evento)}>${e(nomeEvento)}</strong>
-      ${config.issn ? `<span> · ISSN ${e(config.issn)}</span>` : ''}
-      ${config.editora ? `<div>${e(config.editora)}</div>` : ''}
+    <div class="rodape-marcas">
+      ${config.logo_rodape_rede ? `<img class="rodape-rede" src="${base}${e(config.logo_rodape_rede)}" alt="${e(config.logo_rodape_rede_alt || 'Rede Brasil')}" width="200">` : ''}
+      ${config.logo_rodape ? `<img class="rodape-logo" src="${base}${e(config.logo_rodape)}" alt="${e(config.logo_rodape_alt || '')}" width="150">` : ''}
     </div>
-    <div class="rodape-dir">
-      ${config.logo_rodape ? `<img class="rodape-logo" src="${base}${e(config.logo_rodape)}" alt="${e(config.logo_rodape_alt || '')}" width="180">` : ''}
-      <div ${T('rodape.feito')}>${t('rodape.feito')}</div>
+    <div class="rodape-info">
+      <p><strong ${TR(config.nome_evento)}>${e(nomeEvento)}</strong>${config.issn && !/^\[/.test(config.issn) ? ` · ISSN ${e(config.issn)}` : ''}</p>
+      ${config.editora && !/^\[/.test(config.editora) ? `<p>${e(config.editora)}</p>` : ''}
+      <p ${T('rodape.feito')}>${t('rodape.feito')}</p>
       ${instagram ? `<a class="rodape-ig" href="https://www.instagram.com/${e(instagram)}/" target="_blank" rel="noopener" aria-label="Instagram @${e(instagram)}"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 2.2c3.2 0 3.6 0 4.8.1 3.3.1 4.8 1.7 4.9 4.9.1 1.3.1 1.6.1 4.8s0 3.6-.1 4.8c-.1 3.2-1.7 4.8-4.9 4.9-1.3.1-1.6.1-4.8.1s-3.6 0-4.8-.1c-3.3-.1-4.8-1.7-4.9-4.9C2.2 15.6 2.2 15.2 2.2 12s0-3.6.1-4.8C2.4 3.9 3.9 2.4 7.2 2.3 8.4 2.2 8.8 2.2 12 2.2zM12 0C8.7 0 8.3 0 7.1.1 2.7.3.3 2.7.1 7.1 0 8.3 0 8.7 0 12s0 3.7.1 4.9c.2 4.4 2.6 6.8 7 7 1.2.1 1.6.1 4.9.1s3.7 0 4.9-.1c4.4-.2 6.8-2.6 7-7 .1-1.2.1-1.6.1-4.9s0-3.7-.1-4.9c-.2-4.4-2.6-6.8-7-7C15.7 0 15.3 0 12 0zm0 5.8a6.2 6.2 0 100 12.4 6.2 6.2 0 000-12.4zM12 16a4 4 0 110-8 4 4 0 010 8zm6.4-11.8a1.4 1.4 0 100 2.9 1.4 1.4 0 000-2.9z"/></svg><span>@${e(instagram)}</span></a>` : ''}
     </div>
   </div>
@@ -168,13 +179,12 @@ const autoresCurto = x => x.citacao.length > 3 ? `${x.citacao[0]} et al.` : x.ci
 // Card de trabalho em lista (o JS da página Trabalhos gera a mesma marcação).
 function card(x, base) {
   return `<li><a class="paper-card" href="${base}trabalho/${x.slug}/">
+  <span class="paper-card__n">${e(x.id)}</span>
   <div class="paper-card__body">
     <p class="paper-card__title" ${titTR(x)}>${e(x.titulo)}</p>
     <p class="paper-card__authors">${e(autoresCurto(x))}</p>
     <p class="paper-card__meta">${eixoBadge(x.eixo)}${x.modalidade ? `<span class="paper-card__mod">${e(x.modalidade)}</span>` : ''}</p>
   </div>
-  <span class="paper-card__thumb" aria-hidden="true">${e(monograma)}</span>
-  <span class="paper-card__badge">${e(selo)}</span>
 </a></li>`;
 }
 
@@ -205,21 +215,16 @@ await writeFile(path.join(dist, '.nojekyll'), '');
   const destaque = [];
   for (let i = 0; destaque.length < Math.min(6, trabalhos.length); i++) for (const f of filas) if (f[i] && destaque.length < 6) destaque.push(f[i]);
   const corpo = `
-<section class="numeros" aria-label="Resumo">
-  <div><strong>${trabalhos.length}</strong><span ${T('home.trabalhos')}>${t('home.trabalhos')}</span></div>
-  <div><strong>${autores.length}</strong><span ${T('home.autores')}>${t('home.autores')}</span></div>
-  <div><strong>${eixos.length}</strong><span ${T('home.eixos')}>${t('home.eixos')}</span></div>
-</section>
 ${txt(config.apresentacao) ? `<section class="sec apresentacao"><p ${TR(config.apresentacao)}>${e(txt(config.apresentacao))}</p></section>` : ''}
-<section class="sec">
-  <h2 ${T('home.eixos_titulo')}>${t('home.eixos_titulo')}</h2>
-  <div class="eixos">
-    ${eixos.map(x => `<a class="eixo" style="--c:${eixoCor(x)}" href="trabalhos/?eixo=${encodeURIComponent(x)}"><span>${e(x)}</span><strong>${contarEixo(x)}</strong></a>`).join('\n    ')}
-  </div>
+<section class="sec" id="eixos">
+  <h2 class="tit-sec" ${T('home.eixos_titulo')}>${t('home.eixos_titulo')}</h2>
+  <ol class="eixos">
+    ${eixos.map((x, i) => `<li><a class="eixo" style="--c:${eixoCor(x)}" href="trabalhos/?eixo=${encodeURIComponent(x)}"><b class="eixo-n">${String(i + 1).padStart(2, '0')}</b><span class="eixo-nome">${e(x.replace(/^Eixo\s*\d+\s*[–-]\s*/i, ''))}</span><span class="eixo-qtd">${contarEixo(x)} <small ${T('home.trabalhos')}>${t('home.trabalhos')}</small></span></a></li>`).join('\n    ')}
+  </ol>
 </section>
 <section class="sec">
   <div class="sec-cab">
-    <h2 ${T('home.recentes')}>${t('home.recentes')}</h2>
+    <h2 class="tit-sec" ${T('home.recentes')}>${t('home.recentes')}</h2>
     <a class="link-seta" href="trabalhos/" ${T('home.ver_todos')}>${t('home.ver_todos')}</a>
   </div>
   <ul class="papers">${destaque.map(x => card(x, base)).join('\n')}</ul>

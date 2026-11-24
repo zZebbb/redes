@@ -58,10 +58,11 @@
   "autores.instituicoes": "Institutions",
   "autores.todos": "All",
   "autores.filtrar_inst": "Filter institutions",
-  "home.sugestoes": "Search suggestions",
+  "home.sugestoes": "Topics:",
   "lista.vista": "View",
   "lista.vista_cards": "Cards",
   "lista.vista_tabela": "Table",
   "lista.col_titulo": "Title",
-  "lista.col_autores": "Authors"
+  "lista.col_autores": "Authors",
+  "home.anais": "Proceedings"
 }
