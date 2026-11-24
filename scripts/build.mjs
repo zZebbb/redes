@@ -1,5 +1,7 @@
 // Gera o site estático em dist/ a partir de config.json, i18n/ e data/*.json.
-import { readFile, writeFile, mkdir, rm, cp, access } from 'node:fs/promises';
+import { readFile, writeFile, mkdir, rm, cp, access, readdir } from 'node:fs/promises';
+import { execFile } from 'node:child_process';
+import { promisify } from 'node:util';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import { escapeHTML as e, txt, slugify, nomeABNT } from './lib.mjs';
@@ -42,6 +44,10 @@ const titTR = x => TR({ pt: x.titulos.pt, en: x.titulos.en || x.titulos.pt, es: 
 const autorSlug = nome => slugify(nome);
 
 const t = k => i18n.pt[k] ?? k;                       // texto padrão (PT) no HTML
+// Valores vindos da planilha (eixos, modalidades) traduzidos pelas chaves "valor.<texto em PT>" de i18n/.
+const tv = (l, v) => i18n[l]?.['valor.' + v] ?? v;
+const TV = (v, f = x => x) => TR({ pt: f(v, 'pt'), en: f(tv('en', v), 'en'), es: f(tv('es', v), 'es') });
+const semPrefixoEixo = v => v.replace(/^[^\d–-]*\d+\s*[–-]\s*/, '');
 const T = k => `data-i18n="${k}"`;                     // marcação para trocar idioma no navegador
 const TR = v => (typeof v === 'object' && v) ? `data-tr="${e(JSON.stringify(v))}"` : '';
 const siteURL = (config.site_url || '').replace(/\/$/, '');
@@ -60,7 +66,8 @@ const selo = [config.sigla, config.edicao].filter(v => v && !/^\[/.test(v)).join
 const CORES_EIXO = ['#2E54A2', '#076633', '#B86CAA', '#C98A12', '#172A55', '#5E595B'];
 const eixoCor = eixo => CORES_EIXO[Math.max(0, eixos.indexOf(eixo)) % CORES_EIXO.length];
 const eixoCurto = eixo => (eixo.match(/^eixo\s*\d+/i) || [eixo.length > 28 ? eixo.slice(0, 26) + '…' : eixo])[0];
-const eixoBadge = eixo => eixo ? `<span class="eixo-badge" style="--c:${eixoCor(eixo)}" title="${e(eixo)}">${e(eixoCurto(eixo))}</span>` : '';
+const eixoCurtoEm = (eixo, l) => eixoCurto(eixo).replace(/^eixo/i, tv(l, 'Eixo'));
+const eixoBadge = eixo => eixo ? `<span class="eixo-badge" style="--c:${eixoCor(eixo)}" title="${e(eixo)}" ${TR({ pt: eixoCurtoEm(eixo, 'pt'), en: eixoCurtoEm(eixo, 'en'), es: eixoCurtoEm(eixo, 'es') })}>${e(eixoCurto(eixo))}</span>` : '';
 
 // Sugestões de busca no banner: config.sugestoes_busca ou as palavras-chave mais comuns
 // (ignorando as que aparecem em mais da metade dos trabalhos, que não ajudam a filtrar).
@@ -131,7 +138,7 @@ ${metaExtra}
   <a class="topbar-org" href="${base}">${config.logo_topo
     ? `<img src="${base}${e(config.logo_topo)}" alt="${e(config.logo_topo_alt || config.sigla || nomeEvento)}">`
     : e((config.sigla || nomeEvento).replace(/[\[\]]/g, ''))}</a>
-  <nav class="abas-nav" aria-label="Principal">${nav}</nav>
+  <nav class="abas-nav" aria-label="${e(t('nav.principal'))}" ${T('nav.principal')} data-i18n-attr="aria-label">${nav}</nav>
   <div class="idiomas" role="group" aria-label="${t('nav.idioma')}" ${T('nav.idioma')} data-i18n-attr="aria-label">
     <button type="button" data-lang="pt" lang="pt">PT</button>
     <button type="button" data-lang="en" lang="en">EN</button>
@@ -174,7 +181,7 @@ function card(x, base) {
   <div class="paper-card__body">
     <p class="paper-card__title" ${titTR(x)}>${e(x.titulo)}</p>
     <p class="paper-card__authors">${e(autoresCurto(x))}</p>
-    <p class="paper-card__meta">${eixoBadge(x.eixo)}${x.modalidade ? `<span class="paper-card__mod">${e(x.modalidade)}</span>` : ''}</p>
+    <p class="paper-card__meta">${eixoBadge(x.eixo)}${x.modalidade ? `<span class="paper-card__mod" ${TV(x.modalidade)}>${e(x.modalidade)}</span>` : ''}</p>
   </div>
 </a></li>`;
 }
@@ -193,6 +200,32 @@ for (const pasta of ['public']) {
   if (await existe(path.join(raiz, pasta))) await cp(path.join(raiz, pasta), dist, { recursive: true });
 }
 if (await existe(path.join(raiz, 'pdfs'))) await cp(path.join(raiz, 'pdfs'), path.join(dist, 'pdfs'), { recursive: true });
+
+// Imagens das páginas de cada PDF, para a pré-visualização no celular. O Safari do iPhone/iPad não
+// ajusta um PDF dentro de um iframe (mostra um pedaço ampliado, sem rolagem), então lá o site mostra
+// estas imagens. Precisa do pdftoppm (pacote poppler-utils); sem ele, fica só o iframe.
+{
+  const rodar = promisify(execFile);
+  const temPoppler = await rodar('pdftoppm', ['-v']).then(() => true, () => false);
+  if (!temPoppler) console.warn('Aviso: pdftoppm não encontrado; a pré-visualização em imagem (iPhone) não foi gerada.');
+  else {
+    const pasta = path.join(dist, 'previas');
+    await mkdir(pasta, { recursive: true });
+    const comPdf = trabalhos.filter(x => x.pdfLocal);
+    for (let i = 0; i < comPdf.length; i += 4) {
+      await Promise.all(comPdf.slice(i, i + 4).map(async x => {
+        try {
+          await rodar('pdftoppm', ['-jpeg', '-jpegopt', 'quality=80', '-scale-to', '1600', '-l', '20', path.join(raiz, x.pdfLocal), path.join(pasta, x.slug)]);
+        } catch (err) { console.warn(`Aviso: não deu para gerar a imagem do PDF ${x.slug}: ${err.message.split('\n')[0]}`); }
+      }));
+    }
+    const arquivos = await readdir(pasta);
+    for (const x of comPdf) {
+      x.previaImgs = arquivos.filter(f => f.startsWith(x.slug + '-') && f.endsWith('.jpg'))
+        .sort((a, b) => coll.compare(a, b)).map(f => 'previas/' + f);
+    }
+  }
+}
 await mkdir(path.join(dist, 'data'), { recursive: true });
 await cp(path.join(raiz, 'data/trabalhos.json'), path.join(dist, 'data/trabalhos.json'));
 await writeFile(path.join(dist, '.nojekyll'), '');
@@ -208,7 +241,7 @@ ${txt(config.apresentacao) ? `<section class="sec apresentacao"><p ${TR(config.a
     <a class="link-seta" href="trabalhos/" ${T('home.ver_todos')}>${t('home.ver_todos')}</a>
   </div>
   <ol class="eixos">
-    ${eixos.map((x, i) => `<li><a class="eixo" style="--c:${eixoCor(x)}" href="trabalhos/?eixo=${encodeURIComponent(x)}"><b class="eixo-n">${String(i + 1).padStart(2, '0')}</b><span class="eixo-nome">${e(x.replace(/^Eixo\s*\d+\s*[–-]\s*/i, ''))}</span></a></li>`).join('\n    ')}
+    ${eixos.map((x, i) => `<li><a class="eixo" style="--c:${eixoCor(x)}" href="trabalhos/?eixo=${encodeURIComponent(x)}"><b class="eixo-n">${String(i + 1).padStart(2, '0')}</b><span class="eixo-nome" ${TV(x, semPrefixoEixo)}>${e(semPrefixoEixo(x))}</span></a></li>`).join('\n    ')}
   </ol>
 </section>
 <section class="sec" id="vistos" hidden>
@@ -222,7 +255,7 @@ ${txt(config.apresentacao) ? `<section class="sec apresentacao"><p ${TR(config.a
 function grupoFiltro(id, rotulo, valores, contar, cor) {
   return `<div class="filter-group" data-campo="${id}">
       <h3><span ${T(rotulo)}>${t(rotulo)}</span></h3>
-      <ul class="filter-list">${valores.map(v => `<li><button type="button" data-valor="${e(v)}" aria-pressed="false"><span class="fl-nome"${cor ? ` style="--c:${cor(v)}"` : ''}>${e(v)}</span><span class="fl-n">${contar(v)}</span></button></li>`).join('')}</ul>
+      <ul class="filter-list">${valores.map(v => `<li><button type="button" data-valor="${e(v)}" aria-pressed="false"><span class="fl-nome"${cor ? ` style="--c:${cor(v)}"` : ''} ${TV(v)}>${e(v)}</span><span class="fl-n">${contar(v)}</span></button></li>`).join('')}</ul>
     </div>`;
 }
 {
@@ -251,14 +284,14 @@ function grupoFiltro(id, rotulo, valores, contar, cor) {
     <div class="content-cab">
       <h1 class="pag-tit" ${T('lista.titulo')}>${t('lista.titulo')}</h1>
       <div class="vista" role="group" aria-label="${e(t('lista.vista'))}" ${T('lista.vista')} data-i18n-attr="aria-label">
-        <button type="button" data-vista="cards" aria-pressed="true" title="${e(t('lista.vista_cards'))}"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 5h16v4H4zm0 5h16v4H4zm0 5h16v4H4z"/></svg><span ${T('lista.vista_cards')}>${t('lista.vista_cards')}</span></button>
-        <button type="button" data-vista="tabela" aria-pressed="false" title="${e(t('lista.vista_tabela'))}"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M3 4h18v16H3zm2 2v3h14V6zm0 5v3h14v-3zm0 5v2h14v-2z"/></svg><span ${T('lista.vista_tabela')}>${t('lista.vista_tabela')}</span></button>
+        <button type="button" data-vista="cards" aria-pressed="true" title="${e(t('lista.vista_cards'))}" data-i18n-title="lista.vista_cards"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 5h16v4H4zm0 5h16v4H4zm0 5h16v4H4z"/></svg><span ${T('lista.vista_cards')}>${t('lista.vista_cards')}</span></button>
+        <button type="button" data-vista="tabela" aria-pressed="false" title="${e(t('lista.vista_tabela'))}" data-i18n-title="lista.vista_tabela"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M3 4h18v16H3zm2 2v3h14V6zm0 5v3h14v-3zm0 5v2h14v-2z"/></svg><span ${T('lista.vista_tabela')}>${t('lista.vista_tabela')}</span></button>
       </div>
     </div>
     <p id="contagem" class="contagem" aria-live="polite"></p>
     <div id="tabela" class="tabela-wrap" hidden></div>
     <ul id="lista" class="papers">${trabalhos.map(x => card(x, base)).join('\n')}</ul>
-    <nav id="paginacao" class="paginacao" aria-label="Paginação"></nav>
+    <nav id="paginacao" class="paginacao" aria-label="${e(t('lista.paginacao'))}" ${T('lista.paginacao')} data-i18n-attr="aria-label"></nav>
   </section>
 </div>`;
   await salvar('trabalhos/index.html', layout({ base, titulo: t('lista.titulo'), pagina: 'trabalhos', corpo, canonical: siteURL ? siteURL + '/trabalhos/' : '' }));
@@ -297,7 +330,7 @@ for (const x of trabalhos) {
   })()}
   <dl class="trab-meta">
     <div><dt ${T('trab.id')}>${t('trab.id')}</dt><dd>${e(x.id)}</dd></div>
-    ${x.modalidade ? `<div><dt ${T('trab.modalidade')}>${t('trab.modalidade')}</dt><dd><a href="${base}trabalhos/?modalidade=${encodeURIComponent(x.modalidade)}">${e(x.modalidade)}</a></dd></div>` : ''}
+    ${x.modalidade ? `<div><dt ${T('trab.modalidade')}>${t('trab.modalidade')}</dt><dd><a href="${base}trabalhos/?modalidade=${encodeURIComponent(x.modalidade)}" ${TV(x.modalidade)}>${e(x.modalidade)}</a></dd></div>` : ''}
     ${x.ano ? `<div><dt ${T('trab.ano')}>${t('trab.ano')}</dt><dd>${e(x.ano)}</dd></div>` : ''}
     ${x.doi ? `<div><dt>DOI</dt><dd><a href="https://doi.org/${e(x.doi)}">${e(x.doi)}</a></dd></div>` : ''}
   </dl>
@@ -329,14 +362,15 @@ for (const x of trabalhos) {
         <a class="btn btn-sec" href="${x.pdfLocal ? base + x.pdfLocal : e(x.pdf.baixar)}" ${x.pdfLocal ? `download="${e(x.slug)}.pdf"` : 'rel="noopener"'}><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 16l-5-5h3V4h4v7h3l-5 5zm-7 2h14v2H5z"/></svg><span ${T('trab.baixar_pdf')}>${t('trab.baixar_pdf')}</span></a>`
           : `<p class="aviso" ${T('trab.sem_pdf')}>${t('trab.sem_pdf')}</p>`}
       </div>
-      ${x.eixo ? `<section class="caixa"><div class="caixa-cab"><h2 ${T('trab.eixo')}>${t('trab.eixo')}</h2></div><p class="caixa-corpo"><a href="${base}trabalhos/?eixo=${encodeURIComponent(x.eixo)}">${e(x.eixo)}</a></p></section>` : ''}
+      ${x.eixo ? `<section class="caixa"><div class="caixa-cab"><h2 ${T('trab.eixo')}>${t('trab.eixo')}</h2></div><p class="caixa-corpo"><a href="${base}trabalhos/?eixo=${encodeURIComponent(x.eixo)}" ${TV(x.eixo)}>${e(x.eixo)}</a></p></section>` : ''}
     </aside>
   </div>
   ${(() => {
     const src = x.pdfLocal ? `${base}${x.pdfLocal}#view=FitH` : x.pdf?.previa;
     return src ? `<section class="previa" id="previa" aria-labelledby="previa-tit">
     <h2 class="tit-sec" id="previa-tit" ${T('trab.previa')}>${t('trab.previa')}</h2>
-    <div class="previa-quadro"><iframe src="${e(src)}" title="${e(t('trab.previa'))}: ${e(x.titulo)}" loading="lazy" allow="fullscreen"></iframe></div>
+    ${x.previaImgs?.length ? `<div class="previa-imgs">${x.previaImgs.map((img, i) => `<a href="${base}${x.pdfLocal}" target="_blank" rel="noopener"><img src="${base}${img}" alt="${i === 0 ? `${e(t('trab.previa'))}: ${e(x.titulo)}` : ''}" loading="lazy" decoding="async" width="1200" height="1600"></a>`).join('')}<p class="previa-dica" ${T('trab.previa_dica')}>${t('trab.previa_dica')}</p></div>` : ''}
+    <div class="previa-quadro${x.previaImgs?.length ? ' tem-imgs' : ''}"><iframe data-src="${e(src)}" src="${x.previaImgs?.length ? 'about:blank' : e(src)}" title="${e(t('trab.previa'))}: ${e(x.titulo)}" loading="lazy" allow="fullscreen"></iframe></div>
   </section>` : '';
   })()}
 </article>`;
@@ -366,14 +400,14 @@ for (const x of trabalhos) {
       </form>
       ${listaInst.length ? `<details class="filter-group" data-campo="inst" open>
         <summary><h3><span ${T('autores.instituicoes')}>${t('autores.instituicoes')}</span></h3></summary>
-        <input type="search" id="q-inst" class="fg-busca" placeholder="${e(t('autores.filtrar_inst'))}" data-i18n-ph="autores.filtrar_inst" aria-label="${e(t('autores.filtrar_inst'))}">
+        <input type="search" id="q-inst" class="fg-busca" placeholder="${e(t('autores.filtrar_inst'))}" data-i18n-ph="autores.filtrar_inst" aria-label="${e(t('autores.filtrar_inst'))}" ${T('autores.filtrar_inst')} data-i18n-attr="aria-label">
         <ul class="filter-list">${listaInst.map(([i, n]) => `<li><button type="button" data-valor="${e(i)}" aria-pressed="false"><span class="fl-nome">${e(i)}</span><span class="fl-n">${n}</span></button></li>`).join('')}</ul>
       </details>` : ''}
     </div>
   </aside>
   <section class="content">
     <h1 class="pag-tit" ${T('autores.titulo')}>${t('autores.titulo')}</h1>
-    <nav class="alphabet" aria-label="A–Z">
+    <nav class="alphabet" aria-label="${e(t('autores.alfabeto'))}" ${T('autores.alfabeto')} data-i18n-attr="aria-label">
       <button type="button" data-letra="" class="active" ${T('autores.todos')}>${t('autores.todos')}</button>
       ${'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').map(l => `<button type="button" data-letra="${l}"${letras.has(l) ? '' : ' disabled'}>${l}</button>`).join('')}
     </nav>

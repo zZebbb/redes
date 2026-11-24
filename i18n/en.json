@@ -66,5 +66,17 @@
   "lista.col_titulo": "Title",
   "lista.col_autores": "Authors",
   "home.anais": "Proceedings",
-  "home.vistos": "Recently viewed"
+  "home.vistos": "Recently viewed",
+  "valor.Eixo": "Theme",
+  "valor.Pesquisa": "Research",
+  "valor.Relato de experiência": "Experience report",
+  "valor.Eixo 1 – Letramento digital e informacional de profissionais da APS": "Theme 1 – Digital and information literacy of primary health care professionals",
+  "valor.Eixo 2 – Enfrentamento da desinformação em saúde na APS": "Theme 2 – Tackling health misinformation in primary health care",
+  "valor.Eixo 3 – Tecnologias digitais, comunicação e educação em saúde": "Theme 3 – Digital technologies, communication and health education",
+  "valor.Eixo 4 – Gestão da informação e tradução do conhecimento na APS": "Theme 4 – Information management and knowledge translation in primary health care",
+  "valor.Eixo 5 – Territórios, iniquidades e engajamento comunitário": "Theme 5 – Territories, inequities and community engagement",
+  "nav.principal": "Main",
+  "lista.paginacao": "Pagination",
+  "autores.alfabeto": "Authors by initial",
+  "trab.previa_dica": "Tap the image to open the full PDF."
 }

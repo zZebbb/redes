@@ -66,5 +66,9 @@
   "lista.col_titulo": "Título",
   "lista.col_autores": "Autores",
   "home.anais": "Anais",
-  "home.vistos": "Vistos recentemente"
+  "home.vistos": "Vistos recentemente",
+  "nav.principal": "Principal",
+  "lista.paginacao": "Paginação",
+  "autores.alfabeto": "Autores por inicial",
+  "trab.previa_dica": "Toque na imagem para abrir o PDF completo."
 }

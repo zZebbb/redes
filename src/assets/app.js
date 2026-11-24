@@ -39,6 +39,17 @@
     if (document.fonts) document.fonts.ready.then(posicionar);
   }
 
+  // ---------------- Pré-visualização do PDF ----------------
+  // O Safari do iPhone/iPad não ajusta o PDF dentro do iframe (mostra um pedaço ampliado, sem rolagem).
+  // Lá e em telas estreitas o site mostra imagens das páginas; no computador, o leitor de PDF do navegador.
+  (function () {
+    var ios = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    var estreita = window.matchMedia && window.matchMedia('(max-width: 760px)').matches;
+    if (ios || estreita) return;
+    document.documentElement.classList.add('pdf-iframe');
+    $$('.previa-quadro.tem-imgs iframe').forEach(function (f) { f.src = f.dataset.src; });
+  })();
+
   // ---------------- Idioma ----------------
   function lerIdioma() {
     var p = new URLSearchParams(location.search).get('lang');
@@ -59,6 +70,7 @@
       if (attr) el.setAttribute(attr, t(el.dataset.i18n)); else el.textContent = t(el.dataset.i18n);
     });
     $$('[data-i18n-ph]').forEach(function (el) { el.placeholder = t(el.dataset.i18nPh); });
+    $$('[data-i18n-title]').forEach(function (el) { el.title = t(el.dataset.i18nTitle); });
     $$('[data-tr]').forEach(function (el) {
       try {
         var o = JSON.parse(el.dataset.tr), novo = o[idioma] || o.pt || el.textContent;
@@ -82,9 +94,11 @@
     var c = x.citacao && x.citacao.length ? x.citacao : x.autores;
     return c.length > 3 ? c[0] + ' et al.' : c.join('; ');
   }
+  // Valores da planilha (eixos, modalidades) traduzidos pelas chaves "valor.<texto em PT>"; sem tradução, fica o PT.
+  function tv(v) { return (I18N[idioma] && I18N[idioma]['valor.' + v]) || v; }
   function eixoBadge(eixo) {
     var info = eixo && SITE.eixos && SITE.eixos[eixo];
-    return info ? '<span class="eixo-badge" style="--c:' + info[1] + '" title="' + esc(eixo) + '">' + esc(info[0]) + '</span>' : '';
+    return info ? '<span class="eixo-badge" style="--c:' + info[1] + '" title="' + esc(tv(eixo)) + '">' + esc(info[0].replace(/^eixo/i, tv('Eixo'))) + '</span>' : '';
   }
   function linhaTabela(x) {
     var href = SITE.base + 'trabalho/' + encodeURIComponent(x.slug) + '/';
@@ -92,14 +106,14 @@
       '<td class="t-tit"><a href="' + href + '">' + esc((x.titulos && x.titulos[idioma]) || x.titulo) + '</a></td>' +
       '<td class="t-aut">' + esc(autoresCurto(x)) + '</td>' +
       '<td class="t-eixo">' + eixoBadge(x.eixo) + '</td>' +
-      '<td class="t-mod">' + esc(x.modalidade || '') + '</td></tr>';
+      '<td class="t-mod">' + esc(x.modalidade ? tv(x.modalidade) : '') + '</td></tr>';
   }
   function cardTrabalho(x) {
     return '<li><a class="paper-card" href="' + SITE.base + 'trabalho/' + encodeURIComponent(x.slug) + '/">' +
       '<span class="paper-card__n">' + esc(x.id) + '</span>' +
       '<div class="paper-card__body"><p class="paper-card__title">' + esc((x.titulos && x.titulos[idioma]) || x.titulo) + '</p>' +
       '<p class="paper-card__authors">' + esc(autoresCurto(x)) + '</p>' +
-      '<p class="paper-card__meta">' + eixoBadge(x.eixo) + (x.modalidade ? '<span class="paper-card__mod">' + esc(x.modalidade) + '</span>' : '') + '</p></div>' +
+      '<p class="paper-card__meta">' + eixoBadge(x.eixo) + (x.modalidade ? '<span class="paper-card__mod">' + esc(tv(x.modalidade)) + '</span>' : '') + '</p></div>' +
       '</a></li>';
   }
 

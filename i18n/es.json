@@ -66,5 +66,17 @@
   "lista.col_titulo": "Título",
   "lista.col_autores": "Autores",
   "home.anais": "Anales",
-  "home.vistos": "Vistos recientemente"
+  "home.vistos": "Vistos recientemente",
+  "valor.Eixo": "Eje",
+  "valor.Pesquisa": "Investigación",
+  "valor.Relato de experiência": "Relato de experiencia",
+  "valor.Eixo 1 – Letramento digital e informacional de profissionais da APS": "Eje 1 – Alfabetización digital e informacional de los profesionales de la APS",
+  "valor.Eixo 2 – Enfrentamento da desinformação em saúde na APS": "Eje 2 – Enfrentamiento de la desinformación en salud en la APS",
+  "valor.Eixo 3 – Tecnologias digitais, comunicação e educação em saúde": "Eje 3 – Tecnologías digitales, comunicación y educación en salud",
+  "valor.Eixo 4 – Gestão da informação e tradução do conhecimento na APS": "Eje 4 – Gestión de la información y traducción del conocimiento en la APS",
+  "valor.Eixo 5 – Territórios, iniquidades e engajamento comunitário": "Eje 5 – Territorios, inequidades y participación comunitaria",
+  "nav.principal": "Principal",
+  "lista.paginacao": "Paginación",
+  "autores.alfabeto": "Autores por inicial",
+  "trab.previa_dica": "Toque la imagen para abrir el PDF completo."
 }
