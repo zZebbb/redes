@@ -117,7 +117,7 @@ function hero(base) {
 
 function layout({ base, titulo, descricao = '', pagina, corpo, metaExtra = '', canonical = '' }) {
   const tituloCompleto = titulo ? `${titulo} · ${nomeEvento}` : nomeEvento;
-  const nav = [['inicio', '', 'nav.inicio'], ['trabalhos', 'trabalhos/', 'nav.trabalhos'], ['autores', 'autores/', 'nav.autores'], ['explorar', 'explorar/', 'nav.explorar'], ['banners', 'banners/', 'nav.banners'], ['fotos', 'fotos/', 'nav.fotos']]
+  const nav = [['inicio', '', 'nav.inicio'], ['banners', 'banners/', 'nav.banners'], ['trabalhos', 'trabalhos/', 'nav.trabalhos'], ['autores', 'autores/', 'nav.autores'], ['fotos', 'fotos/', 'nav.fotos'], ['explorar', 'explorar/', 'nav.explorar']]
     .map(([id, href, k]) => `<a href="${base}${href}" ${T(k)}${pagina === id ? ' aria-current="page"' : ''}>${t(k)}</a>`).join('');
   return `<!doctype html>
 <html lang="pt-BR">
