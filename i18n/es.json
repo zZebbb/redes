@@ -105,5 +105,6 @@
   "bn.nada": "No se encontró ningún póster. Pruebe el apellido o el número.",
   "bn.toque": "Toque un póster",
   "bn.virar": "Toque de nuevo la credencial para darle la vuelta y ver los autores.",
-  "bn.desvirar": "Toque de nuevo para volverla."
+  "bn.desvirar": "Toque de nuevo para volverla.",
+  "trab.modo_banner": "Abrir en modo póster"
 }

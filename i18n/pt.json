@@ -97,5 +97,6 @@
   "bn.nada": "Nenhum banner encontrado. Tente o sobrenome ou o número.",
   "bn.toque": "Toque num banner",
   "bn.virar": "Toque de novo no crachá para virar e ver os autores.",
-  "bn.desvirar": "Toque de novo para desvirar."
+  "bn.desvirar": "Toque de novo para desvirar.",
+  "trab.modo_banner": "Abrir no modo banner"
 }

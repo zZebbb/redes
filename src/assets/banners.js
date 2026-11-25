@@ -203,5 +203,17 @@
   window.addEventListener('resize', function () { trilho.style.setProperty('--larg', pecas.scrollWidth + 'px'); });
   montarAbas();
   carregar();
+  // Link direto (?n=013, vindo da página do trabalho): abre esse banner já em tela cheia.
+  (function () {
+    var n = (new URLSearchParams(location.search).get('n') || '').replace(/\D/g, '');
+    if (!n) return;
+    n = n.padStart(3, '0');
+    var alvo = D.trabalhos.filter(function (x) { return x.n === n; })[0]; if (!alvo) return;
+    eixoAtual = Math.max(0, temas.findIndex(function (e) { return e.id === alvo.eixo; }));
+    montarAbas(); carregar();
+    var i = itens.indexOf(alvo); if (i < 0) return;
+    clearInterval(timerAuto);
+    ativar(i); abrirFoto(i);
+  })();
   timerOcioso = setTimeout(reiniciar, OCIOSO_MS);
 })();

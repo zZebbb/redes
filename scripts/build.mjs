@@ -369,7 +369,8 @@ for (const x of trabalhos) {
       <div class="pdf-botoes">
         ${(x.pdfLocal || x.pdf)
           ? `<a class="btn" ${x.pdfLocal || x.pdf?.previa ? 'href="#previa"' : `href="${e(x.pdf.ver)}" target="_blank" rel="noopener"`}><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 5c-7 0-10 7-10 7s3 7 10 7 10-7 10-7-3-7-10-7zm0 11a4 4 0 110-8 4 4 0 010 8z"/></svg><span ${T('trab.ver_pdf')}>${t('trab.ver_pdf')}</span></a>
-        <a class="btn btn-sec" href="${x.pdfLocal ? base + x.pdfLocal : e(x.pdf.baixar)}" ${x.pdfLocal ? `download="${e(x.slug)}.pdf"` : 'rel="noopener"'}><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 16l-5-5h3V4h4v7h3l-5 5zm-7 2h14v2H5z"/></svg><span ${T('trab.baixar_pdf')}>${t('trab.baixar_pdf')}</span></a>`
+        <a class="btn btn-sec" href="${x.pdfLocal ? base + x.pdfLocal : e(x.pdf.baixar)}" ${x.pdfLocal ? `download="${e(x.slug)}.pdf"` : 'rel="noopener"'}><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 16l-5-5h3V4h4v7h3l-5 5zm-7 2h14v2H5z"/></svg><span ${T('trab.baixar_pdf')}>${t('trab.baixar_pdf')}</span></a>${x.previaImgs?.length ? `
+        <a class="btn btn-sec" href="${base}banners/?n=${e(x.slug)}"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 4h7v2H6v5H4zm16 0v7h-2V6h-5V4zM4 20v-7h2v5h5v2zm16 0h-7v-2h5v-5h2z"/></svg><span ${T('trab.modo_banner')}>${t('trab.modo_banner')}</span></a>` : ''}`
           : `<p class="aviso" ${T('trab.sem_pdf')}>${t('trab.sem_pdf')}</p>`}
       </div>
       ${x.eixo ? `<section class="caixa"><div class="caixa-cab"><h2 ${T('trab.eixo')}>${t('trab.eixo')}</h2></div><p class="caixa-corpo"><a href="${base}trabalhos/?eixo=${encodeURIComponent(x.eixo)}" ${TV(x.eixo)}>${e(x.eixo)}</a></p></section>` : ''}
@@ -599,12 +600,15 @@ try {
 </div>
 <div class="bn-foto" role="dialog" aria-modal="true" aria-label="${e(t('bn.foto'))}" hidden>
   <div class="bn-foto-cab">
-    ${config.logo_rodape_rede ? `<img src="${base}${e(config.logo_rodape_rede)}" alt="Rede Brasil" class="bn-foto-logo">` : ''}
-    <p class="bn-foto-ev">${e(nomeEvento)}</p>
+    <button type="button" class="bn-foto-voltar" ${T('bn.voltar')}>${t('bn.voltar')}</button>
+    <div class="bn-foto-marca">
+      ${config.logo_rodape_rede ? `<img src="${base}${e(config.logo_rodape_rede)}" alt="Rede Brasil" class="bn-foto-logo">` : ''}
+      <p class="bn-foto-ev">${e(nomeEvento)}</p>
+    </div>
+    <a class="bn-foto-inicio" href="${base}"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 3l9 8h-3v9h-5v-6h-2v6H6v-9H3z"/></svg><span ${T('nav.inicio')}>${t('nav.inicio')}</span></a>
   </div>
   <div class="bn-foto-img"><img alt=""></div>
   <div class="bn-foto-info"><p class="bn-foto-n"></p><p class="bn-foto-t"></p><p class="bn-foto-a"></p></div>
-  <button type="button" class="bn-foto-voltar" ${T('bn.voltar')}>${t('bn.voltar')}</button>
 </div>
 <script>window.BANNERS=${JSON.stringify(dados).replace(/</g, '\\u003c')};</script>`;
   await salvar('banners/index.html', layout({ base, titulo: t('bn.titulo'), pagina: 'banners', corpo, canonical: siteURL ? siteURL + '/banners/' : '' }));

@@ -105,5 +105,6 @@
   "bn.nada": "No poster found. Try the surname or the number.",
   "bn.toque": "Tap a poster",
   "bn.virar": "Tap the badge again to flip it and see the authors.",
-  "bn.desvirar": "Tap again to turn it back."
+  "bn.desvirar": "Tap again to turn it back.",
+  "trab.modo_banner": "Open in poster mode"
 }
