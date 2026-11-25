@@ -380,7 +380,6 @@ a.tag:hover { background: var(--primary); color: #fff; }
 
 /* ---------- Celular ---------- */
 @media (max-width: 640px) {
-  input[type="search"], input[type="text"], .fg-busca, .filter-search input, .hero-busca input { font-size: 16px; }
   .hero-in { grid-template-columns: minmax(0, 1fr); padding: 40px 16px 36px; }
   .hero-simbolo { display: none; }
   .hero-nome { font-size: 34px; letter-spacing: -.5px; margin-bottom: 24px; }
@@ -437,3 +436,7 @@ a.tag:hover { background: var(--primary); color: #fff; }
 .abas-nav .vt-ind { top: auto !important; bottom: -1px; height: 3px; background: var(--accent); border-radius: 3px 3px 0 0; }
 @media (prefers-reduced-motion: reduce) { .vt-hover, .vt-ind, .abas button { transition: none !important; } }
 
+/* iOS dá zoom ao tocar num campo com fonte menor que 16px; vale para toda tela de toque, não só celular em pé */
+@media (pointer: coarse) {
+  input[type="search"], input[type="text"], .fg-busca, .filter-search input, .hero-busca input { font-size: 16px; }
+}
