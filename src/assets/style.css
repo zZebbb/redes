@@ -380,7 +380,6 @@ a.tag:hover { background: var(--primary); color: #fff; }
 
 /* ---------- Celular ---------- */
 @media (max-width: 640px) {
-  input[type="search"], input[type="text"], .fg-busca, .filter-search input, .hero-busca input { font-size: 16px; }
   .hero-in { grid-template-columns: minmax(0, 1fr); padding: 40px 16px 36px; }
   .hero-simbolo { display: none; }
   .hero-nome { font-size: 34px; letter-spacing: -.5px; margin-bottom: 24px; }
@@ -642,3 +641,7 @@ a.tag:hover { background: var(--primary); color: #fff; }
   .bn-peca.balanca .bn-balanco { animation: none; }
 }
 @media (max-height: 1000px) and (orientation: landscape) { .bn-foto { gap: 1.4vh; padding-block: 2vh; } .bn-foto-n { font-size: 30px; } .bn-foto-t { font-size: 18px; } .bn-foto-a { font-size: 14px; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; } }
+/* iOS dá zoom ao tocar num campo com fonte menor que 16px; vale para toda tela de toque, não só celular em pé */
+@media (pointer: coarse) {
+  input[type="search"], input[type="text"], .fg-busca, .filter-search input, .hero-busca input { font-size: 16px; }
+}
