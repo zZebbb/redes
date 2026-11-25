@@ -271,7 +271,7 @@
   window.addEventListener('resize', function () { pos = prender(pos); aplicar(); });
   montarAbas();
   carregar();
-  // Link direto (?n=013, vindo da página do trabalho): abre esse banner já em tela cheia.
+  // Link direto (?n=013, vindo da página do trabalho): abre o eixo dele com esse crachá já selecionado.
   (function () {
     var n = (new URLSearchParams(location.search).get('n') || '').replace(/\D/g, '');
     if (!n) return;
@@ -281,7 +281,7 @@
     montarAbas(); carregar();
     var i = itens.indexOf(alvo); if (i < 0) return;
     clearInterval(timerAuto);
-    ativar(i); abrirFoto(i);
+    interagiu(); ativar(i);
   })();
   timerOcioso = setTimeout(reiniciar, OCIOSO_MS);
 })();
