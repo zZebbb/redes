@@ -159,7 +159,7 @@
   function embaralhar(a) { a = a.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var x = a[i]; a[i] = a[j]; a[j] = x; } return a; }
 
   function mostrarSlide() {
-    var x = fila[pos % fila.length], e = eixoDe(x), uf = D.ufs[x.uf];
+    var item = fila[pos % fila.length], x = item.foto ? item.x : item, e = eixoDe(x), uf = D.ufs[x.uf];
     vit.classList.remove('entra');
     var prox = new Image();
     prox.onload = prox.onerror = function () {
@@ -167,18 +167,21 @@
       $('.ex-vit-n', vit).textContent = x.n;
       $('.ex-vit-t', vit).textContent = tit(x);
       $('.ex-vit-a', vit).textContent = x.a;
-      $('.ex-vit-meta', vit).innerHTML = (e ? '<span style="--c:' + e.cor + '">' + esc(e.curto) + '</span>' : '') + (uf ? '<span>' + esc(uf.nome) + '</span>' : '');
+      $('.ex-vit-meta', vit).innerHTML = (item.foto ? '<span class="ex-vit-foto">' + esc(t('ex.foto')) + '</span>' : '') + (e ? '<span style="--c:' + e.cor + '">' + esc(e.curto) + '</span>' : '') + (uf ? '<span>' + esc(uf.nome) + '</span>' : '');
+      vit.classList.toggle('e-foto', !!item.foto);
       void vit.offsetWidth;
       vit.classList.add('entra');
     };
-    prox.src = img(x);
+    prox.src = item.foto ? SITE.base + item.foto : img(x);
     pos++;
   }
 
   function iniciarVitrine() {
     if (vitAtiva) return;
     fecharTema(); escolher(null);
-    fila = embaralhar(D.trabalhos.filter(function (x) { return x.img; }));
+    var porN = {}; D.trabalhos.forEach(function (x) { porN[x.n] = x; });
+    var fotos = (D.fotos || []).filter(function (f) { return porN[f.n]; }).map(function (f) { return { foto: f.g, x: porN[f.n] }; });
+    fila = embaralhar(D.trabalhos.filter(function (x) { return x.img; }).concat(fotos));
     if (!fila.length) return;
     pos = 0; vitAtiva = true;
     vit.hidden = false;

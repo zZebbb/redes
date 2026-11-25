@@ -5,7 +5,7 @@ import { promisify } from 'node:util';
 import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
-import { escapeHTML as e, txt, slugify, nomeABNT } from './lib.mjs';
+import { escapeHTML as e, txt, slugify, nomeABNT, lerFotosCsv } from './lib.mjs';
 
 const raiz = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const dist = path.join(raiz, 'dist');
@@ -37,6 +37,7 @@ const versao = createHash('sha1')
   .update(await readFile(path.join(raiz, 'src/assets/app.js')))
   .update(await readFile(path.join(raiz, 'src/assets/style.css')))
   .update(await readFile(path.join(raiz, 'src/assets/explorar.js')))
+  .update(await readFile(path.join(raiz, 'src/assets/fotos.js')))
   .update(await readFile(path.join(raiz, 'src/assets/banners.js')))
   .update(JSON.stringify(trabalhos))
   .digest('hex').slice(0, 10);
@@ -116,7 +117,7 @@ function hero(base) {
 
 function layout({ base, titulo, descricao = '', pagina, corpo, metaExtra = '', canonical = '' }) {
   const tituloCompleto = titulo ? `${titulo} · ${nomeEvento}` : nomeEvento;
-  const nav = [['inicio', '', 'nav.inicio'], ['trabalhos', 'trabalhos/', 'nav.trabalhos'], ['autores', 'autores/', 'nav.autores'], ['explorar', 'explorar/', 'nav.explorar'], ['banners', 'banners/', 'nav.banners']]
+  const nav = [['inicio', '', 'nav.inicio'], ['trabalhos', 'trabalhos/', 'nav.trabalhos'], ['autores', 'autores/', 'nav.autores'], ['explorar', 'explorar/', 'nav.explorar'], ['banners', 'banners/', 'nav.banners'], ['fotos', 'fotos/', 'nav.fotos']]
     .map(([id, href, k]) => `<a href="${base}${href}" ${T(k)}${pagina === id ? ' aria-current="page"' : ''}>${t(k)}</a>`).join('');
   return `<!doctype html>
 <html lang="pt-BR">
@@ -177,6 +178,7 @@ ${pagina === 'trabalhos' ? `<script src="${base}assets/fuse.min.js" defer></scri
 <script src="${base}assets/app.js?v=${versao}" defer></script>
 ${pagina === 'explorar' ? `<script src="${base}assets/explorar.js?v=${versao}" defer></script>` : ''}
 ${pagina === 'banners' ? `<script src="${base}assets/banners.js?v=${versao}" defer></script>` : ''}
+${pagina === 'fotos' ? `<script src="${base}assets/fotos.js?v=${versao}" defer></script>` : ''}
 </body>
 </html>
 `;
@@ -211,6 +213,19 @@ for (const pasta of ['public']) {
   if (await existe(path.join(raiz, pasta))) await cp(path.join(raiz, pasta), dist, { recursive: true });
 }
 if (await existe(path.join(raiz, 'pdfs'))) await cp(path.join(raiz, 'pdfs'), path.join(dist, 'pdfs'), { recursive: true });
+
+// Fotos do encontro (pessoas ao lado da TV com o banner). Vêm da pasta do Drive pelo "npm run fotos".
+// A mais nova primeiro. Cada uma pode estar ligada a um trabalho pelo número.
+const fotos = [];
+{
+  const nums = new Set(trabalhos.map(x => x.slug));
+  for (const f of (await lerFotosCsv(path.join(raiz, 'data/fotos.csv'))).reverse()) {
+    if (!(await existe(path.join(raiz, 'fotos', f.id + '.jpg')))) continue;
+    fotos.push({ id: f.id, n: nums.has(f.numero) ? f.numero : '', g: `fotos/${f.id}.jpg`, p: `fotos/${f.id}-p.jpg` });
+  }
+  if (fotos.length) await cp(path.join(raiz, 'fotos'), path.join(dist, 'fotos'), { recursive: true });
+  for (const x of trabalhos) x.fotos = fotos.filter(f => f.n === x.slug);
+}
 
 // Imagens das páginas de cada PDF, para a pré-visualização no celular. O Safari do iPhone/iPad não
 // ajusta um PDF dentro de um iframe (mostra um pedaço ampliado, sem rolagem), então lá o site mostra
@@ -373,6 +388,7 @@ for (const x of trabalhos) {
           : `<p class="aviso" ${T('trab.sem_pdf')}>${t('trab.sem_pdf')}</p>`}
       </div>
       ${x.eixo ? `<section class="caixa"><div class="caixa-cab"><h2 ${T('trab.eixo')}>${t('trab.eixo')}</h2></div><p class="caixa-corpo"><a href="${base}trabalhos/?eixo=${encodeURIComponent(x.eixo)}" ${TV(x.eixo)}>${e(x.eixo)}</a></p></section>` : ''}
+      ${x.fotos.length ? `<section class="caixa trab-fotos"><div class="caixa-cab"><h2 ${T('fo.no_encontro')}>${t('fo.no_encontro')}</h2></div><ul class="trab-fotos-lista">${x.fotos.map(f => `<li><a href="${base}fotos/?foto=${encodeURIComponent(f.id)}"><img src="${base}${f.p}" alt="" loading="lazy" decoding="async"></a></li>`).join('')}</ul><p class="caixa-corpo"><a href="${base}fotos/?n=${x.slug}" ${T('fo.ver_todas')}>${t('fo.ver_todas')}</a></p></section>` : ''}
     </aside>
   </div>
   ${(() => {
@@ -477,7 +493,8 @@ try {
       n: x.slug, uf: ufDe.get(x.slug) || '', eixo: x.eixo,
       t: { pt: x.titulos.pt || x.titulo, en: x.titulos.en || x.titulo, es: x.titulos.es || x.titulo },
       a: autoresCurto(x), img: x.previaImgs?.[0] || ''
-    }))
+    })),
+    fotos: fotos.filter(f => f.n).map(f => ({ n: f.n, g: f.g }))
   };
   // Estados pequenos ganham um marcador fora do contorno, com uma linha até o estado.
   const DESLOCA = { DF: [-150, -120], RN: [95, -40], PB: [105, 8], PE: [95, 58], ES: [95, 20], SC: [110, 10], RS: [0, 0], SP: [0, 0], GO: [-10, 25] };
@@ -574,7 +591,7 @@ try {
     trabalhos: trabalhos.filter(x => x.previaImgs?.length).map(x => ({
       n: x.slug, eixo: x.eixo,
       t: { pt: x.titulos.pt || x.titulo, en: x.titulos.en || x.titulo, es: x.titulos.es || x.titulo },
-      a: x.autores, img: x.previaImgs[0]
+      a: x.autores, img: x.previaImgs[0], f: x.fotos.map(f => f.p)
     }))
   };
   const corpo = `
@@ -613,6 +630,51 @@ try {
   await salvar('banners/index.html', layout({ base, titulo: t('bn.titulo'), pagina: 'banners', corpo, canonical: siteURL ? siteURL + '/banners/' : '' }));
 }
 
+// ---------- Fotos (mural com as fotos do encontro; tocar abre grande) ----------
+{
+  const base = '../';
+  const dados = {
+    eixos: Object.fromEntries(eixos.map(x => [x, { curto: eixoCurto(x), cor: eixoCor(x) }])),
+    trabalhos: Object.fromEntries(trabalhos.filter(x => x.fotos.length).map(x => [x.slug, { eixo: x.eixo, t: { pt: x.titulos.pt || x.titulo, en: x.titulos.en || x.titulo, es: x.titulos.es || x.titulo }, a: x.autores, banner: !!x.previaImgs?.length }])),
+    fotos
+  };
+  const corpo = `
+<div class="fo">
+  <section class="fo-topo">
+    <div>
+      <h1 ${T('fo.titulo')}>${t('fo.titulo')}</h1>
+      <p ${T('fo.sub')}>${t('fo.sub')}</p>
+    </div>
+    <label class="bn-busca fo-busca">
+      <span class="sr" ${T('fo.buscar')}>${t('fo.buscar')}</span>
+      <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M10 2a8 8 0 016.3 12.9l5.4 5.4-1.4 1.4-5.4-5.4A8 8 0 1110 2zm0 2a6 6 0 100 12 6 6 0 000-12z"/></svg>
+      <input id="fo-q" type="search" autocomplete="off" placeholder="${e(t('fo.buscar'))}" data-i18n-ph="fo.buscar">
+    </label>
+  </section>
+  <p class="fo-conta" aria-live="polite"></p>
+  <ul class="fo-mural"></ul>
+  <p class="fo-nada" hidden ${T('fo.nada')}>${t('fo.nada')}</p>
+</div>
+<div class="fo-caixa" role="dialog" aria-modal="true" aria-label="${e(t('fo.titulo'))}" hidden>
+  <div class="bn-foto-cab">
+    <button type="button" class="bn-foto-voltar fo-fechar" ${T('fo.voltar')}>${t('fo.voltar')}</button>
+    <div class="bn-foto-marca">
+      ${config.logo_rodape_rede ? `<img src="${base}${e(config.logo_rodape_rede)}" alt="Rede Brasil" class="bn-foto-logo">` : ''}
+      <p class="bn-foto-ev">${e(nomeEvento)}</p>
+    </div>
+    <a class="bn-foto-inicio" href="${base}"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 3l9 8h-3v9h-5v-6h-2v6H6v-9H3z"/></svg><span ${T('nav.inicio')}>${t('nav.inicio')}</span></a>
+  </div>
+  <div class="fo-palco">
+    <button type="button" class="fo-seta fo-ant" aria-label="${e(t('fo.anterior'))}" ${T('fo.anterior')} data-i18n-attr="aria-label"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M15.4 7.4L14 6l-6 6 6 6 1.4-1.4L10.8 12z"/></svg></button>
+    <div class="fo-img"><img alt=""></div>
+    <button type="button" class="fo-seta fo-prox" aria-label="${e(t('fo.proxima'))}" ${T('fo.proxima')} data-i18n-attr="aria-label"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M8.6 16.6L10 18l6-6-6-6-1.4 1.4 4.6 4.6z"/></svg></button>
+  </div>
+  <div class="fo-info"></div>
+</div>
+<script>window.FOTOS=${JSON.stringify(dados).replace(/</g, '\\u003c')};</script>`;
+  await salvar('fotos/index.html', layout({ base, titulo: t('fo.titulo'), pagina: 'fotos', corpo, canonical: siteURL ? siteURL + '/fotos/' : '' }));
+}
+
 // ---------- 404 (GitHub Pages usa caminho absoluto, então os links apontam para a raiz do site) ----------
 {
   const base = siteURL ? new URL(siteURL + '/').pathname : '/';
@@ -622,7 +684,7 @@ try {
 
 // ---------- sitemap e robots ----------
 if (siteURL) {
-  const urls = ['/', '/trabalhos/', '/autores/', '/explorar/', '/banners/', ...trabalhos.map(x => `/trabalho/${x.slug}/`)];
+  const urls = ['/', '/trabalhos/', '/autores/', '/explorar/', '/banners/', '/fotos/', ...trabalhos.map(x => `/trabalho/${x.slug}/`)];
   await salvar('sitemap.xml', `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.map(u => `  <url><loc>${e(siteURL + u)}</loc></url>`).join('\n')}\n</urlset>\n`);
   await salvar('robots.txt', `User-agent: *\nAllow: /\nSitemap: ${siteURL}/sitemap.xml\n`);
 }

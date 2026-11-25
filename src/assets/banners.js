@@ -60,7 +60,8 @@
         '<button type="button" class="bn-giro" aria-label="' + esc(x.n + ' · ' + tit(x)) + '">' +
           '<span class="bn-frente">' +
             '<span class="bn-faixa"><span class="bn-furo"></span><span class="bn-num">' + esc(x.n) + '</span><span class="bn-eixo">' + esc(e.curto) + '</span></span>' +
-            '<span class="bn-thumb"><img src="' + SITE.base + x.img + '" alt="" loading="lazy" draggable="false"></span>' +
+            '<span class="bn-thumb"><img src="' + SITE.base + x.img + '" alt="" loading="lazy" draggable="false">' +
+              (x.f && x.f.length ? '<span class="bn-cam" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 3L7.2 5H4a2 2 0 00-2 2v12a2 2 0 002 2h16a2 2 0 002-2V7a2 2 0 00-2-2h-3.2L15 3zm3 5a5 5 0 110 10 5 5 0 010-10zm0 2a3 3 0 100 6 3 3 0 000-6z"/></svg>' + x.f.length + '</span>' : '') + '</span>' +
             '<span class="bn-tit">' + esc(tit(x)) + '</span>' +
           '</span>' +
           '<span class="bn-verso">' +
@@ -139,7 +140,8 @@
     var x = itens[ativo], e = eixoDe(x);
     legenda.innerHTML = '<p class="bn-leg-n" style="--c:' + e.cor + '">' + esc(x.n) + '<span>' + esc(e.curto) + '</span></p>' +
       '<p class="bn-leg-t">' + esc(tit(x)) + '</p><p class="bn-leg-a">' + esc(virado === ativo ? t('bn.desvirar') : t('bn.virar')) + '</p>' +
-      '<button type="button" class="btn bn-abrir">' + esc(t('bn.abrir')) + '</button>';
+      '<button type="button" class="btn bn-abrir">' + esc(t('bn.abrir')) + '</button>' +
+      (x.f && x.f.length ? '<a class="bn-leg-fotos" href="' + SITE.base + 'fotos/?n=' + esc(x.n) + '">' + x.f.slice(0, 3).map(function (p) { return '<img src="' + SITE.base + esc(p) + '" alt="">'; }).join('') + '<span>' + esc(t('bn.fotos')) + ' (' + x.f.length + ')</span></a>' : '');
     $('.bn-abrir', legenda).addEventListener('click', function () { abrirFoto(ativo); });
   }
 

@@ -6,6 +6,7 @@ on:
   workflow_dispatch:
   schedule:
     - cron: "0 9 * * *" # todo dia às 6h (horário de Brasília)
+    - cron: "*/10 * * * *" # durante o encontro: a cada 10 min, para as fotos novas do Drive aparecerem logo
 
 permissions:
   contents: write # para guardar no repositório os PDFs copiados do Drive
@@ -33,13 +34,16 @@ jobs:
           PLANILHA_CSV_URL: ${{ vars.PLANILHA_CSV_URL }}
       - name: Copiar PDFs novos do Drive para o site
         run: npm run pdfs
-      - name: Guardar os PDFs no repositório
+      - name: Copiar fotos novas do Drive para o site
+        run: npm run fotos
+      - name: Guardar os PDFs e as fotos no repositório
         run: |
-          if [ -n "$(git status --porcelain pdfs)" ]; then
+          if [ -n "$(git status --porcelain pdfs fotos data/fotos.csv)" ]; then
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add pdfs
-            git commit -m "Copia PDFs novos do Drive"
+            git add pdfs fotos data/fotos.csv
+            git commit -m "Copia PDFs e fotos novos do Drive"
+            git pull --rebase --autostash -q || true
             git push
           fi
       - name: Instalar pdftoppm (imagens da pré-visualização para iPhone)
