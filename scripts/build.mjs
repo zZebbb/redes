@@ -36,6 +36,7 @@ const autores = await ler('data/autores.json');
 const versao = createHash('sha1')
   .update(await readFile(path.join(raiz, 'src/assets/app.js')))
   .update(await readFile(path.join(raiz, 'src/assets/style.css')))
+  .update(await readFile(path.join(raiz, 'src/assets/explorar.js')))
   .update(JSON.stringify(trabalhos))
   .digest('hex').slice(0, 10);
 for (const x of trabalhos) {
@@ -114,7 +115,7 @@ function hero(base) {
 
 function layout({ base, titulo, descricao = '', pagina, corpo, metaExtra = '', canonical = '' }) {
   const tituloCompleto = titulo ? `${titulo} · ${nomeEvento}` : nomeEvento;
-  const nav = [['inicio', '', 'nav.inicio'], ['trabalhos', 'trabalhos/', 'nav.trabalhos'], ['autores', 'autores/', 'nav.autores']]
+  const nav = [['inicio', '', 'nav.inicio'], ['trabalhos', 'trabalhos/', 'nav.trabalhos'], ['autores', 'autores/', 'nav.autores'], ['explorar', 'explorar/', 'nav.explorar']]
     .map(([id, href, k]) => `<a href="${base}${href}" ${T(k)}${pagina === id ? ' aria-current="page"' : ''}>${t(k)}</a>`).join('');
   return `<!doctype html>
 <html lang="pt-BR">
@@ -173,6 +174,7 @@ ${corpo}
 <script>window.I18N=${JSON.stringify(i18n)};</script>
 ${pagina === 'trabalhos' ? `<script src="${base}assets/fuse.min.js" defer></script>` : ''}
 <script src="${base}assets/app.js?v=${versao}" defer></script>
+${pagina === 'explorar' ? `<script src="${base}assets/explorar.js?v=${versao}" defer></script>` : ''}
 </body>
 </html>
 `;
@@ -448,6 +450,120 @@ try {
   await salvar('autores/index.html', layout({ base, titulo: t('autores.titulo'), pagina: 'autores', corpo, canonical: siteURL ? siteURL + '/autores/' : '' }));
 }
 
+// ---------- Explorar (página para a TV de toque: mapa, temas em bolhas e vitrine) ----------
+{
+  const base = '../';
+  const geo = JSON.parse(await readFile(path.join(raiz, 'data/brasil-ufs.json'), 'utf8'));
+  const ufDe = new Map();
+  try {
+    for (const l of (await readFile(path.join(raiz, 'data/ufs.csv'), 'utf8')).trim().split(/\r?\n/).slice(1)) {
+      const [n, uf] = l.split(',').map(s => s.trim());
+      if (n && uf) ufDe.set(n, uf.toUpperCase());
+    }
+  } catch (err) { if (err.code !== 'ENOENT') throw err; }
+  const semUF = trabalhos.filter(x => !ufDe.has(x.slug)).map(x => x.slug);
+  if (semUF.length) console.warn(`Aviso: ${semUF.length} trabalho(s) sem estado em data/ufs.csv (fora do mapa): ${semUF.join(', ')}`);
+
+  const REGIOES = { CO: ['Centro-Oeste', '#2E54A2'], NE: ['Nordeste', '#F9B234'], SE: ['Sudeste', '#076633'], S: ['Sul', '#B86CAA'], N: ['Norte', '#5E595B'] };
+  const porUF = {};
+  for (const x of trabalhos) { const uf = ufDe.get(x.slug); if (uf) (porUF[uf] ??= []).push(x.slug); }
+  const dados = {
+    regioes: REGIOES,
+    ufs: Object.fromEntries(Object.entries(geo.ufs).map(([uf, g]) => [uf, { nome: g.nome, r: g.regiao, n: (porUF[uf] || []).length }])),
+    eixos: eixos.map(x => ({ id: x, curto: eixoCurto(x), nome: { pt: semPrefixoEixo(x), en: semPrefixoEixo(tv('en', x)), es: semPrefixoEixo(tv('es', x)) }, cor: eixoCor(x) })),
+    trabalhos: trabalhos.map(x => ({
+      n: x.slug, uf: ufDe.get(x.slug) || '', eixo: x.eixo,
+      t: { pt: x.titulos.pt || x.titulo, en: x.titulos.en || x.titulo, es: x.titulos.es || x.titulo },
+      a: autoresCurto(x), img: x.previaImgs?.[0] || ''
+    }))
+  };
+  // Estados pequenos ganham um marcador fora do contorno, com uma linha até o estado.
+  const DESLOCA = { DF: [-150, -120], RN: [95, -40], PB: [105, 8], PE: [95, 58], ES: [95, 20], SC: [110, 10], RS: [0, 0], SP: [0, 0], GO: [-10, 25] };
+  const marcadores = Object.entries(porUF).map(([uf, l]) => {
+    const g = geo.ufs[uf]; if (!g) return '';
+    const [dx, dy] = DESLOCA[uf] || [0, 0];
+    const [cx, cy] = g.c, mx = cx + dx, my = cy + dy, raio = 26 + Math.sqrt(l.length) * 6;
+    const cor = REGIOES[g.regiao]?.[1] || '#5E595B';
+    return `<g class="ex-marca" data-uf="${uf}" role="button" tabindex="0" aria-label="${e(g.nome)}: ${l.length}">
+      ${dx || dy ? `<line x1="${cx}" y1="${cy}" x2="${mx}" y2="${my}"/><circle class="ex-ponto" cx="${cx}" cy="${cy}" r="5"/>` : ''}
+      <circle class="ex-bola" cx="${mx}" cy="${my}" r="${raio.toFixed(0)}" style="--c:${cor}"/>
+      <text x="${mx}" y="${my - 6}" class="ex-marca-n">${l.length}</text>
+      <text x="${mx}" y="${my + 17}" class="ex-marca-uf">${uf}</text>
+    </g>`;
+  }).join('');
+  const mapa = `<svg class="ex-mapa" viewBox="-170 -20 ${geo.w + 300} ${geo.h + 40}" role="group" aria-label="${e(t('ex.mapa_rotulo'))}" ${T('ex.mapa_rotulo')} data-i18n-attr="aria-label">
+    <g class="ex-zoom">
+      ${Object.entries(geo.ufs).map(([uf, g]) => `<path class="ex-uf${porUF[uf] ? ' tem' : ''}" data-uf="${uf}" d="${g.d}" style="--c:${REGIOES[g.regiao]?.[1] || '#5E595B'}"><title>${e(g.nome)}</title></path>`).join('')}
+      ${marcadores}
+    </g>
+  </svg>`;
+  const regioesLista = Object.entries(REGIOES).map(([r, [nome, cor]]) => {
+    const ufs = Object.entries(geo.ufs).filter(([uf, g]) => g.regiao === r && porUF[uf]).sort((a, b) => porUF[b[0]].length - porUF[a[0]].length);
+    if (!ufs.length) return '';
+    const total = ufs.reduce((s, [uf]) => s + porUF[uf].length, 0);
+    return `<li class="ex-reg" style="--c:${cor}">
+      <p class="ex-reg-tit"><span class="ex-dot" aria-hidden="true"></span>${e(nome)}<span class="ex-reg-n">${total}</span></p>
+      <ul>${ufs.map(([uf, g]) => `<li><button type="button" class="ex-uf-btn" data-uf="${uf}"><span>${e(g.nome)}</span><span class="ex-n">${porUF[uf].length}</span></button></li>`).join('')}</ul>
+    </li>`;
+  }).join('');
+  const corpo = `
+<div class="ex">
+  <section class="ex-sec ex-intro">
+    <h1 ${T('ex.titulo')}>${t('ex.titulo')}</h1>
+    <p ${T('ex.sub')}>${t('ex.sub')}</p>
+  </section>
+
+  <section class="ex-sec" aria-labelledby="ex-mapa-tit">
+    <h2 class="tit-sec" id="ex-mapa-tit" ${T('ex.mapa_tit')}>${t('ex.mapa_tit')}</h2>
+    <div class="ex-mapa-quadro">
+      <div class="ex-mapa-area">${mapa}
+        <button type="button" class="ex-voltar" hidden ${T('ex.ver_brasil')}>${t('ex.ver_brasil')}</button>
+      </div>
+      <aside class="ex-lado">
+        <div class="ex-lado-lista">
+          <p class="ex-lado-tit" ${T('ex.escolha')}>${t('ex.escolha')}</p>
+          <ul class="ex-regs">${regioesLista}</ul>
+        </div>
+        <div class="ex-lado-uf" hidden>
+          <p class="ex-lado-tit"><span class="ex-dot" aria-hidden="true"></span><span class="ex-uf-nome"></span></p>
+          <ul class="ex-cards"></ul>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <section class="ex-sec" aria-labelledby="ex-temas-tit">
+    <h2 class="tit-sec" id="ex-temas-tit" ${T('ex.temas_tit')}>${t('ex.temas_tit')}</h2>
+    <p class="ex-dica" ${T('ex.temas_dica')}>${t('ex.temas_dica')}</p>
+    <div class="ex-bolhas" aria-live="polite"></div>
+  </section>
+
+  <p class="ex-vitrine-ativar"><button type="button" class="btn btn-sec" id="ex-vitrine-btn" ${T('ex.vitrine_btn')}>${t('ex.vitrine_btn')}</button></p>
+</div>
+
+<div class="ex-folha" role="dialog" aria-modal="true" aria-labelledby="ex-folha-tit" hidden>
+  <div class="ex-folha-in">
+    <button type="button" class="ex-fechar" aria-label="${e(t('ex.fechar'))}" ${T('ex.fechar')} data-i18n-attr="aria-label">×</button>
+    <h2 id="ex-folha-tit"></h2>
+    <ul class="ex-posters"></ul>
+  </div>
+</div>
+
+<div class="ex-vitrine" hidden>
+  <div class="ex-vit-img"><img alt=""></div>
+  <div class="ex-vit-info">
+    <p class="ex-vit-n"></p>
+    <p class="ex-vit-t"></p>
+    <p class="ex-vit-a"></p>
+    <p class="ex-vit-meta"></p>
+  </div>
+  <p class="ex-vit-toque" ${T('ex.vitrine_toque')}>${t('ex.vitrine_toque')}</p>
+  <span class="ex-vit-barra" aria-hidden="true"></span>
+</div>
+<script>window.EXPLORAR=${JSON.stringify(dados).replace(/</g, '\\u003c')};</script>`;
+  await salvar('explorar/index.html', layout({ base, titulo: t('ex.titulo'), pagina: 'explorar', corpo, canonical: siteURL ? siteURL + '/explorar/' : '' }));
+}
+
 // ---------- 404 (GitHub Pages usa caminho absoluto, então os links apontam para a raiz do site) ----------
 {
   const base = siteURL ? new URL(siteURL + '/').pathname : '/';
@@ -457,7 +573,7 @@ try {
 
 // ---------- sitemap e robots ----------
 if (siteURL) {
-  const urls = ['/', '/trabalhos/', '/autores/', ...trabalhos.map(x => `/trabalho/${x.slug}/`)];
+  const urls = ['/', '/trabalhos/', '/autores/', '/explorar/', ...trabalhos.map(x => `/trabalho/${x.slug}/`)];
   await salvar('sitemap.xml', `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.map(u => `  <url><loc>${e(siteURL + u)}</loc></url>`).join('\n')}\n</urlset>\n`);
   await salvar('robots.txt', `User-agent: *\nAllow: /\nSitemap: ${siteURL}/sitemap.xml\n`);
 }

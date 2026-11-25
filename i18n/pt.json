@@ -69,5 +69,20 @@
   "nav.principal": "Principal",
   "lista.paginacao": "Paginação",
   "autores.alfabeto": "Autores por inicial",
-  "trab.previa_dica": "Toque na imagem para abrir o PDF completo."
+  "trab.previa_dica": "Toque na imagem para abrir o PDF completo.",
+  "nav.explorar": "Explorar",
+  "ex.titulo": "Explore os trabalhos",
+  "ex.sub": "Toque no mapa ou num tema para ver os pôsteres.",
+  "ex.mapa_tit": "De onde vêm os trabalhos",
+  "ex.mapa_rotulo": "Mapa do Brasil com o número de trabalhos por estado",
+  "ex.escolha": "Toque num estado",
+  "ex.ver_brasil": "← Ver o Brasil todo",
+  "ex.temas_tit": "Temas",
+  "ex.temas_dica": "Cada bolha é um eixo temático. Quanto maior, mais trabalhos.",
+  "ex.fechar": "Fechar",
+  "ex.vitrine_btn": "Iniciar vitrine",
+  "ex.vitrine_toque": "Toque na tela para explorar",
+  "ex.trabalhos": "trabalhos",
+  "ex.trabalho": "trabalho",
+  "ex.sem_uf": "Ainda não há trabalhos deste estado."
 }

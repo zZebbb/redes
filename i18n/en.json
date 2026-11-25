@@ -77,5 +77,20 @@
   "nav.principal": "Main",
   "lista.paginacao": "Pagination",
   "autores.alfabeto": "Authors by initial",
-  "trab.previa_dica": "Tap the image to open the full PDF."
+  "trab.previa_dica": "Tap the image to open the full PDF.",
+  "nav.explorar": "Explore",
+  "ex.titulo": "Explore the papers",
+  "ex.sub": "Tap the map or a theme to see the posters.",
+  "ex.mapa_tit": "Where the papers come from",
+  "ex.mapa_rotulo": "Map of Brazil with the number of papers per state",
+  "ex.escolha": "Tap a state",
+  "ex.ver_brasil": "← See all of Brazil",
+  "ex.temas_tit": "Themes",
+  "ex.temas_dica": "Each bubble is a thematic axis. The bigger it is, the more papers.",
+  "ex.fechar": "Close",
+  "ex.vitrine_btn": "Start showcase",
+  "ex.vitrine_toque": "Touch the screen to explore",
+  "ex.trabalhos": "papers",
+  "ex.trabalho": "paper",
+  "ex.sem_uf": "No papers from this state yet."
 }
