@@ -47,3 +47,20 @@ test('cópia de PDF do Drive aceita só PDF', async () => {
     await assert.rejects(baixarDoDrive('privado', base), /não devolveu um PDF/);
   } finally { srv.close(); }
 });
+
+test('número do trabalho no nome da foto', async () => {
+  const { numeroDoNome } = await import('./lib.mjs');
+  assert.equal(numeroDoNome('017.jpg'), '017');
+  assert.equal(numeroDoNome('17 (2).jpeg'), '017');
+  assert.equal(numeroDoNome('RB-38 Ana.jpg'), '038');
+  assert.equal(numeroDoNome('043 - Turma.png'), '043');
+  assert.equal(numeroDoNome('4AF031B1-738F-4FA7-9F8A-B6947CB8C486.jpg'), '');
+  assert.equal(numeroDoNome('1234.jpg'), '');
+  assert.equal(numeroDoNome('IMG_5007.png'), '');
+});
+
+test('lista da pasta pública do Drive', async () => {
+  const { listarPasta } = await import('./fotos.mjs');
+  const html = '<div class="flip-entries"><div class="flip-entry" id="entry-1AbC_d-9" tabindex="0"><a href="x"><div class="flip-entry-thumb"></div><div class="flip-entry-title">017 &amp; Ana.jpg</div></a></div></div>';
+  assert.deepEqual(listarPasta(html), [{ id: '1AbC_d-9', arquivo: '017 & Ana.jpg' }]);
+});

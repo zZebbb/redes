@@ -100,3 +100,24 @@ export function autorComInstituicao(s) {
   const instituicoes = SEM_INST.test(dentro) ? [] : separarNivel0(dentro, ';');
   return { nome, instituicoes };
 }
+
+// ---------- Fotos do encontro (data/fotos.csv: id,arquivo,numero) ----------
+// Número do trabalho no começo do nome do arquivo: "017.jpg", "17 (2).jpg", "RB-17 Ana.jpg" → "017".
+// Nomes aleatórios do celular (ex.: "4AF031B1-73…") não contam, porque o número precisa terminar ali.
+export function numeroDoNome(nome) {
+  const m = String(nome || '').match(/^\s*(?:rb[-_ ]?)?(\d{1,3})(?=$|[\s._()\-–—,])/i);
+  return m ? m[1].padStart(3, '0') : '';
+}
+export async function lerFotosCsv(arquivo) {
+  const { readFile } = await import('node:fs/promises');
+  let texto;
+  try { texto = await readFile(arquivo, 'utf8'); } catch (err) { if (err.code === 'ENOENT') return []; throw err; }
+  const [cab, ...linhas] = parseCSV(texto);
+  const i = Object.fromEntries((cab || []).map((c, k) => [c.trim(), k]));
+  return linhas.filter(l => l[i.id]?.trim()).map(l => ({ id: l[i.id].trim(), arquivo: (l[i.arquivo] || '').trim(), numero: (l[i.numero] || '').trim() ? l[i.numero].trim().padStart(3, '0') : '' }));
+}
+export async function escreverFotosCsv(arquivo, fotos) {
+  const { writeFile } = await import('node:fs/promises');
+  const q = s => /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+  await writeFile(arquivo, ['id,arquivo,numero', ...fotos.map(f => [f.id, f.arquivo, f.numero].map(q).join(','))].join('\n') + '\n');
+}
