@@ -143,6 +143,42 @@
     if (ev.key === 'ArrowLeft' && els[i - 1]) { $('.bn-giro', els[i - 1]).focus(); ativar(i - 1); }
   });
   trilho.addEventListener('pointerdown', interagiu, { passive: true });
+
+  // Arrastar o trilho com o dedo ou o mouse (com embalo ao soltar). Um arrasto não conta como toque no crachá.
+  var arr = null, arrastou = false, embalo = 0;
+  trilho.addEventListener('pointerdown', function (ev) {
+    if (ev.button > 0) return;
+    cancelAnimationFrame(embalo);
+    arr = { id: ev.pointerId, x: ev.clientX, inicio: trilho.scrollLeft, ult: ev.clientX, t: performance.now(), v: 0, ativo: false };
+    arrastou = false;
+  });
+  trilho.addEventListener('pointermove', function (ev) {
+    if (!arr || ev.pointerId !== arr.id) return;
+    var dx = ev.clientX - arr.x;
+    if (!arr.ativo) {
+      if (Math.abs(dx) < 8) return;
+      arr.ativo = true; arrastou = true;
+      trilho.classList.add('arrastando');
+      try { trilho.setPointerCapture(ev.pointerId); } catch (e) {}
+    }
+    var agora = performance.now(), dt = Math.max(1, agora - arr.t);
+    arr.v = 0.8 * ((ev.clientX - arr.ult) / dt) + 0.2 * arr.v;
+    arr.ult = ev.clientX; arr.t = agora;
+    trilho.scrollLeft = arr.inicio - dx;
+  });
+  function soltar(ev) {
+    if (!arr || ev.pointerId !== arr.id) return;
+    var v = arr.ativo ? arr.v * 16 : 0; arr = null;
+    if (reduzir || Math.abs(v) < 1) { trilho.classList.remove('arrastando'); return; }
+    (function passo() {
+      trilho.scrollLeft -= v; v *= 0.94;
+      if (Math.abs(v) > 0.5) embalo = requestAnimationFrame(passo); else trilho.classList.remove('arrastando');
+    })();
+  }
+  trilho.addEventListener('pointerup', soltar);
+  trilho.addEventListener('pointercancel', soltar);
+  trilho.addEventListener('click', function (ev) { if (arrastou) { ev.stopPropagation(); ev.preventDefault(); arrastou = false; } }, true);
+  trilho.addEventListener('dragstart', function (ev) { ev.preventDefault(); });
   trilho.addEventListener('click', function (ev) { if (!ev.target.closest('.bn-peca') && ativo >= 0) { ativo = -1; virado = -1; pintar(); mostrarLegenda(); } });
 
   // Enquanto ninguém mexe, os crachás vêm para a frente um de cada vez.
