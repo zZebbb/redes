@@ -122,19 +122,24 @@
   var roda = $('.fo-roda'), anel = $('.fo-roda-anel', roda);
   var rodaFotos = D.fotos.slice(0, RODA_N), cartoes = [], ang = 0, animRoda = 0, timerRoda = null;
   var passo = rodaFotos.length ? 2 * Math.PI / rodaFotos.length : 0;
+  // Roda no formato do "Halo Reel": centro da elipse na borda esquerda, só a metade direita aparece;
+  // as fotos sobem pela roda e a da frente fica no meio, ao lado do título.
   function medidas() {
     var w = anel.clientWidth, h = anel.clientHeight;
-    return { rx: Math.min(w * 0.4, h * 1.1), ry: h * 0.07 };
+    var cw = Math.min(w * 0.3, h * 0.27), ch = cw * 4 / 3;
+    return { w: w, h: h, cw: cw, ch: ch, rx: cw * 1.3, ry: h * 0.42 };
   }
   function pintarRoda() {
     var m = medidas();
+    roda.style.setProperty('--roda-borda', (m.rx + m.cw / 2).toFixed(0) + 'px');
     cartoes.forEach(function (c, i) {
       var a = ang + i * passo, prof = Math.cos(a), k = (prof + 1) / 2;
-      var x = Math.sin(a) * m.rx, y = prof * m.ry, esc = 0.5 + 0.5 * k;
-      c.style.transform = 'translate3d(' + x.toFixed(1) + 'px,' + y.toFixed(1) + 'px,0) translate(-50%,-50%) scale(' + esc.toFixed(3) + ')';
-      c.style.zIndex = String(Math.round(k * 100) + (prof > 0 ? 100 : 0));
-      c.style.opacity = (0.35 + 0.65 * k).toFixed(2);
-      c.style.filter = prof < 0 ? 'saturate(.6) brightness(.85)' : '';
+      var x = prof * m.rx - m.cw / 2, y = m.h / 2 + Math.sin(a) * m.ry - m.ch / 2, esc = 0.82 + 0.18 * k;
+      c.style.width = m.cw.toFixed(1) + 'px'; c.style.height = m.ch.toFixed(1) + 'px';
+      c.style.transform = 'translate3d(' + x.toFixed(1) + 'px,' + y.toFixed(1) + 'px,0) scale(' + esc.toFixed(3) + ')';
+      c.style.zIndex = String(Math.round(k * 100));
+      c.style.opacity = prof > 0 ? '1' : Math.max(0, 1 + prof * 3).toFixed(2);
+      c.style.visibility = prof < -0.34 ? 'hidden' : '';
     });
   }
   function irAng(alvo, dur, depois) {
@@ -169,27 +174,30 @@
     anel.addEventListener('pointerdown', function (ev) {
       if (ev.button > 0) return;
       pararRoda();
-      arr = { id: ev.pointerId, x: ev.clientX, y: ev.clientY, ang: ang, ult: ev.clientX, t: performance.now(), v: 0, ativo: false };
+      arr = { id: ev.pointerId, x: ev.clientX, y: ev.clientY, ang: ang, ult: 0, t: performance.now(), v: 0, ativo: false, eixo: 'x' };
       arrastou = false;
     });
     anel.addEventListener('pointermove', function (ev) {
       if (!arr || ev.pointerId !== arr.id) return;
-      var dx = ev.clientX - arr.x;
+      var dx = ev.clientX - arr.x, dy = ev.clientY - arr.y;
       if (!arr.ativo) {
-        if (Math.abs(dx) < 6) return;
-        if (Math.abs(ev.clientY - arr.y) > Math.abs(dx)) { arr = null; girarSozinha(); return; }
-        arr.ativo = arrastou = true; arr.x = ev.clientX; dx = 0;
+        if (Math.abs(dx) < 6 && Math.abs(dy) < 6) return;
+        arr.eixo = Math.abs(dy) > Math.abs(dx) ? 'y' : 'x';
+        // No toque, arrastar na vertical rola a página (fora do descanso); na horizontal gira a roda.
+        if (arr.eixo === 'y' && ev.pointerType === 'touch' && !document.body.classList.contains('fo-descansando')) { arr = null; girarSozinha(); return; }
+        arr.ativo = arrastou = true; arr.x = ev.clientX; arr.y = ev.clientY; arr.ult = arr.eixo === 'y' ? ev.clientY : ev.clientX; dx = dy = 0;
         try { anel.setPointerCapture(ev.pointerId); } catch (e) {}
       }
+      var m = medidas(), d = arr.eixo === 'y' ? dy / m.ry : dx / m.rx, pos = arr.eixo === 'y' ? ev.clientY : ev.clientX;
       var agora = performance.now(), dt = Math.max(1, agora - arr.t);
-      arr.v = 0.7 * ((ev.clientX - arr.ult) / dt) + 0.3 * arr.v; arr.ult = ev.clientX; arr.t = agora;
-      ang = arr.ang + dx / (medidas().rx * 1.1); pintarRoda();
+      arr.v = 0.7 * ((pos - arr.ult) / dt / (arr.eixo === 'y' ? m.ry : m.rx)) + 0.3 * arr.v; arr.ult = pos; arr.t = agora;
+      ang = arr.ang + d; pintarRoda();
     }, { passive: true });
     function soltarRoda(ev) {
       if (!arr || ev.pointerId !== arr.id) return;
       var a = arr; arr = null;
       if (!a.ativo) { girarSozinha(); return; }
-      var alvo = Math.round((ang + a.v * 260 / (medidas().rx * 1.1)) / passo) * passo;
+      var alvo = Math.round((ang + a.v * 260) / passo) * passo;
       irAng(alvo, 520, girarSozinha);
     }
     anel.addEventListener('pointerup', soltarRoda);
