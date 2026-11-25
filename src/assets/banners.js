@@ -79,8 +79,7 @@
     trilho.classList.toggle('vazia', !itens.length);
     pecas.innerHTML = itens.map(cracha).join('');
     els = $$('.bn-peca', pecas);
-    trilho.scrollLeft = 0;
-    trilho.style.setProperty('--larg', pecas.scrollWidth + 'px');
+    cancelAnimationFrame(anim); pos = 0; aplicar();
     $('.bn-nada').hidden = !!itens.length;
     pintar(); mostrarLegenda();
     if (itens.length) autoplay();
@@ -100,10 +99,25 @@
     el.classList.remove('balanca'); void el.offsetWidth; el.classList.add('balanca');
   }
 
+  // O trilho anda por transform (camada da GPU), não por rolagem: segue o dedo sem atraso.
+  var pos = 0, anim = 0;
+  function limite() { return Math.max(0, pecas.offsetWidth - trilho.clientWidth); }
+  function prender(x) { return Math.min(limite(), Math.max(0, x)); }
+  function aplicar() { pecas.style.transform = 'translate3d(' + (-pos).toFixed(2) + 'px,0,0)'; }
+  function irPara(x, dur) {
+    cancelAnimationFrame(anim);
+    x = prender(x);
+    if (reduzir || !dur) { pos = x; aplicar(); return; }
+    var de = pos, t0 = performance.now();
+    (function passo(agora) {
+      var k = Math.min(1, (agora - t0) / dur), e = 1 - Math.pow(1 - k, 3);
+      pos = de + (x - de) * e; aplicar();
+      if (k < 1) anim = requestAnimationFrame(passo);
+    })(t0);
+  }
   function centralizar(i) {
     var el = els[i]; if (!el) return;
-    var alvo = el.offsetLeft + el.offsetWidth / 2 - trilho.clientWidth / 2;
-    trilho.scrollTo({ left: alvo, behavior: reduzir ? 'auto' : 'smooth' });
+    irPara(el.offsetLeft + el.offsetWidth / 2 - trilho.clientWidth / 2, 600);
   }
 
   function ativar(i, virar) {
@@ -144,40 +158,58 @@
   });
   trilho.addEventListener('pointerdown', interagiu, { passive: true });
 
-  // Arrastar o trilho com o dedo ou o mouse (com embalo ao soltar). Um arrasto não conta como toque no crachá.
-  var arr = null, arrastou = false, embalo = 0;
+  // Arrastar o trilho com o dedo ou o mouse: segue o dedo 1:1, estica nas pontas e solta com embalo.
+  // Um arrasto não conta como toque no crachá.
+  var arr = null, arrastou = false;
   trilho.addEventListener('pointerdown', function (ev) {
     if (ev.button > 0) return;
-    cancelAnimationFrame(embalo);
-    arr = { id: ev.pointerId, x: ev.clientX, inicio: trilho.scrollLeft, ult: ev.clientX, t: performance.now(), v: 0, ativo: false };
+    cancelAnimationFrame(anim);
+    arr = { id: ev.pointerId, x: ev.clientX, y: ev.clientY, inicio: pos, pts: [[performance.now(), ev.clientX]], ativo: false };
     arrastou = false;
   });
   trilho.addEventListener('pointermove', function (ev) {
     if (!arr || ev.pointerId !== arr.id) return;
     var dx = ev.clientX - arr.x;
     if (!arr.ativo) {
-      if (Math.abs(dx) < 8) return;
-      arr.ativo = true; arrastou = true;
+      if (Math.abs(dx) < 6) return;
+      if (Math.abs(ev.clientY - arr.y) > Math.abs(dx)) { arr = null; return; }
+      arr.ativo = true; arrastou = true; arr.x = ev.clientX; arr.inicio = pos; dx = 0;
       trilho.classList.add('arrastando');
       try { trilho.setPointerCapture(ev.pointerId); } catch (e) {}
     }
-    var agora = performance.now(), dt = Math.max(1, agora - arr.t);
-    arr.v = 0.8 * ((ev.clientX - arr.ult) / dt) + 0.2 * arr.v;
-    arr.ult = ev.clientX; arr.t = agora;
-    trilho.scrollLeft = arr.inicio - dx;
-  });
+    var agora = performance.now();
+    arr.pts.push([agora, ev.clientX]);
+    while (arr.pts.length > 2 && agora - arr.pts[0][0] > 100) arr.pts.shift();
+    var p = arr.inicio - dx, max = limite();
+    if (p < 0) p = p * 0.35; else if (p > max) p = max + (p - max) * 0.35;
+    pos = p; aplicar();
+  }, { passive: true });
   function soltar(ev) {
     if (!arr || ev.pointerId !== arr.id) return;
-    var v = arr.ativo ? arr.v * 16 : 0; arr = null;
-    if (reduzir || Math.abs(v) < 1) { trilho.classList.remove('arrastando'); return; }
-    (function passo() {
-      trilho.scrollLeft -= v; v *= 0.94;
-      if (Math.abs(v) > 0.5) embalo = requestAnimationFrame(passo); else trilho.classList.remove('arrastando');
-    })();
+    var a = arr; arr = null;
+    trilho.classList.remove('arrastando');
+    if (!a.ativo) return;
+    var p0 = a.pts[0], p1 = a.pts[a.pts.length - 1], dt = p1[0] - p0[0];
+    var v = dt > 0 && performance.now() - p1[0] < 80 ? (p1[1] - p0[1]) / dt : 0; // px por ms
+    var alvo = prender(pos - v * 380);
+    var dist = Math.abs(alvo - pos);
+    irPara(alvo, Math.min(1100, Math.max(320, Math.abs(v) > 0.05 ? 3 * dist / Math.abs(v) : 320)));
   }
   trilho.addEventListener('pointerup', soltar);
   trilho.addEventListener('pointercancel', soltar);
   trilho.addEventListener('click', function (ev) { if (arrastou) { ev.stopPropagation(); ev.preventDefault(); arrastou = false; } }, true);
+  // Roda do mouse / trackpad na horizontal.
+  trilho.addEventListener('wheel', function (ev) {
+    var d = Math.abs(ev.deltaX) > Math.abs(ev.deltaY) ? ev.deltaX : (ev.shiftKey ? ev.deltaY : 0);
+    if (!d) return;
+    ev.preventDefault(); cancelAnimationFrame(anim); interagiu();
+    pos = prender(pos + d); aplicar();
+  }, { passive: false });
+  // O foco do teclado pode rolar o contêiner por conta própria; devolve isso para o transform.
+  trilho.addEventListener('scroll', function () {
+    if (!trilho.scrollLeft) return;
+    var x = trilho.scrollLeft; trilho.scrollLeft = 0; pos = prender(pos + x); aplicar();
+  });
   trilho.addEventListener('dragstart', function (ev) { ev.preventDefault(); });
   trilho.addEventListener('click', function (ev) { if (!ev.target.closest('.bn-peca') && ativo >= 0) { ativo = -1; virado = -1; pintar(); mostrarLegenda(); } });
 
@@ -236,7 +268,7 @@
     ativo = a; virado = v; pintar(); mostrarLegenda();
   }).observe(document.documentElement, { attributes: true, attributeFilter: ['lang'] });
 
-  window.addEventListener('resize', function () { trilho.style.setProperty('--larg', pecas.scrollWidth + 'px'); });
+  window.addEventListener('resize', function () { pos = prender(pos); aplicar(); });
   montarAbas();
   carregar();
   // Link direto (?n=013, vindo da página do trabalho): abre esse banner já em tela cheia.
