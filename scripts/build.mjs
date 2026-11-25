@@ -383,6 +383,18 @@ for (const x of trabalhos) {
   await salvar(`trabalho/${x.slug}/index.html`, layout({ base, titulo: x.titulo, descricao: desc, pagina: 'trabalho', corpo, metaExtra: meta, canonical: url }));
 }
 
+// ---------- Redirecionamentos (numeração antiga → número da planilha) ----------
+// Só para números antigos que não foram reaproveitados por outro trabalho.
+try {
+  const linhas = (await readFile(path.join(raiz, 'data', 'redirecionamentos.csv'), 'utf8')).trim().split(/\r?\n/).slice(1);
+  for (const l of linhas) {
+    const [antigo, novo] = l.split(',').map(s => s.trim());
+    if (!antigo || !novo || porSlug.has(antigo) || !porSlug.has(novo)) continue;
+    const destino = `../${novo}/`;
+    await salvar(`trabalho/${antigo}/index.html`, `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="robots" content="noindex"><meta http-equiv="refresh" content="0; url=${destino}"><link rel="canonical" href="${siteURL ? `${siteURL}/trabalho/${novo}/` : destino}"><title>Redirecionando…</title></head><body><p><a href="${destino}">Este trabalho agora é o ${novo}.</a></p></body></html>`);
+  }
+} catch (err) { if (err.code !== 'ENOENT') throw err; }
+
 // ---------- Autores ----------
 {
   const base = '../';
