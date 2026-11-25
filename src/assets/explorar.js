@@ -64,10 +64,12 @@
 
   svg.addEventListener('click', function (ev) {
     var alvo = ev.target.closest('[data-uf]');
-    if (!alvo) { escolher(null); return; }
-    var uf = alvo.dataset.uf;
+    var uf = alvo && alvo.dataset.uf;
+    // Com um estado aberto, tocar em qualquer outro lugar do mapa volta para o Brasil todo.
+    if (ufAtual) { if (uf !== ufAtual) escolher(null); return; }
+    if (!alvo) return;
     if (!D.ufs[uf] || !D.ufs[uf].n) { piscar(alvo); return; }
-    escolher(uf === ufAtual ? null : uf);
+    escolher(uf);
   });
   svg.addEventListener('keydown', function (ev) {
     if ((ev.key === 'Enter' || ev.key === ' ') && ev.target.dataset && ev.target.dataset.uf) { ev.preventDefault(); escolher(ev.target.dataset.uf); }
