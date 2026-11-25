@@ -37,6 +37,7 @@ const versao = createHash('sha1')
   .update(await readFile(path.join(raiz, 'src/assets/app.js')))
   .update(await readFile(path.join(raiz, 'src/assets/style.css')))
   .update(await readFile(path.join(raiz, 'src/assets/explorar.js')))
+  .update(await readFile(path.join(raiz, 'src/assets/banners.js')))
   .update(JSON.stringify(trabalhos))
   .digest('hex').slice(0, 10);
 for (const x of trabalhos) {
@@ -115,7 +116,7 @@ function hero(base) {
 
 function layout({ base, titulo, descricao = '', pagina, corpo, metaExtra = '', canonical = '' }) {
   const tituloCompleto = titulo ? `${titulo} · ${nomeEvento}` : nomeEvento;
-  const nav = [['inicio', '', 'nav.inicio'], ['trabalhos', 'trabalhos/', 'nav.trabalhos'], ['autores', 'autores/', 'nav.autores'], ['explorar', 'explorar/', 'nav.explorar']]
+  const nav = [['inicio', '', 'nav.inicio'], ['trabalhos', 'trabalhos/', 'nav.trabalhos'], ['autores', 'autores/', 'nav.autores'], ['explorar', 'explorar/', 'nav.explorar'], ['banners', 'banners/', 'nav.banners']]
     .map(([id, href, k]) => `<a href="${base}${href}" ${T(k)}${pagina === id ? ' aria-current="page"' : ''}>${t(k)}</a>`).join('');
   return `<!doctype html>
 <html lang="pt-BR">
@@ -175,6 +176,7 @@ ${corpo}
 ${pagina === 'trabalhos' ? `<script src="${base}assets/fuse.min.js" defer></script>` : ''}
 <script src="${base}assets/app.js?v=${versao}" defer></script>
 ${pagina === 'explorar' ? `<script src="${base}assets/explorar.js?v=${versao}" defer></script>` : ''}
+${pagina === 'banners' ? `<script src="${base}assets/banners.js?v=${versao}" defer></script>` : ''}
 </body>
 </html>
 `;
@@ -564,6 +566,50 @@ try {
   await salvar('explorar/index.html', layout({ base, titulo: t('ex.titulo'), pagina: 'explorar', corpo, canonical: siteURL ? siteURL + '/explorar/' : '' }));
 }
 
+// ---------- Banners (crachás no trilho: cada pessoa acha o próprio banner e abre grande para a foto) ----------
+{
+  const base = '../';
+  const dados = {
+    eixos: eixos.map(x => ({ id: x, curto: eixoCurto(x), nome: { pt: semPrefixoEixo(x), en: semPrefixoEixo(tv('en', x)), es: semPrefixoEixo(tv('es', x)) }, cor: eixoCor(x) })),
+    trabalhos: trabalhos.filter(x => x.previaImgs?.length).map(x => ({
+      n: x.slug, eixo: x.eixo,
+      t: { pt: x.titulos.pt || x.titulo, en: x.titulos.en || x.titulo, es: x.titulos.es || x.titulo },
+      a: x.autores, img: x.previaImgs[0]
+    }))
+  };
+  const corpo = `
+<div class="bn">
+  <section class="bn-topo">
+    <div>
+      <h1 ${T('bn.titulo')}>${t('bn.titulo')}</h1>
+      <p ${T('bn.sub')}>${t('bn.sub')}</p>
+    </div>
+    <label class="bn-busca">
+      <span class="sr" ${T('bn.buscar')}>${t('bn.buscar')}</span>
+      <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M10 2a8 8 0 016.3 12.9l5.4 5.4-1.4 1.4-5.4-5.4A8 8 0 1110 2zm0 2a6 6 0 100 12 6 6 0 000-12z"/></svg>
+      <input id="bn-q" type="search" autocomplete="off" placeholder="${e(t('bn.buscar'))}" data-i18n-ph="bn.buscar">
+    </label>
+  </section>
+  <nav class="bn-abas" aria-label="${e(t('bn.eixos'))}" ${T('bn.eixos')} data-i18n-attr="aria-label"></nav>
+  <section class="bn-loja" aria-live="polite">
+    <div class="bn-trilho"><div class="bn-barra" aria-hidden="true"></div><ul class="bn-pecas"></ul></div>
+    <p class="bn-nada" hidden ${T('bn.nada')}>${t('bn.nada')}</p>
+    <div class="bn-legenda"></div>
+  </section>
+</div>
+<div class="bn-foto" role="dialog" aria-modal="true" aria-label="${e(t('bn.foto'))}" hidden>
+  <div class="bn-foto-cab">
+    ${config.logo_rodape_rede ? `<img src="${base}${e(config.logo_rodape_rede)}" alt="Rede Brasil" class="bn-foto-logo">` : ''}
+    <p class="bn-foto-ev">${e(nomeEvento)}</p>
+  </div>
+  <div class="bn-foto-img"><img alt=""></div>
+  <div class="bn-foto-info"><p class="bn-foto-n"></p><p class="bn-foto-t"></p><p class="bn-foto-a"></p></div>
+  <button type="button" class="bn-foto-voltar" ${T('bn.voltar')}>${t('bn.voltar')}</button>
+</div>
+<script>window.BANNERS=${JSON.stringify(dados).replace(/</g, '\\u003c')};</script>`;
+  await salvar('banners/index.html', layout({ base, titulo: t('bn.titulo'), pagina: 'banners', corpo, canonical: siteURL ? siteURL + '/banners/' : '' }));
+}
+
 // ---------- 404 (GitHub Pages usa caminho absoluto, então os links apontam para a raiz do site) ----------
 {
   const base = siteURL ? new URL(siteURL + '/').pathname : '/';
@@ -573,7 +619,7 @@ try {
 
 // ---------- sitemap e robots ----------
 if (siteURL) {
-  const urls = ['/', '/trabalhos/', '/autores/', '/explorar/', ...trabalhos.map(x => `/trabalho/${x.slug}/`)];
+  const urls = ['/', '/trabalhos/', '/autores/', '/explorar/', '/banners/', ...trabalhos.map(x => `/trabalho/${x.slug}/`)];
   await salvar('sitemap.xml', `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.map(u => `  <url><loc>${e(siteURL + u)}</loc></url>`).join('\n')}\n</urlset>\n`);
   await salvar('robots.txt', `User-agent: *\nAllow: /\nSitemap: ${siteURL}/sitemap.xml\n`);
 }

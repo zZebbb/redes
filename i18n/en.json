@@ -92,5 +92,18 @@
   "ex.vitrine_toque": "Touch the screen to explore",
   "ex.trabalhos": "papers",
   "ex.trabalho": "paper",
-  "ex.sem_uf": "No papers from this state yet."
+  "ex.sem_uf": "No papers from this state yet.",
+  "nav.banners": "Posters",
+  "bn.titulo": "Find your poster",
+  "bn.sub": "Swipe the rail sideways and tap your poster to open it large for a photo.",
+  "bn.buscar": "Search by name, number or title",
+  "bn.eixos": "Thematic axes",
+  "bn.foto": "Full-screen poster",
+  "bn.voltar": "← Back to the posters",
+  "bn.abrir": "Open for the photo",
+  "bn.resultados": "Search",
+  "bn.nada": "No poster found. Try the surname or the number.",
+  "bn.toque": "Tap a poster",
+  "bn.virar": "Tap the badge again to flip it and see the authors.",
+  "bn.desvirar": "Tap again to turn it back."
 }

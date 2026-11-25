@@ -92,5 +92,18 @@
   "ex.vitrine_toque": "Toque la pantalla para explorar",
   "ex.trabalhos": "trabajos",
   "ex.trabalho": "trabajo",
-  "ex.sem_uf": "Todavía no hay trabajos de este estado."
+  "ex.sem_uf": "Todavía no hay trabajos de este estado.",
+  "nav.banners": "Pósteres",
+  "bn.titulo": "Encuentre su póster",
+  "bn.sub": "Deslice el riel hacia los lados y toque su póster para abrirlo en grande y sacar la foto.",
+  "bn.buscar": "Buscar por nombre, número o título",
+  "bn.eixos": "Ejes temáticos",
+  "bn.foto": "Póster a pantalla completa",
+  "bn.voltar": "← Volver a los pósteres",
+  "bn.abrir": "Abrir para la foto",
+  "bn.resultados": "Búsqueda",
+  "bn.nada": "No se encontró ningún póster. Pruebe el apellido o el número.",
+  "bn.toque": "Toque un póster",
+  "bn.virar": "Toque de nuevo la credencial para darle la vuelta y ver los autores.",
+  "bn.desvirar": "Toque de nuevo para volverla."
 }

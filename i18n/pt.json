@@ -84,5 +84,18 @@
   "ex.vitrine_toque": "Toque na tela para explorar",
   "ex.trabalhos": "trabalhos",
   "ex.trabalho": "trabalho",
-  "ex.sem_uf": "Ainda não há trabalhos deste estado."
+  "ex.sem_uf": "Ainda não há trabalhos deste estado.",
+  "nav.banners": "Banners",
+  "bn.titulo": "Encontre seu banner",
+  "bn.sub": "Deslize o trilho para os lados e toque no seu banner para abrir grande e tirar a foto.",
+  "bn.buscar": "Buscar por nome, número ou título",
+  "bn.eixos": "Eixos temáticos",
+  "bn.foto": "Banner em tela cheia",
+  "bn.voltar": "← Voltar aos banners",
+  "bn.abrir": "Abrir para a foto",
+  "bn.resultados": "Busca",
+  "bn.nada": "Nenhum banner encontrado. Tente o sobrenome ou o número.",
+  "bn.toque": "Toque num banner",
+  "bn.virar": "Toque de novo no crachá para virar e ver os autores.",
+  "bn.desvirar": "Toque de novo para desvirar."
 }
