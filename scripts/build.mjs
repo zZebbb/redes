@@ -639,10 +639,18 @@ try {
     fotos
   };
   const corpo = `
+<section class="fo-roda" aria-label="${e(t('fo.recentes'))}" ${T('fo.recentes')} data-i18n-attr="aria-label">
+  <div class="fo-roda-anel"></div>
+  <div class="fo-roda-centro">
+    <h1 ${T('fo.titulo')}>${t('fo.titulo')}</h1>
+    <p class="fo-roda-sub" ${T('fo.roda_sub')}>${t('fo.roda_sub')}</p>
+  </div>
+  <p class="fo-roda-toque" ${T('fo.descanso')}>${t('fo.descanso')}</p>
+</section>
 <div class="fo">
   <section class="fo-topo">
     <div>
-      <h1 ${T('fo.titulo')}>${t('fo.titulo')}</h1>
+      <h2 class="fo-tit-mural" ${T('fo.todas_tit')}>${t('fo.todas_tit')}</h2>
       <p ${T('fo.sub')}>${t('fo.sub')}</p>
     </div>
     <label class="bn-busca fo-busca">

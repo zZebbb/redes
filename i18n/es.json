@@ -109,7 +109,7 @@
   "trab.modo_banner": "Abrir en modo póster",
   "nav.fotos": "Fotos",
   "fo.titulo": "Fotos del encuentro",
-  "fo.sub": "Quienes pasaron por la pantalla con su póster. Toque una foto para verla en grande.",
+  "fo.sub": "Quienes pasaron por la pantalla con su póster. Busque por el número del trabajo o su nombre.",
   "fo.buscar": "Buscar por número, título o nombre",
   "fo.nada": "No se encontraron fotos.",
   "fo.voltar": "← Volver a las fotos",
@@ -124,5 +124,9 @@
   "fo.sem_trabalho": "Foto del encuentro",
   "fo.todas": "Ver todas las fotos",
   "bn.fotos": "Fotos de este póster",
-  "ex.foto": "Foto en el encuentro"
+  "ex.foto": "Foto en el encuentro",
+  "fo.recentes": "Fotos más recientes",
+  "fo.roda_sub": "Gire la rueda o toque una foto",
+  "fo.descanso": "Toque la pantalla para ver las fotos",
+  "fo.todas_tit": "Todas las fotos"
 }

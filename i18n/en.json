@@ -109,7 +109,7 @@
   "trab.modo_banner": "Open in poster mode",
   "nav.fotos": "Photos",
   "fo.titulo": "Meeting photos",
-  "fo.sub": "People who stopped by the screen with their poster. Tap a photo to see it large.",
+  "fo.sub": "People who stopped by the screen with their poster. Search by paper number or your name.",
   "fo.buscar": "Search by number, title or name",
   "fo.nada": "No photos found.",
   "fo.voltar": "← Back to photos",
@@ -124,5 +124,9 @@
   "fo.sem_trabalho": "Meeting photo",
   "fo.todas": "See all photos",
   "bn.fotos": "Photos of this poster",
-  "ex.foto": "Photo at the meeting"
+  "ex.foto": "Photo at the meeting",
+  "fo.recentes": "Latest photos",
+  "fo.roda_sub": "Spin the wheel or tap a photo",
+  "fo.descanso": "Tap the screen to see the photos",
+  "fo.todas_tit": "All photos"
 }

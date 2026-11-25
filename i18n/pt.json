@@ -101,7 +101,7 @@
   "trab.modo_banner": "Abrir no modo banner",
   "nav.fotos": "Fotos",
   "fo.titulo": "Fotos do encontro",
-  "fo.sub": "Quem passou pela TV com o próprio banner. Toque numa foto para ver grande.",
+  "fo.sub": "Quem passou pela TV com o próprio banner. Busque pelo número do trabalho ou pelo seu nome.",
   "fo.buscar": "Buscar pelo número, título ou nome",
   "fo.nada": "Nenhuma foto encontrada.",
   "fo.voltar": "← Voltar às fotos",
@@ -116,5 +116,9 @@
   "fo.sem_trabalho": "Foto do encontro",
   "fo.todas": "Ver todas as fotos",
   "bn.fotos": "Fotos deste banner",
-  "ex.foto": "Foto no encontro"
+  "ex.foto": "Foto no encontro",
+  "fo.recentes": "Fotos mais recentes",
+  "fo.roda_sub": "Gire a roda ou toque numa foto",
+  "fo.descanso": "Toque na tela para ver as fotos",
+  "fo.todas_tit": "Todas as fotos"
 }
