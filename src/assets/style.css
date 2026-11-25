@@ -711,24 +711,20 @@ a.tag:hover { background: var(--primary); color: #fff; }
 .ex-vitrine.e-foto .ex-vit-img img { background: #000; box-shadow: 0 0 0 6px #F9B234, 0 30px 80px rgba(0,0,0,.45); }
 
 /* Roda das fotos mais recentes (topo da aba Fotos; vira tela de descanso na TV) */
-.fo-roda { position: relative; overflow: hidden; height: clamp(420px, 62vh, 720px); background: radial-gradient(ellipse 60% 45% at 50% 52%, #24448A 0%, #172A55 70%); color: #fff; }
+.fo-roda { position: relative; overflow: hidden; height: clamp(460px, 70vh, 820px); background: #F3F5FA; color: #172A55; border-bottom: 1px solid #E3E7F0; }
 .fo-roda[hidden] { display: none; }
 .fo-roda-anel { position: absolute; inset: 0; touch-action: pan-y; cursor: grab; user-select: none; -webkit-user-select: none; }
-.fo-roda-foto { position: absolute; left: 50%; top: 60%; height: 54%; width: auto; aspect-ratio: 3 / 5; padding: 0; border: 0; border-radius: 14px; overflow: hidden; background: #0e1c3d; box-shadow: 0 0 0 3px rgba(255,255,255,.9), 0 24px 40px -18px rgba(0,0,0,.7); cursor: pointer; will-change: transform; -webkit-tap-highlight-color: transparent; }
+.fo-roda-foto { position: absolute; left: 0; top: 0; padding: 0; border: 0; border-radius: 4px; overflow: hidden; background: #dfe4ee; box-shadow: 0 18px 36px -16px rgba(23,42,85,.45); cursor: pointer; will-change: transform; transform-origin: 50% 50%; -webkit-tap-highlight-color: transparent; }
 .fo-roda-foto img { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; }
-.fo-roda-foto .fo-n { position: absolute; left: 8px; bottom: 6px; font-size: clamp(16px, 1.8vw, 24px); text-shadow: 0 2px 8px rgba(0,0,0,.7); }
-.fo-roda-centro { position: absolute; left: 50%; top: 5%; transform: translateX(-50%); z-index: 400; text-align: center; pointer-events: none; width: min(80vw, 520px); }
-.fo-roda-centro h1 { margin: 0 0 8px; font: 800 clamp(30px, 4.6vw, 64px) / 1.05 var(--f-tit); color: #fff; text-shadow: 0 4px 24px rgba(0,0,0,.45); }
-.fo-roda-sub { margin: 0; font: 700 clamp(14px, 1.5vw, 19px) var(--f-tit); color: #F9B234; text-shadow: 0 2px 10px rgba(0,0,0,.5); }
+.fo-roda-foto .fo-n { position: absolute; left: 8px; bottom: 6px; color: #fff; font-size: clamp(15px, 1.6vw, 24px); text-shadow: 0 2px 8px rgba(0,0,0,.7); }
+.fo-roda-centro { position: absolute; top: 50%; left: calc(var(--roda-borda, 45%) + clamp(16px, 4vw, 56px)); right: clamp(12px, 4vw, 48px); transform: translateY(-50%); z-index: 400; text-align: left; pointer-events: none; }
+.fo-roda-centro h1 { margin: 0 0 10px; font: 700 clamp(19px, 3.6vw, 52px) / 1.1 var(--f-tit); color: #172A55; letter-spacing: -.01em; }
+.fo-roda-sub { margin: 0; font: 600 clamp(12px, 1.3vw, 17px) / 1.35 var(--f-tit); color: #5E595B; }
 .fo-roda-toque { display: none; }
-.fo-tit-mural { margin: 0 0 6px; font-size: clamp(24px, 3vw, 36px); line-height: 1.1; }
-
-/* Descanso: a roda ocupa a tela inteira */
 body.fo-descansando { overflow: hidden; }
 body.fo-descansando .fo-roda { position: fixed; inset: 0; z-index: 80; height: auto; }
-body.fo-descansando .fo-roda-foto { height: 56%; }
-body.fo-descansando .fo-roda-centro h1 { font-size: clamp(40px, 6vw, 90px); }
+body.fo-descansando .fo-roda-centro h1 { font-size: clamp(28px, 5.4vw, 84px); }
 body.fo-descansando .fo-roda-sub { display: none; }
-body.fo-descansando .fo-roda-toque { display: block; position: absolute; left: 0; right: 0; bottom: 5vh; margin: 0; z-index: 300; text-align: center; font: 700 clamp(18px, 2vw, 28px) var(--f-tit); animation: ex-respira 2.4s ease-in-out infinite; }
-@media (max-width: 700px) { .fo-roda { height: 440px; } .fo-roda-foto { height: 50%; } }
+body.fo-descansando .fo-roda-toque { display: block; position: absolute; left: calc(var(--roda-borda, 45%) + clamp(16px, 4vw, 56px)); right: 16px; bottom: 6vh; margin: 0; z-index: 300; text-align: left; color: #2E54A2; font: 700 clamp(16px, 2vw, 28px) var(--f-tit); animation: ex-respira 2.4s ease-in-out infinite; }
+@media (max-width: 700px) { .fo-roda { height: min(560px, 72vh); } }
 @media (prefers-reduced-motion: reduce) { body.fo-descansando .fo-roda-toque { animation: none; } }
