@@ -243,7 +243,8 @@
       roda.classList.toggle('fo-esfera-larga', larga);
       m = larga ? { cx: w * 0.6, cy: h / 2, R: Math.min(w * 0.36, h * 0.42) }
         : { cx: w / 2, cy: h * 0.53, R: Math.min(w * 0.45, h * 0.42) };
-      m.tam = m.R * 0.27;
+      m.tam = m.R * 0.26;
+      bolas.forEach(function (b) { b.style.width = b.style.height = m.tam.toFixed(1) + 'px'; });
     }
     function pintar() {
       if (!m) medir();
@@ -252,12 +253,13 @@
         var p = pontos[i], x = p[0] * cY + p[2] * sY, z = -p[0] * sY + p[2] * cY, y = p[1];
         var y2 = y * cX - z * sX, z2 = y * sX + z * cX;
         var k = persp / (persp - z2), b = bolas[i];
-        if (z2 < -0.25) { if (b.style.visibility !== 'hidden') b.style.visibility = 'hidden'; continue; }
-        var esc2 = k * (0.4 + 0.6 * (z2 + 1) / 2), tam = m.tam * esc2;
-        b.style.visibility = '';
-        b.style.width = b.style.height = tam.toFixed(1) + 'px';
-        b.style.transform = 'translate3d(' + (m.cx + x * m.R * k - tam / 2).toFixed(1) + 'px,' + (m.cy + y2 * m.R * k - tam / 2).toFixed(1) + 'px,0)';
-        b.style.opacity = z2 < 0.05 ? Math.max(0, 1 - (0.05 - z2) / 0.3).toFixed(2) : '1';
+        if (z2 < -0.3) { if (b.style.visibility !== 'hidden') b.style.visibility = 'hidden'; continue; }
+        // Frente da esfera bem maior que as bordas (como na referência): cresce com o quadrado da profundidade.
+        var f = (z2 + 1) / 2, esc2 = k * (0.22 + 0.9 * f * f);
+        if (b.style.visibility) b.style.visibility = '';
+        // Só transform e opacidade mudam a cada quadro: a placa de vídeo faz o trabalho, sem recalcular o layout.
+        b.style.transform = 'translate3d(' + (m.cx + x * m.R * k - m.tam / 2).toFixed(2) + 'px,' + (m.cy + y2 * m.R * k - m.tam / 2).toFixed(2) + 'px,0) scale(' + esc2.toFixed(4) + ')';
+        b.style.opacity = z2 < 0.1 ? Math.max(0, 0.15 + 0.85 * (z2 + 0.3) / 0.4).toFixed(3) : '1';
         b.style.zIndex = String(Math.round((z2 + 1) * 500));
       }
     }
