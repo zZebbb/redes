@@ -64,3 +64,12 @@ test('lista da pasta pública do Drive', async () => {
   const html = '<div class="flip-entries"><div class="flip-entry" id="entry-1AbC_d-9" tabindex="0"><a href="x"><div class="flip-entry-thumb"></div><div class="flip-entry-title">017 &amp; Ana.jpg</div></a></div></div>';
   assert.deepEqual(listarPasta(html), [{ id: '1AbC_d-9', arquivo: '017 & Ana.jpg' }]);
 });
+
+test('numerosDasRespostas liga arquivo do Forms ao número do trabalho', async () => {
+  const { numerosDasRespostas } = await import('./lib.mjs');
+  const csv = 'Carimbo de data/hora,Número do trabalho,Foto\n26/11/2026 10:00:00,17,"https://drive.google.com/open?id=1AbCdEfGhIjKlMnOpQrStUvWx, https://drive.google.com/open?id=1ZyXwVuTsRqPoNmLkJiHgFeDc"\n26/11/2026 10:05:00,sem número,https://drive.google.com/open?id=1QqQqQqQqQqQqQqQqQqQqQqQ\n';
+  const m = numerosDasRespostas(csv);
+  assert.equal(m.get('1AbCdEfGhIjKlMnOpQrStUvWx'), '017');
+  assert.equal(m.get('1ZyXwVuTsRqPoNmLkJiHgFeDc'), '017');
+  assert.equal(m.has('1QqQqQqQqQqQqQqQqQqQqQqQ'), false);
+});

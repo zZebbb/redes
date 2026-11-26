@@ -6,6 +6,7 @@ import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import { escapeHTML as e, txt, slugify, nomeABNT, lerFotosCsv } from './lib.mjs';
+import QRCode from 'qrcode';
 
 const raiz = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const dist = path.join(raiz, 'dist');
@@ -207,6 +208,11 @@ async function salvar(rel, html) {
   await mkdir(path.dirname(f), { recursive: true });
   await writeFile(f, html);
 }
+
+// QR code para enviar fotos pelo formulário (config.fotos_form_url). Some do site se o link estiver vazio.
+const formFotos = (config.fotos_form_url || '').trim();
+const qrFotosSvg = formFotos ? (await QRCode.toString(formFotos, { type: 'svg', margin: 1, errorCorrectionLevel: 'M', color: { dark: '#172A55', light: '#FFFFFF' } })).replace(/<\?xml[^>]*>/, '').replace('<svg ', '<svg aria-hidden="true" ') : '';
+const qrEnvio = classe => formFotos ? `<a class="qr-envio ${classe}" href="${e(formFotos)}" target="_blank" rel="noopener">${qrFotosSvg}<span><b ${T('fo.envie')}>${t('fo.envie')}</b><small ${T('fo.envie_sub')}>${t('fo.envie_sub')}</small></span></a>` : '';
 
 await rm(dist, { recursive: true, force: true });
 await mkdir(dist, { recursive: true });
@@ -617,7 +623,7 @@ try {
     <div class="bn-legenda"></div>
   </section>
 </div>
-<div class="bn-foto" role="dialog" aria-modal="true" aria-label="${e(t('bn.foto'))}" hidden>
+<div class="bn-foto${formFotos ? ' tem-qr' : ''}" role="dialog" aria-modal="true" aria-label="${e(t('bn.foto'))}" hidden>
   <div class="bn-foto-cab">
     <button type="button" class="bn-foto-voltar" ${T('bn.voltar')}>${t('bn.voltar')}</button>
     <div class="bn-foto-marca">
@@ -628,6 +634,7 @@ try {
   </div>
   <div class="bn-foto-img"><img alt=""></div>
   <div class="bn-foto-info"><p class="bn-foto-n"></p><p class="bn-foto-t"></p><p class="bn-foto-a"></p></div>
+  ${qrEnvio('qr-banner')}
 </div>
 <script>window.BANNERS=${JSON.stringify(dados).replace(/</g, '\\u003c')};</script>`;
   await salvar('banners/index.html', layout({ base, titulo: t('bn.titulo'), pagina: 'banners', corpo, canonical: siteURL ? siteURL + '/banners/' : '' }));
@@ -649,6 +656,7 @@ try {
     <p class="fo-roda-sub" ${T('fo.roda_sub')}>${t('fo.roda_sub')}</p>
   </div>
   <p class="fo-roda-toque" ${T('fo.descanso')}>${t('fo.descanso')}</p>
+  ${qrEnvio('qr-fotos')}
 </section>
 <div class="fo">
   <section class="fo-topo">

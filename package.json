@@ -20,7 +20,8 @@
   },
   "homepage": "https://github.com/zZebbb/redes#readme",
   "dependencies": {
-    "fuse.js": "^7.1.0"
+    "fuse.js": "^7.1.0",
+    "qrcode": "^1.5.4"
   },
   "private": true,
   "type": "module",

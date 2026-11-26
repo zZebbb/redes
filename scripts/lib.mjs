@@ -114,10 +114,29 @@ export async function lerFotosCsv(arquivo) {
   try { texto = await readFile(arquivo, 'utf8'); } catch (err) { if (err.code === 'ENOENT') return []; throw err; }
   const [cab, ...linhas] = parseCSV(texto);
   const i = Object.fromEntries((cab || []).map((c, k) => [c.trim(), k]));
-  return linhas.filter(l => l[i.id]?.trim()).map(l => ({ id: l[i.id].trim(), arquivo: (l[i.arquivo] || '').trim(), numero: (l[i.numero] || '').trim() ? l[i.numero].trim().padStart(3, '0') : '' }));
+  return linhas.filter(l => l[i.id]?.trim()).map(l => ({ id: l[i.id].trim(), arquivo: (l[i.arquivo] || '').trim(), numero: (l[i.numero] || '').trim() ? l[i.numero].trim().padStart(3, '0') : '', pasta: i.pasta == null ? '' : (l[i.pasta] || '').trim() }));
 }
 export async function escreverFotosCsv(arquivo, fotos) {
   const { writeFile } = await import('node:fs/promises');
   const q = s => /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
-  await writeFile(arquivo, ['id,arquivo,numero', ...fotos.map(f => [f.id, f.arquivo, f.numero].map(q).join(','))].join('\n') + '\n');
+  await writeFile(arquivo, ['id,arquivo,numero,pasta', ...fotos.map(f => [f.id, f.arquivo, f.numero, f.pasta || ''].map(q).join(','))].join('\n') + '\n');
+}
+
+// Lê a planilha de respostas do Google Forms (publicada como CSV) e devolve id do arquivo no Drive → número do trabalho.
+// Procura a coluna cujo título fala em "número"/"trabalho" e, em cada linha, os links de arquivos enviados (…?id=ID).
+export function numerosDasRespostas(texto) {
+  const [cab, ...linhas] = parseCSV(texto);
+  if (!cab) return new Map();
+  const sem = s => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  let col = cab.findIndex(c => /numero/.test(sem(c)));
+  if (col < 0) col = cab.findIndex(c => /trabalho/.test(sem(c)));
+  const mapa = new Map();
+  if (col < 0) return mapa;
+  for (const l of linhas) {
+    const m = String(l[col] || '').match(/\d{1,3}/);
+    if (!m) continue;
+    const numero = m[0].padStart(3, '0');
+    for (const cel of l) for (const x of String(cel || '').matchAll(/[?&]id=([\w-]{20,})/g)) mapa.set(x[1], numero);
+  }
+  return mapa;
 }
