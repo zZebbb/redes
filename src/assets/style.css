@@ -729,9 +729,9 @@ body.fo-descansando .fo-roda-toque { display: block; position: absolute; left: c
 @media (max-width: 700px) { .fo-roda { height: min(560px, 72vh); } }
 /* Esfera de fotos (modo padrão do topo da aba Fotos) */
 .fo-esfera { background: radial-gradient(circle at 62% 52%, #FFFFFF 0%, #F3F5FA 55%, #E9EDF6 100%); }
-.fo-esf-foto { position: absolute; left: 0; top: 0; padding: 0; border: 3px solid var(--c, #2E54A2); border-radius: 50%; overflow: hidden; background: #dfe4ee; box-shadow: 0 0 0 2px #fff, 0 10px 22px -10px rgba(23,42,85,.55); cursor: pointer; will-change: transform; -webkit-tap-highlight-color: transparent; transition: border-width .2s; }
+.fo-esf-foto { position: absolute; left: 0; top: 0; transform-origin: 50% 50%; backface-visibility: hidden; padding: 0; border: 3px solid var(--c, #2E54A2); border-radius: 50%; overflow: hidden; background: #dfe4ee; box-shadow: 0 0 0 2px #fff, 0 10px 22px -10px rgba(23,42,85,.55); cursor: pointer; will-change: transform; -webkit-tap-highlight-color: transparent; }
 .fo-esf-foto img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 30%; display: block; pointer-events: none; }
-.fo-esf-foto:hover { border-width: 4px; }
+
 .fo-esfera .fo-roda-centro { left: 50%; right: auto; top: 2.5%; transform: translateX(-50%); width: min(88vw, 640px); text-align: center; }
 .fo-esfera.fo-esfera-larga .fo-roda-centro { left: 4%; top: 6%; transform: none; width: 22%; text-align: left; }
 .fo-esfera .fo-roda-centro h1 { font-size: clamp(18px, 2.4vw, 32px); margin-bottom: 4px; }
