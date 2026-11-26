@@ -120,6 +120,9 @@
   // Gira sozinha passo a passo (parada 1 s, giro 0,7 s), dá para arrastar e encaixa na foto mais próxima.
   var RODA_N = 14, PARADA_MS = 1000, GIRO_MS = 700;
   var roda = $('.fo-roda'), anel = $('.fo-roda-anel', roda);
+  // Qual animação fica no topo: 'esfera' (padrão) ou 'roda' (data-modo="roda" na seção, ou ?topo=roda).
+  var MODO = params.get('topo') === 'roda' || roda.dataset.modo === 'roda' ? 'roda' : 'esfera';
+  var motor = { pintar: function () { pintarRoda(); }, girar: function () { girarSozinha(); } };
   var rodaFotos = D.fotos.slice(0, RODA_N), cartoes = [], ang = 0, animRoda = 0, timerRoda = null;
   var passo = rodaFotos.length ? 2 * Math.PI / rodaFotos.length : 0;
   // Roda no formato do "Halo Reel": centro da elipse na borda esquerda, só a metade direita aparece;
@@ -158,7 +161,7 @@
     timerRoda = setTimeout(function () { irAng(Math.round(ang / passo) * passo - passo, GIRO_MS, girarSozinha); }, PARADA_MS);
   }
   function pararRoda() { clearTimeout(timerRoda); cancelAnimationFrame(animRoda); }
-  if (rodaFotos.length) {
+  if (rodaFotos.length && MODO === 'roda') {
     anel.innerHTML = rodaFotos.map(function (f) {
       var x = trab(f);
       return '<button type="button" class="fo-roda-foto" data-id="' + esc(f.id) + '" aria-label="' + esc(x ? f.n + ' · ' + tit(x) : t('fo.sem_trabalho')) + '">' +
@@ -209,23 +212,127 @@
       pararRoda(); abrirPorId(b.dataset.id);
     });
     anel.addEventListener('dragstart', function (ev) { ev.preventDefault(); });
+  } else if (MODO === 'esfera' && D.fotos.length) {
+    montarEsfera();
   } else {
     roda.hidden = true;
+  }
+
+  // ---------------- Esfera (fotos redondas espalhadas numa esfera 3D que gira) ----------------
+  // Pontos distribuídos pela espiral de Fibonacci; arrastar gira em dois eixos com inércia;
+  // gira sozinha devagar; tocar numa foto abre ela grande.
+  function montarEsfera() {
+    var ESF_MIN = 60, ESF_MAX = 80, VEL_AUTO = 0.00018; // rad por ms
+    var base = D.fotos.slice(0, ESF_MAX), itens = [];
+    for (var i = 0; base.length && itens.length < Math.max(ESF_MIN, base.length); i++) itens.push(base[i % base.length]);
+    var n = itens.length, ouro = Math.PI * (3 - Math.sqrt(5)), pontos = [];
+    for (i = 0; i < n; i++) {
+      var y = 1 - 2 * (i + 0.5) / n, r = Math.sqrt(1 - y * y), th = ouro * i;
+      pontos.push([Math.cos(th) * r, y, Math.sin(th) * r]);
+    }
+    roda.classList.add('fo-esfera');
+    anel.innerHTML = itens.map(function (f) {
+      var x = trab(f), eixo = x && D.eixos[x.eixo];
+      return '<button type="button" class="fo-esf-foto" data-id="' + esc(f.id) + '" style="--c:' + esc(eixo ? eixo.cor : '#2E54A2') + '" aria-label="' + esc(x ? f.n + ' · ' + tit(x) : t('fo.sem_trabalho')) + '">' +
+        '<img src="' + SITE.base + esc(f.p) + '" alt="" draggable="false" loading="lazy"></button>';
+    }).join('');
+    var bolas = Array.prototype.slice.call(anel.children);
+    var rotX = -0.25, rotY = 0, vx = 0, vy = 0, ultimo = 0, quadro = 0, m = null;
+    function medir() {
+      var w = anel.clientWidth, h = anel.clientHeight, larga = w >= h * 1.15;
+      roda.classList.toggle('fo-esfera-larga', larga);
+      m = larga ? { cx: w * 0.64, cy: h / 2, R: Math.min(w * 0.3, h * 0.42) }
+        : { cx: w / 2, cy: h * 0.54, R: Math.min(w * 0.45, h * 0.37) };
+      m.tam = m.R * 0.27;
+    }
+    function pintar() {
+      if (!m) medir();
+      var cX = Math.cos(rotX), sX = Math.sin(rotX), cY = Math.cos(rotY), sY = Math.sin(rotY), persp = 3.2;
+      for (var i = 0; i < n; i++) {
+        var p = pontos[i], x = p[0] * cY + p[2] * sY, z = -p[0] * sY + p[2] * cY, y = p[1];
+        var y2 = y * cX - z * sX, z2 = y * sX + z * cX;
+        var k = persp / (persp - z2), b = bolas[i];
+        if (z2 < -0.25) { if (b.style.visibility !== 'hidden') b.style.visibility = 'hidden'; continue; }
+        var esc2 = k * (0.4 + 0.6 * (z2 + 1) / 2), tam = m.tam * esc2;
+        b.style.visibility = '';
+        b.style.width = b.style.height = tam.toFixed(1) + 'px';
+        b.style.transform = 'translate3d(' + (m.cx + x * m.R * k - tam / 2).toFixed(1) + 'px,' + (m.cy + y2 * m.R * k - tam / 2).toFixed(1) + 'px,0)';
+        b.style.opacity = z2 < 0.05 ? Math.max(0, 1 - (0.05 - z2) / 0.3).toFixed(2) : '1';
+        b.style.zIndex = String(Math.round((z2 + 1) * 500));
+      }
+    }
+    function laco(agora) {
+      var dt = ultimo ? Math.min(50, agora - ultimo) : 16; ultimo = agora;
+      if (!arr) {
+        if (Math.abs(vx) > 1e-5 || Math.abs(vy) > 1e-5) { rotY += vy * dt; rotX += vx * dt; vx *= Math.pow(0.95, dt / 16); vy *= Math.pow(0.95, dt / 16); }
+        if (!reduzir) rotY += VEL_AUTO * dt;
+        // Volta devagar para uma inclinação confortável.
+        rotX += (-0.25 - rotX) * Math.min(1, dt * 0.0015);
+      }
+      pintar();
+      quadro = requestAnimationFrame(laco);
+    }
+    function girar() { if (!quadro) { ultimo = 0; quadro = requestAnimationFrame(laco); } }
+    function parar() { cancelAnimationFrame(quadro); quadro = 0; }
+    motor = { pintar: function () { medir(); pintar(); }, girar: girar };
+    medir(); pintar(); girar();
+    window.addEventListener('resize', function () { medir(); pintar(); });
+    // Só anima enquanto a esfera está na tela (ou no descanso).
+    if ('IntersectionObserver' in window) new IntersectionObserver(function (es) {
+      if (es[0].isIntersecting || document.body.classList.contains('fo-descansando')) girar(); else parar();
+    }).observe(roda);
+
+    var arr = null, arrastou = false;
+    anel.addEventListener('pointerdown', function (ev) {
+      if (ev.button > 0) return;
+      arr = { id: ev.pointerId, x: ev.clientX, y: ev.clientY, ux: ev.clientX, uy: ev.clientY, t: performance.now(), ativo: false };
+      arrastou = false;
+    });
+    anel.addEventListener('pointermove', function (ev) {
+      if (!arr || ev.pointerId !== arr.id) return;
+      var dx = ev.clientX - arr.x, dy = ev.clientY - arr.y;
+      if (!arr.ativo) {
+        if (Math.abs(dx) < 6 && Math.abs(dy) < 6) return;
+        if (Math.abs(dy) > Math.abs(dx) && ev.pointerType === 'touch' && !document.body.classList.contains('fo-descansando')) { arr = null; return; }
+        arr.ativo = arrastou = true; vx = vy = 0;
+        try { anel.setPointerCapture(ev.pointerId); } catch (e) {}
+      }
+      var agora = performance.now(), dt = Math.max(1, agora - arr.t);
+      var ddx = (ev.clientX - arr.ux) / m.R, ddy = (ev.clientY - arr.uy) / m.R;
+      rotY += ddx; rotX -= ddy;
+      vy = 0.6 * (ddx / dt) + 0.4 * vy; vx = 0.6 * (-ddy / dt) + 0.4 * vx;
+      arr.ux = ev.clientX; arr.uy = ev.clientY; arr.t = agora;
+    }, { passive: true });
+    function soltar(ev) {
+      if (!arr || ev.pointerId !== arr.id) return;
+      if (performance.now() - arr.t > 80) vx = vy = 0;
+      var lim = 0.006; vx = Math.max(-lim, Math.min(lim, vx)); vy = Math.max(-lim, Math.min(lim, vy));
+      arr = null;
+    }
+    anel.addEventListener('pointerup', soltar);
+    anel.addEventListener('pointercancel', soltar);
+    anel.addEventListener('click', function (ev) {
+      if (arrastou) { arrastou = false; return; }
+      var b = ev.target.closest('.fo-esf-foto'); if (!b) return;
+      if (document.body.classList.contains('fo-descansando')) return;
+      abrirPorId(b.dataset.id);
+    });
+    anel.addEventListener('dragstart', function (ev) { ev.preventDefault(); });
   }
 
   // ---------------- Descanso: depois de 60 s sem toque, a roda ocupa a tela ----------------
   var timerOcioso = null;
   function descansar() {
-    if (!rodaFotos.length) return;
+    if (!D.fotos.length || roda.hidden) return;
     fechar(); if (q.value) { q.value = ''; montar(); } q.blur();
     window.scrollTo(0, 0);
     document.body.classList.add('fo-descansando');
-    requestAnimationFrame(pintarRoda);
-    girarSozinha();
+    requestAnimationFrame(motor.pintar);
+    motor.girar();
   }
   function acordar() {
     document.body.classList.remove('fo-descansando');
-    requestAnimationFrame(pintarRoda);
+    requestAnimationFrame(motor.pintar);
   }
   // O primeiro toque só tira o descanso; não abre nada que estivesse por baixo.
   document.addEventListener('pointerdown', function (ev) {
