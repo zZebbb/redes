@@ -242,7 +242,12 @@
       var w = anel.clientWidth, h = anel.clientHeight, larga = w >= h * 1.15;
       roda.classList.toggle('fo-esfera-larga', larga);
       m = larga ? { cx: w * 0.6, cy: h / 2, R: Math.min(w * 0.36, h * 0.42) }
-        : { cx: w / 2, cy: h * 0.53, R: Math.min(w * 0.45, h * 0.42) };
+        : (function () {
+          // Em pé: a esfera fica entre o título e o fim da área, sem passar por cima de nada.
+          var c = $('.fo-roda-centro', roda), topo = c ? c.offsetTop + c.offsetHeight + 10 : h * 0.12;
+          var livre = Math.max(120, h - topo - 12);
+          return { cx: w / 2, cy: topo + livre / 2, R: Math.min(w * 0.44, livre / 2 / 1.35) };
+        })();
       m.tam = m.R * 0.26;
       bolas.forEach(function (b) { b.style.width = b.style.height = m.tam.toFixed(1) + 'px'; });
     }

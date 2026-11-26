@@ -727,6 +727,7 @@ body.fo-descansando .fo-roda-centro h1 { font-size: clamp(28px, 5.4vw, 84px); }
 body.fo-descansando .fo-roda-sub { display: none; }
 body.fo-descansando .fo-roda-toque { display: block; position: absolute; left: calc(var(--roda-borda, 45%) + clamp(16px, 4vw, 56px)); right: 16px; bottom: 6vh; margin: 0; z-index: 300; text-align: left; color: #2E54A2; font: 700 clamp(16px, 2vw, 28px) var(--f-tit); animation: ex-respira 2.4s ease-in-out infinite; }
 @media (max-width: 700px) { .fo-roda { height: min(560px, 72vh); } }
+@media (max-width: 760px) and (orientation: portrait) { .fo-esfera { height: min(820px, 80vh); } }
 /* Esfera de fotos (modo padrão do topo da aba Fotos) */
 .fo-esfera { background: radial-gradient(circle at 62% 52%, #FFFFFF 0%, #F3F5FA 55%, #E9EDF6 100%); }
 .fo-esf-foto { position: absolute; left: 0; top: 0; transform-origin: 50% 50%; backface-visibility: hidden; padding: 0; border: 3px solid var(--c, #2E54A2); border-radius: 50%; overflow: hidden; background: #dfe4ee; box-shadow: 0 0 0 2px #fff, 0 10px 22px -10px rgba(23,42,85,.55); cursor: pointer; will-change: transform; -webkit-tap-highlight-color: transparent; }
@@ -748,12 +749,24 @@ body.fo-descansando .fo-esfera .fo-roda-anel { touch-action: none; }
 .qr-envio b { display: block; font: 800 15px / 1.15 var(--f-tit); }
 .qr-envio small { display: block; margin-top: 2px; font-size: 11.5px; line-height: 1.25; color: #5E595B; }
 .qr-fotos { right: clamp(12px, 2vw, 28px); top: clamp(12px, 2vw, 28px); }
-.qr-banner { right: 3vw; bottom: 2vh; }
-.bn-foto.tem-qr .bn-foto-info { padding-inline: 180px; }
-@media (max-width: 700px) {
+@media (max-width: 480px) {
   .qr-envio { flex-direction: row; width: auto; padding: 8px 14px; gap: 8px; }
   .qr-envio svg, .qr-envio small { display: none; }
   .qr-fotos { top: auto; bottom: 12px; right: 12px; }
-  .qr-banner { display: none; }
-  .bn-foto.tem-qr .bn-foto-info { padding-inline: 0; }
 }
+
+/* Aviso com QR code ao sair do modo foto do banner */
+.qr-aviso { position: fixed; inset: 0; z-index: 95; display: grid; place-items: center; padding: 20px; background: rgba(23,42,85,.55); opacity: 0; transition: opacity .25s; }
+.qr-aviso.aberto { opacity: 1; }
+.qr-aviso-caixa { display: flex; align-items: center; gap: clamp(18px, 3vw, 40px); max-width: 820px; padding: clamp(20px, 3vw, 40px); border-radius: 22px; background: #fff; color: #172A55; box-shadow: 0 0 0 5px #F9B234, 0 40px 90px rgba(0,0,0,.35); transform: translateY(14px) scale(.97); transition: transform .35s cubic-bezier(.2,.8,.2,1); }
+.qr-aviso.aberto .qr-aviso-caixa { transform: none; }
+.qr-aviso-cod svg { display: block; width: clamp(180px, 26vw, 300px); height: auto; }
+.qr-aviso-txt h2 { margin: 0 0 10px; font: 800 clamp(24px, 3vw, 38px) / 1.1 var(--f-tit); }
+.qr-aviso-txt p { margin: 0 0 8px; font-size: clamp(15px, 1.6vw, 19px); line-height: 1.45; }
+.qr-aviso-dica { color: #5E595B; font-size: 14px !important; }
+.qr-aviso-acoes { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+.qr-aviso-seg { opacity: .6; font-variant-numeric: tabular-nums; }
+@media (max-width: 640px) { .qr-aviso-caixa { flex-direction: column; text-align: center; } .qr-aviso-acoes { justify-content: center; } }
+@media (prefers-reduced-motion: reduce) { .qr-aviso, .qr-aviso-caixa { transition: none; } }
+.qr-aviso-fechar { min-height: 52px; padding: 0 26px; border-radius: 999px; border: 2px solid rgba(23,42,85,.3); background: #fff; color: #172A55; font: 700 17px var(--f-tit); cursor: pointer; }
+.qr-aviso-fechar:hover { background: #F9B234; border-color: #F9B234; }

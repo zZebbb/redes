@@ -623,7 +623,7 @@ try {
     <div class="bn-legenda"></div>
   </section>
 </div>
-<div class="bn-foto${formFotos ? ' tem-qr' : ''}" role="dialog" aria-modal="true" aria-label="${e(t('bn.foto'))}" hidden>
+<div class="bn-foto" role="dialog" aria-modal="true" aria-label="${e(t('bn.foto'))}" hidden>
   <div class="bn-foto-cab">
     <button type="button" class="bn-foto-voltar" ${T('bn.voltar')}>${t('bn.voltar')}</button>
     <div class="bn-foto-marca">
@@ -634,8 +634,20 @@ try {
   </div>
   <div class="bn-foto-img"><img alt=""></div>
   <div class="bn-foto-info"><p class="bn-foto-n"></p><p class="bn-foto-t"></p><p class="bn-foto-a"></p></div>
-  ${qrEnvio('qr-banner')}
 </div>
+${formFotos ? `<div class="qr-aviso" role="dialog" aria-modal="true" aria-labelledby="qr-aviso-tit" hidden>
+  <div class="qr-aviso-caixa">
+    <div class="qr-aviso-cod">${qrFotosSvg}</div>
+    <div class="qr-aviso-txt">
+      <h2 id="qr-aviso-tit" ${T('bn.qr_tit')}>${t('bn.qr_tit')}</h2>
+      <p ${T('bn.qr_txt')}>${t('bn.qr_txt')}</p>
+      <p class="qr-aviso-dica" ${T('fo.envie_sub')}>${t('fo.envie_sub')}</p>
+      <div class="qr-aviso-acoes">
+        <button type="button" class="btn-sec qr-aviso-fechar"><span ${T('bn.qr_fechar')}>${t('bn.qr_fechar')}</span> <span class="qr-aviso-seg"></span></button>
+      </div>
+    </div>
+  </div>
+</div>` : ''}
 <script>window.BANNERS=${JSON.stringify(dados).replace(/</g, '\\u003c')};</script>`;
   await salvar('banners/index.html', layout({ base, titulo: t('bn.titulo'), pagina: 'banners', corpo, canonical: siteURL ? siteURL + '/banners/' : '' }));
 }
@@ -656,7 +668,6 @@ try {
     <p class="fo-roda-sub" ${T('fo.roda_sub')}>${t('fo.roda_sub')}</p>
   </div>
   <p class="fo-roda-toque" ${T('fo.descanso')}>${t('fo.descanso')}</p>
-  ${qrEnvio('qr-fotos')}
 </section>
 <div class="fo">
   <section class="fo-topo">
