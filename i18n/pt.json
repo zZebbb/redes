@@ -119,6 +119,8 @@
   "ex.foto": "Foto no encontro",
   "fo.recentes": "Fotos mais recentes",
   "fo.roda_sub": "Arraste para girar ou toque numa foto",
+  "fo.envie": "Mande sua foto pelo WhatsApp",
+  "fo.envie_sub": "Aponte a câmera do celular",
   "fo.descanso": "Toque na tela para ver as fotos",
   "fo.todas_tit": "Todas as fotos"
 }

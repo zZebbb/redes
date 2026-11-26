@@ -741,3 +741,19 @@ body.fo-descansando .fo-esfera .fo-roda-toque { left: 0; right: 0; text-align: c
 body.fo-descansando .fo-esfera.fo-esfera-larga .fo-roda-toque { left: 4%; right: auto; width: 22%; text-align: left; }
 body.fo-descansando .fo-esfera .fo-roda-anel { touch-action: none; }
 @media (prefers-reduced-motion: reduce) { body.fo-descansando .fo-roda-toque { animation: none; } }
+
+/* QR code para enviar fotos pelo formulário */
+.qr-envio { position: absolute; z-index: 500; display: flex; flex-direction: column; align-items: center; gap: 6px; width: 160px; padding: 8px 8px 10px; border-radius: 14px; background: #fff; color: #172A55; text-align: center; text-decoration: none; box-shadow: 0 0 0 3px #F9B234, 0 14px 30px -14px rgba(23,42,85,.5); }
+.qr-envio svg { display: block; width: 144px; height: 144px; }
+.qr-envio b { display: block; font: 800 15px / 1.15 var(--f-tit); }
+.qr-envio small { display: block; margin-top: 2px; font-size: 11.5px; line-height: 1.25; color: #5E595B; }
+.qr-fotos { right: clamp(12px, 2vw, 28px); top: clamp(12px, 2vw, 28px); }
+.qr-banner { right: 3vw; bottom: 2vh; }
+.bn-foto.tem-qr .bn-foto-info { padding-inline: 180px; }
+@media (max-width: 700px) {
+  .qr-envio { flex-direction: row; width: auto; padding: 8px 14px; gap: 8px; }
+  .qr-envio svg, .qr-envio small { display: none; }
+  .qr-fotos { top: auto; bottom: 12px; right: 12px; }
+  .qr-banner { display: none; }
+  .bn-foto.tem-qr .bn-foto-info { padding-inline: 0; }
+}
