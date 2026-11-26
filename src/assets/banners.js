@@ -228,7 +228,7 @@
     timerVolta = setTimeout(autoplay, VOLTA_AUTO_MS);
   }
   function reiniciar() {
-    fecharFoto();
+    fecharFoto(); fecharAviso();
     if (q.value) { q.value = ''; montarAbas(); carregar(); }
     q.blur();
     window.scrollTo(0, 0);
@@ -258,10 +258,33 @@
     if (els[ativo]) $('.bn-giro', els[ativo]).focus({ preventScroll: true });
     interagiu();
   }
-  $('.bn-foto-voltar', foto).addEventListener('click', fecharFoto);
+  $('.bn-foto-voltar', foto).addEventListener('click', function () { fecharFoto(); avisoQr(); });
+
+  // Ao sair do modo foto: aviso com o QR code para mandar a foto pelo WhatsApp. Fecha sozinho em 20 s.
+  var aviso = $('.qr-aviso'), timerAviso = null;
+  function avisoQr() {
+    if (!aviso) return;
+    var resta = 20, seg = $('.qr-aviso-seg', aviso);
+    aviso.hidden = false;
+    requestAnimationFrame(function () { aviso.classList.add('aberto'); });
+    seg.textContent = '(' + resta + ')';
+    clearInterval(timerAviso);
+    timerAviso = setInterval(function () { resta--; seg.textContent = '(' + resta + ')'; if (resta <= 0) fecharAviso(); }, 1000);
+    $('.qr-aviso-fechar', aviso).focus({ preventScroll: true });
+  }
+  function fecharAviso() {
+    if (!aviso || aviso.hidden) return;
+    clearInterval(timerAviso);
+    aviso.classList.remove('aberto');
+    setTimeout(function () { aviso.hidden = true; }, reduzir ? 0 : 250);
+  }
+  if (aviso) {
+    $('.qr-aviso-fechar', aviso).addEventListener('click', fecharAviso);
+    aviso.addEventListener('click', function (ev) { if (ev.target === aviso) fecharAviso(); });
+  }
   document.addEventListener('keydown', function (ev) {
     if (ev.key !== 'Escape') return;
-    if (!foto.hidden) fecharFoto(); else if (virado >= 0) { virado = -1; pintar(); mostrarLegenda(); }
+    if (aviso && !aviso.hidden) fecharAviso(); else if (!foto.hidden) fecharFoto(); else if (virado >= 0) { virado = -1; pintar(); mostrarLegenda(); }
   });
 
   new MutationObserver(function () {

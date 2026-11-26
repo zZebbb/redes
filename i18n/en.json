@@ -128,6 +128,10 @@
   "fo.recentes": "Latest photos",
   "fo.roda_sub": "Drag to spin or tap a photo",
   "fo.envie": "Send your photo on WhatsApp",
+  "bn.qr_tit": "Took a photo with the poster?",
+  "bn.qr_txt": "Send it on WhatsApp and it will show up here on the site, in the Photos tab.",
+  "bn.qr_abrir": "Open in WhatsApp",
+  "bn.qr_fechar": "Close",
   "fo.envie_sub": "Point your phone camera",
   "fo.descanso": "Tap the screen to see the photos",
   "fo.todas_tit": "All photos"
