@@ -32,6 +32,8 @@ jobs:
         run: npm run sync
         env:
           PLANILHA_CSV_URL: ${{ vars.PLANILHA_CSV_URL }}
+      - name: Instalar pdftoppm e ImageMagick (imagens do iPhone e das fotos)
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq poppler-utils imagemagick
       - name: Copiar PDFs novos do Drive para o site
         run: npm run pdfs
       - name: Copiar fotos novas do Drive para o site
@@ -46,8 +48,6 @@ jobs:
             git pull --rebase --autostash -q || true
             git push
           fi
-      - name: Instalar pdftoppm (imagens da pré-visualização para iPhone)
-        run: sudo apt-get update -qq && sudo apt-get install -y -qq poppler-utils
       - run: npm run build
       - uses: actions/upload-pages-artifact@v3
         with:
