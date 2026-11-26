@@ -241,8 +241,8 @@
     function medir() {
       var w = anel.clientWidth, h = anel.clientHeight, larga = w >= h * 1.15;
       roda.classList.toggle('fo-esfera-larga', larga);
-      m = larga ? { cx: w * 0.64, cy: h / 2, R: Math.min(w * 0.3, h * 0.42) }
-        : { cx: w / 2, cy: h * 0.54, R: Math.min(w * 0.45, h * 0.37) };
+      m = larga ? { cx: w * 0.6, cy: h / 2, R: Math.min(w * 0.36, h * 0.42) }
+        : { cx: w / 2, cy: h * 0.53, R: Math.min(w * 0.45, h * 0.42) };
       m.tam = m.R * 0.27;
     }
     function pintar() {
