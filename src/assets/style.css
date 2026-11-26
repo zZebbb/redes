@@ -727,6 +727,7 @@ body.fo-descansando .fo-roda-centro h1 { font-size: clamp(28px, 5.4vw, 84px); }
 body.fo-descansando .fo-roda-sub { display: none; }
 body.fo-descansando .fo-roda-toque { display: block; position: absolute; left: calc(var(--roda-borda, 45%) + clamp(16px, 4vw, 56px)); right: 16px; bottom: 6vh; margin: 0; z-index: 300; text-align: left; color: #2E54A2; font: 700 clamp(16px, 2vw, 28px) var(--f-tit); animation: ex-respira 2.4s ease-in-out infinite; }
 @media (max-width: 700px) { .fo-roda { height: min(560px, 72vh); } }
+@media (max-width: 760px) and (orientation: portrait) { .fo-esfera { height: min(820px, 80vh); } }
 /* Esfera de fotos (modo padrão do topo da aba Fotos) */
 .fo-esfera { background: radial-gradient(circle at 62% 52%, #FFFFFF 0%, #F3F5FA 55%, #E9EDF6 100%); }
 .fo-esf-foto { position: absolute; left: 0; top: 0; transform-origin: 50% 50%; backface-visibility: hidden; padding: 0; border: 3px solid var(--c, #2E54A2); border-radius: 50%; overflow: hidden; background: #dfe4ee; box-shadow: 0 0 0 2px #fff, 0 10px 22px -10px rgba(23,42,85,.55); cursor: pointer; will-change: transform; -webkit-tap-highlight-color: transparent; }
