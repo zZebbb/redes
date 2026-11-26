@@ -618,7 +618,7 @@ try {
   <div class="bn-foto-cab">
     <button type="button" class="bn-foto-voltar" ${T('bn.voltar')}>${t('bn.voltar')}</button>
     <div class="bn-foto-marca">
-      ${config.logo_rodape_rede ? `<img src="${base}${e(config.logo_rodape_rede)}" alt="Rede Brasil" class="bn-foto-logo">` : ''}
+      ${config.logo_topo ? `<img src="${base}${e(config.logo_topo)}" alt="Rede Brasil" class="bn-foto-logo">` : ''}
       <p class="bn-foto-ev">${e(nomeEvento)}</p>
     </div>
     <a class="bn-foto-inicio" href="${base}"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 3l9 8h-3v9h-5v-6h-2v6H6v-9H3z"/></svg><span ${T('nav.inicio')}>${t('nav.inicio')}</span></a>
