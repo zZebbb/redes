@@ -1,0 +1,43 @@
+name: Vigiar fotos do Drive
+
+# O agendamento do GitHub (schedule) não é confiável neste repositório: em 27/11 passou horas sem disparar.
+# Este vigia fica ligado e manda publicar o site a cada 5 minutos, para as fotos novas do Drive entrarem logo.
+# Para ligar: Actions → "Vigiar fotos do Drive" → Run workflow. Ele se religa sozinho até a data em ATE;
+# para desligar antes, cancele a execução em andamento (ou desative o workflow).
+
+on:
+  workflow_dispatch:
+
+permissions:
+  actions: write # para disparar o "Publicar site"
+
+concurrency:
+  group: vigia
+  cancel-in-progress: true
+
+env:
+  ATE: "2026-11-28T03:00:00Z" # meia-noite de 27/11 em Brasília
+  INTERVALO: 300 # segundos
+
+jobs:
+  vigiar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 340
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - name: Publicar a cada 5 minutos
+        run: |
+          fim=$(( $(date +%s) + 320*60 ))
+          ate=$(date -d "$ATE" +%s)
+          while [ "$(date +%s)" -lt "$fim" ] && [ "$(date +%s)" -lt "$ate" ]; do
+            # Só dispara se não houver publicação na fila ou rodando.
+            ativos=$(gh run list --workflow deploy.yml --limit 5 --json status --jq '[.[] | select(.status != "completed")] | length')
+            if [ "$ativos" = "0" ]; then gh workflow run deploy.yml --ref main && echo "$(date -u +%H:%M) publicação disparada"; else echo "$(date -u +%H:%M) já tem publicação rodando"; fi
+            sleep "$INTERVALO"
+          done
+      - name: Religar o vigia
+        if: success() # cancelado à mão não religa
+        run: |
+          if [ "$(date +%s)" -lt "$(date -d "$ATE" +%s)" ]; then gh workflow run vigia.yml --ref main && echo "vigia religado"; else echo "passou de $ATE, vigia desligado"; fi
