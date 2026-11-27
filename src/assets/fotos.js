@@ -224,8 +224,9 @@
   function montarEsfera() {
     var ESF_MIN = 60, ESF_MAX = 80, VEL_AUTO = 0.00018; // rad por ms
     var PERSP = 3.2, ESC_MAX = PERSP / (PERSP - 1) * (0.22 + 0.9); // maior escala possível (foto bem na frente)
-    // Foto em destaque (status "destaque" em data/fotos.csv, ex.: a equipe completa): aparece 3 vezes, espalhada, e maior.
-    var DEST_VEZES = 3, DEST_TAM = 2.2, DEST_ALT = 0.6;
+    // Foto em destaque (status "destaque" em data/fotos.csv, ex.: a equipe completa): aparece 3 vezes, espalhada,
+    // num círculo maior. Usa fotos/<id>-globo.jpg quando existe (recorte quadrado para caber o grupo todo).
+    var DEST_VEZES = 3, DEST_TAM = 2.2;
     var destaques = D.fotos.filter(function (f) { return f.d; });
     var base = D.fotos.filter(function (f) { return !f.d; }).slice(0, ESF_MAX), itens = [];
     var total = Math.max(ESF_MIN, base.length + destaques.length * DEST_VEZES);
@@ -246,7 +247,7 @@
     anel.innerHTML = itens.map(function (f) {
       var x = trab(f), eixo = x && D.eixos[x.eixo];
       return '<button type="button" class="fo-esf-foto' + (f.d ? ' fo-esf-destaque' : '') + '" data-id="' + esc(f.id) + '" style="--c:' + esc(eixo ? eixo.cor : '#2E54A2') + '" aria-label="' + esc(x ? f.n + ' · ' + tit(x) : t('fo.sem_trabalho')) + '">' +
-        '<img src="' + SITE.base + esc(f.p) + '" alt="" draggable="false" loading="lazy"></button>';
+        '<img src="' + SITE.base + esc(f.e || f.p) + '" alt="" draggable="false" loading="lazy"></button>';
     }).join('');
     var bolas = Array.prototype.slice.call(anel.children);
     var rotX = -0.25, rotY = 0, vx = 0, vy = 0, ultimo = 0, quadro = 0, m = null;
@@ -265,8 +266,8 @@
       // transform estica a imagem já rasterizada e deixa a foto borrada; encolher mantém a nitidez.
       bolas.forEach(function (b) {
         var d = b.classList.contains('fo-esf-destaque'), w = m.tam * ESC_MAX * (d ? DEST_TAM : 1);
-        b.style.width = w.toFixed(1) + 'px'; b.style.height = (d ? w * DEST_ALT : w).toFixed(1) + 'px';
-        b._mx = w / 2; b._my = (d ? w * DEST_ALT : w) / 2;
+        b.style.width = b.style.height = w.toFixed(1) + 'px';
+        b._mx = b._my = w / 2;
       });
     }
     function pintar() {

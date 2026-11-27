@@ -8,7 +8,7 @@
 // ("017.jpg", "017 (2).jpg", "017 - Ana.jpg"); senão, fica o que já estiver na planilha (dá para preencher à mão).
 // Se houver um Google Forms de envio (config.fotos_respostas_csv = planilha de respostas publicada como CSV),
 // o número digitado no formulário liga a foto ao trabalho quando ela é movida para a pasta do site.
-// Foto apagada do Drive sai do site. Fotos de pastas que saíram da lista ficam como estão.
+// Foto apagada do Drive sai do site. Fotos de pastas que saíram da lista ficam como estão. A foto em destaque pode ter um recorte fotos/<id>-globo.jpg feito à mão.
 import { readFile, writeFile, mkdir, rm, access } from 'node:fs/promises';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
