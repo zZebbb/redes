@@ -259,12 +259,21 @@
     interagiu();
   }
   $('.bn-foto-voltar', foto).addEventListener('click', function () { fecharFoto(); avisoQr(); });
+  // "Início" também mostra o QR antes de sair; a ida para a página inicial acontece quando o aviso fecha.
+  var inicio = $('.bn-foto-inicio', foto);
+  if (inicio) inicio.addEventListener('click', function (ev) {
+    if (!aviso || ev.ctrlKey || ev.metaKey || ev.shiftKey || ev.button) return;
+    ev.preventDefault(); fecharFoto(); avisoQr(inicio.href);
+  });
 
   // Ao sair do modo foto: aviso com o QR code para mandar a foto pelo WhatsApp. Fecha sozinho em 20 s.
-  var aviso = $('.qr-aviso'), timerAviso = null;
-  function avisoQr() {
+  var aviso = $('.qr-aviso'), timerAviso = null, destinoAviso = null;
+  function avisoQr(destino) {
     if (!aviso) return;
-    var resta = 20, seg = $('.qr-aviso-seg', aviso);
+    var resta = 20, seg = $('.qr-aviso-seg', aviso), rot = $('.qr-aviso-fechar [data-i18n]', aviso);
+    destinoAviso = destino || null;
+    rot.setAttribute('data-i18n', destinoAviso ? 'bn.qr_inicio' : 'bn.qr_fechar');
+    rot.textContent = t(rot.getAttribute('data-i18n'));
     aviso.hidden = false;
     requestAnimationFrame(function () { aviso.classList.add('aberto'); });
     seg.textContent = '(' + resta + ')';
@@ -276,6 +285,7 @@
     if (!aviso || aviso.hidden) return;
     clearInterval(timerAviso);
     aviso.classList.remove('aberto');
+    if (destinoAviso) { var d = destinoAviso; destinoAviso = null; location.href = d; return; }
     setTimeout(function () { aviso.hidden = true; }, reduzir ? 0 : 250);
   }
   if (aviso) {
