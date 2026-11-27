@@ -35,6 +35,8 @@ export function listarPasta(html) {
 
 // Miniatura do globo: 960 px no lado menor, para continuar nítida quando a foto passa na frente, grande, numa TV.
 export const ARGS_MINI = ['-auto-orient', '-resize', '960x960^>', '-strip', '-sampling-factor', '4:2:0', '-quality', '82'];
+// Bolinha do globo (fotos/<id>-g.jpg): pequena de propósito. Com dezenas de fotos girando, miniaturas grandes travam a TV.
+export const ARGS_GLOBO = ['-resize', '420x420^>', '-strip', '-sampling-factor', '4:2:0', '-quality', '80'];
 
 async function baixarImagem(id) {
   // lh3 devolve a imagem já em JPEG (também para HEIC do iPhone); se falhar, baixa o original.
@@ -127,12 +129,15 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
         continue;
       }
     }
+    const bola = path.join(pastaFotos, `${id}-g.jpg`);
+    if (!(await existe(bola))) await rodar('convert', [grande, ...ARGS_GLOBO, bola]).catch(err => console.warn(`Aviso: bolinha ${x.arquivo}: ${err.message.split('\n')[0]}`));
     depois.push({ id, arquivo: x.arquivo, numero, pasta: x.pasta, status, pessoas });
   }
   for (const f of antes) {
     if (itemDe.has(f.id) || fixa(f)) continue;
     await rm(path.join(pastaFotos, `${f.id}.jpg`), { force: true });
     await rm(path.join(pastaFotos, `${f.id}-p.jpg`), { force: true });
+    await rm(path.join(pastaFotos, `${f.id}-g.jpg`), { force: true });
     removidas++;
   }
   await escreverFotosCsv(csv, depois);
