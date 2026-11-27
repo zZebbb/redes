@@ -223,8 +223,20 @@
   // gira sozinha devagar; tocar numa foto abre ela grande.
   function montarEsfera() {
     var ESF_MIN = 60, ESF_MAX = 80, VEL_AUTO = 0.00018; // rad por ms
-    var base = D.fotos.slice(0, ESF_MAX), itens = [];
-    for (var i = 0; base.length && itens.length < Math.max(ESF_MIN, base.length); i++) itens.push(base[i % base.length]);
+    var PERSP = 3.2, ESC_MAX = PERSP / (PERSP - 1) * (0.22 + 0.9); // maior escala possível (foto bem na frente)
+    // Foto em destaque (status "destaque" em data/fotos.csv, ex.: a equipe completa): aparece 3 vezes, espalhada, e maior.
+    var DEST_VEZES = 3, DEST_TAM = 2.2, DEST_ALT = 0.6;
+    var destaques = D.fotos.filter(function (f) { return f.d; });
+    var base = D.fotos.filter(function (f) { return !f.d; }).slice(0, ESF_MAX), itens = [];
+    var total = Math.max(ESF_MIN, base.length + destaques.length * DEST_VEZES);
+    for (var i = 0; base.length && itens.length < total - destaques.length * DEST_VEZES; i++) itens.push(base[i % base.length]);
+    if (!base.length) total = destaques.length * DEST_VEZES;
+    destaques.forEach(function (f, j) {
+      for (var v = 0; v < DEST_VEZES; v++) {
+        var pos = Math.round(total * (v + 0.5 + j / Math.max(1, destaques.length)) / DEST_VEZES) % (itens.length + 1);
+        itens.splice(pos, 0, f);
+      }
+    });
     var n = itens.length, ouro = Math.PI * (3 - Math.sqrt(5)), pontos = [];
     for (i = 0; i < n; i++) {
       var y = 1 - 2 * (i + 0.5) / n, r = Math.sqrt(1 - y * y), th = ouro * i;
@@ -233,7 +245,7 @@
     roda.classList.add('fo-esfera');
     anel.innerHTML = itens.map(function (f) {
       var x = trab(f), eixo = x && D.eixos[x.eixo];
-      return '<button type="button" class="fo-esf-foto" data-id="' + esc(f.id) + '" style="--c:' + esc(eixo ? eixo.cor : '#2E54A2') + '" aria-label="' + esc(x ? f.n + ' · ' + tit(x) : t('fo.sem_trabalho')) + '">' +
+      return '<button type="button" class="fo-esf-foto' + (f.d ? ' fo-esf-destaque' : '') + '" data-id="' + esc(f.id) + '" style="--c:' + esc(eixo ? eixo.cor : '#2E54A2') + '" aria-label="' + esc(x ? f.n + ' · ' + tit(x) : t('fo.sem_trabalho')) + '">' +
         '<img src="' + SITE.base + esc(f.p) + '" alt="" draggable="false" loading="lazy"></button>';
     }).join('');
     var bolas = Array.prototype.slice.call(anel.children);
@@ -249,11 +261,17 @@
           return { cx: w / 2, cy: topo + livre / 2, R: Math.min(w * 0.44, livre / 2 / 1.35) };
         })();
       m.tam = m.R * 0.26;
-      bolas.forEach(function (b) { b.style.width = b.style.height = m.tam.toFixed(1) + 'px'; });
+      // A bola é desenhada já no tamanho máximo que alcança na frente e só encolhe (scale ≤ 1). Ampliar com
+      // transform estica a imagem já rasterizada e deixa a foto borrada; encolher mantém a nitidez.
+      bolas.forEach(function (b) {
+        var d = b.classList.contains('fo-esf-destaque'), w = m.tam * ESC_MAX * (d ? DEST_TAM : 1);
+        b.style.width = w.toFixed(1) + 'px'; b.style.height = (d ? w * DEST_ALT : w).toFixed(1) + 'px';
+        b._mx = w / 2; b._my = (d ? w * DEST_ALT : w) / 2;
+      });
     }
     function pintar() {
       if (!m) medir();
-      var cX = Math.cos(rotX), sX = Math.sin(rotX), cY = Math.cos(rotY), sY = Math.sin(rotY), persp = 3.2;
+      var cX = Math.cos(rotX), sX = Math.sin(rotX), cY = Math.cos(rotY), sY = Math.sin(rotY), persp = PERSP;
       for (var i = 0; i < n; i++) {
         var p = pontos[i], x = p[0] * cY + p[2] * sY, z = -p[0] * sY + p[2] * cY, y = p[1];
         var y2 = y * cX - z * sX, z2 = y * sX + z * cX;
@@ -263,7 +281,7 @@
         var f = (z2 + 1) / 2, esc2 = k * (0.22 + 0.9 * f * f);
         if (b.style.visibility) b.style.visibility = '';
         // Só transform e opacidade mudam a cada quadro: a placa de vídeo faz o trabalho, sem recalcular o layout.
-        b.style.transform = 'translate3d(' + (m.cx + x * m.R * k - m.tam / 2).toFixed(2) + 'px,' + (m.cy + y2 * m.R * k - m.tam / 2).toFixed(2) + 'px,0) scale(' + esc2.toFixed(4) + ')';
+        b.style.transform = 'translate3d(' + (m.cx + x * m.R * k - b._mx).toFixed(2) + 'px,' + (m.cy + y2 * m.R * k - b._my).toFixed(2) + 'px,0) scale(' + (esc2 / ESC_MAX).toFixed(4) + ')';
         b.style.opacity = z2 < 0.1 ? Math.max(0, 0.15 + 0.85 * (z2 + 0.3) / 0.4).toFixed(3) : '1';
         b.style.zIndex = String(Math.round((z2 + 1) * 500));
       }

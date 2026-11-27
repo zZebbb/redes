@@ -54,7 +54,8 @@
     "en": "",
     "es": ""
   },
-  "fotos_pasta_drive": "1ewGxTGJJ-LMf-2IwGwFdEOAX45uH-Fai",
+  "_fotos_pastas_drive": "Pastas do Drive com as fotos do globo, nesta ordem: Fotos rede, 2º DIA, 2º DIA/Fotos Bárbara. Para uma pasta nova (ex.: 3º DIA), cole o id dela aqui.",
+  "fotos_pastas_drive": ["1DVRsbmBik3cgX2PEQ5LxKWwPKNLU7w3m", "1ewGxTGJJ-LMf-2IwGwFdEOAX45uH-Fai", "190bHvrSYItHEDaJogyzIlAthFSZdmxDR"],
   "fotos_form_url": "https://wa.me/5561985861943?text=Ol%C3%A1%21%20Minha%20foto%20do%20encontro.%20Trabalho%20n%C2%BA%20",
   "fotos_respostas_csv": "",
   "site_url": "https://zzebbb.github.io/redes",
