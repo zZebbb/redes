@@ -6,7 +6,11 @@ on:
   workflow_dispatch:
   schedule:
     - cron: "0 9 * * *" # todo dia às 6h (horário de Brasília)
-    - cron: "*/10 * * * *" # durante o encontro: a cada 10 min, para as fotos novas do Drive aparecerem logo
+    # Durante o encontro: a cada 10 min, para as fotos novas do Drive aparecerem logo.
+    # Minutos "quebrados" de propósito: o GitHub descarta muitas execuções agendadas em */10 e na hora cheia,
+    # e em 27/11 ficou de 10h46 a 14h30 (UTC) sem rodar nenhuma.
+    - cron: "3,13,23,33,43,53 * * * *"
+    - cron: "8,18,28,38,48,58 * * * *"
 
 permissions:
   contents: write # para guardar no repositório os PDFs copiados do Drive
