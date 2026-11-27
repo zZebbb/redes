@@ -222,7 +222,7 @@
   // Pontos distribuídos pela espiral de Fibonacci; arrastar gira em dois eixos com inércia;
   // gira sozinha devagar; tocar numa foto abre ela grande.
   function montarEsfera() {
-    var ESF_MIN = 60, ESF_MAX = 80, VEL_AUTO = 0.00018; // rad por ms
+    var ESF_MIN = 60, ESF_MAX = 110, VEL_AUTO = 0.00018; // rad por ms
     var PERSP = 3.2, ESC_MAX = PERSP / (PERSP - 1) * (0.22 + 0.9); // maior escala possível (foto bem na frente)
     // Fotos em destaque (status "destaque" em data/fotos.csv, ex.: a equipe completa) aparecem num círculo maior. Usa fotos/<id>-globo.jpg quando existe (recorte quadrado para caber o grupo todo).
     var DEST_VEZES = 3, DEST_TAM = 2.2;
