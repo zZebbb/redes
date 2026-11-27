@@ -108,7 +108,8 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     const doNome = numeroDoNome(x.arquivo);
     const doFormulario = doForm.get(id);
     const numero = doNome && numeros.has(doNome) ? doNome : velho?.numero || (doFormulario && numeros.has(doFormulario) ? doFormulario : '');
-    if (status === 'oculta') { depois.push({ id, arquivo: x.arquivo, numero, pasta: x.pasta, status }); continue; }
+    const pessoas = velho?.pessoas || '';
+    if (status === 'oculta') { depois.push({ id, arquivo: x.arquivo, numero, pasta: x.pasta, status, pessoas }); continue; }
     const grande = path.join(pastaFotos, `${id}.jpg`), mini = path.join(pastaFotos, `${id}-p.jpg`);
     if (!(await existe(grande)) || !(await existe(mini))) {
       try {
@@ -126,7 +127,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
         continue;
       }
     }
-    depois.push({ id, arquivo: x.arquivo, numero, pasta: x.pasta, status });
+    depois.push({ id, arquivo: x.arquivo, numero, pasta: x.pasta, status, pessoas });
   }
   for (const f of antes) {
     if (itemDe.has(f.id) || fixa(f)) continue;

@@ -232,7 +232,9 @@ const fotos = [];
     if (f.status === 'oculta' || !(await existe(path.join(raiz, 'fotos', f.id + '.jpg')))) continue;
     // Destaque: se existir fotos/<id>-globo.jpg (recorte quadrado feito à mão para caber o grupo no círculo), o globo usa ele.
     const globo = f.status === 'destaque' && (await existe(path.join(raiz, 'fotos', f.id + '-globo.jpg'))) ? { e: `fotos/${f.id}-globo.jpg` } : {};
-    fotos.push({ id: f.id, n: nums.has(f.numero) ? f.numero : '', g: `fotos/${f.id}.jpg`, p: `fotos/${f.id}-p.jpg`, ...(f.status === 'destaque' ? { d: 1, ...globo } : {}) });
+    // Tamanho no globo pelo número de pessoas: poucas → um pouco menor, grupo grande → um pouco maior.
+    const np = parseInt(f.pessoas, 10), k = isNaN(np) ? 1 : np === 0 ? 0.8 : np === 1 ? 0.85 : np === 2 ? 0.92 : np <= 5 ? 1.05 : 1.2;
+    fotos.push({ id: f.id, n: nums.has(f.numero) ? f.numero : '', g: `fotos/${f.id}.jpg`, p: `fotos/${f.id}-p.jpg`, ...(k !== 1 ? { k } : {}), ...(f.status === 'destaque' ? { d: 1, ...globo } : {}) });
   }
   if (fotos.length) await cp(path.join(raiz, 'fotos'), path.join(dist, 'fotos'), { recursive: true });
   for (const x of trabalhos) x.fotos = fotos.filter(f => f.n === x.slug);

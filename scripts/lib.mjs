@@ -104,6 +104,7 @@ export function autorComInstituicao(s) {
 // ---------- Fotos do encontro (data/fotos.csv: id,arquivo,numero,pasta,status) ----------
 // status: vazio = aparece normal; "destaque" = aparece mais vezes e maior no globo; "oculta" = fica fora do site
 // (curadoria: repetida ou parecida com outra melhor). Foto oculta não é baixada de novo pelo "npm run fotos".
+// pessoas: quantas pessoas aparecem (contadas à mão). No globo, foto com mais gente fica um pouco maior.
 // Número do trabalho no começo do nome do arquivo: "017.jpg", "17 (2).jpg", "RB-17 Ana.jpg" → "017".
 // Nomes aleatórios do celular (ex.: "4AF031B1-73…") não contam, porque o número precisa terminar ali.
 export function numeroDoNome(nome) {
@@ -116,12 +117,12 @@ export async function lerFotosCsv(arquivo) {
   try { texto = await readFile(arquivo, 'utf8'); } catch (err) { if (err.code === 'ENOENT') return []; throw err; }
   const [cab, ...linhas] = parseCSV(texto);
   const i = Object.fromEntries((cab || []).map((c, k) => [c.trim(), k]));
-  return linhas.filter(l => l[i.id]?.trim()).map(l => ({ id: l[i.id].trim(), arquivo: (l[i.arquivo] || '').trim(), numero: (l[i.numero] || '').trim() ? l[i.numero].trim().padStart(3, '0') : '', pasta: i.pasta == null ? '' : (l[i.pasta] || '').trim(), status: i.status == null ? '' : (l[i.status] || '').trim().toLowerCase() }));
+  return linhas.filter(l => l[i.id]?.trim()).map(l => ({ id: l[i.id].trim(), arquivo: (l[i.arquivo] || '').trim(), numero: (l[i.numero] || '').trim() ? l[i.numero].trim().padStart(3, '0') : '', pasta: i.pasta == null ? '' : (l[i.pasta] || '').trim(), status: i.status == null ? '' : (l[i.status] || '').trim().toLowerCase(), pessoas: i.pessoas == null ? '' : (l[i.pessoas] || '').trim() }));
 }
 export async function escreverFotosCsv(arquivo, fotos) {
   const { writeFile } = await import('node:fs/promises');
   const q = s => /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
-  await writeFile(arquivo, ['id,arquivo,numero,pasta,status', ...fotos.map(f => [f.id, f.arquivo, f.numero, f.pasta || '', f.status || ''].map(q).join(','))].join('\n') + '\n');
+  await writeFile(arquivo, ['id,arquivo,numero,pasta,status,pessoas', ...fotos.map(f => [f.id, f.arquivo, f.numero, f.pasta || '', f.status || '', f.pessoas || ''].map(q).join(','))].join('\n') + '\n');
 }
 
 // Lê a planilha de respostas do Google Forms (publicada como CSV) e devolve id do arquivo no Drive → número do trabalho.
